@@ -1,0 +1,236 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% General text
+
+\RequirePackage{xspace}
+
+\DeclareDocumentCommand{\ie}{}{\textit{i.e.}\xspace}
+\DeclareDocumentCommand{\eg}{}{\textit{e.g.}\xspace}
+
+% Color for personal notes
+\newcommand{\mynote}[3]{{\color{#1} \fbox{\bfseries\scriptsize#2}
+		{\small$\blacktriangleright$\emph{#3}$\blacktriangleleft$}}~}
+
+\newcommand{\mlb}[1]{\mynote{BrickRed}{MLB}{#1}}
+
+\DeclareDocumentCommand{\STLC}{o}{STLC\IfValueT{#1}{_{#1}}\xspace}
+\DeclareDocumentCommand{\STLCp}{o}{STLC\textsubscript{+\IfValueT{#1}{#1}}\xspace}
+
+%% Possessive citations, per https://tex.stackexchange.com/questions/22273/author-name-of-textcite-as-possessive
+
+\DeclareNameWrapperFormat{labelname:poss}{#1's}
+
+\DeclareFieldFormat{shorthand:poss}{%
+  \ifnameundef{labelname}{#1's}{#1}}
+
+\DeclareFieldFormat{citetitle:poss}{\mkbibemph{#1}'s}
+
+\DeclareFieldFormat{label:poss}{#1's}
+
+\newrobustcmd*{\posscitealias}{%
+  \AtNextCite{%
+    \DeclareNameWrapperAlias{labelname}{labelname:poss}%
+    \DeclareFieldAlias{shorthand}{shorthand:poss}%
+    \DeclareFieldAlias{citetitle}{citetitle:poss}%
+    \DeclareFieldAlias{label}{label:poss}}}
+
+\newrobustcmd*{\posscite}{%
+  \posscitealias%
+  \textcite}
+
+\newrobustcmd*{\Posscite}{\bibsentence\posscite}
+
+\newrobustcmd*{\posscites}{%
+  \posscitealias%
+  \textcites}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Colored boxes
+
+% https://tex.stackexchange.com/questions/588437/full-page-width-box-and-icon-to-highlight-paragraph
+
+\RequirePackage[most,skins]{tcolorbox}
+
+\tcbuselibrary{theorems}
+
+\tcbset{
+  theostyle/.style={
+    enhanced, breakable, spread sidewards, left*=0pt, right*=0pt, frame hidden,
+    colback=black!10, sharp corners,
+    fonttitle=\bfseries,
+    colbacktitle=black!20,
+    attach boxed title to top center={yshift=-7pt},
+    boxed title style={frame empty},
+    coltitle=black,
+    separator sign dash,
+    before upper={\setlength\parindent{10pt}\noindent},
+  },
+  }
+
+\NewTcbTheorem[Crefname={Definition}{Definitions}]{definition}{Definition}{theostyle}{def}
+\NewTcbTheorem[use counter from=definition,Crefname={Theorem}{Theorems}]%
+  {theorem}{Theorem}{theostyle}{th}
+\NewTcbTheorem[use counter from=definition,Crefname={Lemma}{Lemmas}]%
+  {lemma}{Lemma}{theostyle}{lem}
+\NewTcbTheorem[use counter from=definition,Crefname={Claim}{Claims}]%
+  {claim}{Claim}{theostyle}{claim}
+
+\NewTColorBox{proof}{o}{
+  enhanced, breakable, frame hidden,
+  colback=black!5,
+  fonttitle=\bfseries,
+  colbacktitle=black!10,
+  attach boxed title to top left={yshift=-7pt},
+  boxed title style={frame empty},
+  coltitle=black,
+  title={\IfValueTF{#1}{#1}{Proof}},
+}
+
+  \tcbset{highlight math style={
+    enhanced,frame hidden, colback=black!10,arc=4pt,
+    left=0mm,right=0mm,top=0mm,bottom=0mm,
+    coltext=black!50
+  }}
+
+  \newtcolorbox{greyedmath}{%
+    enhanced,frame hidden, colback=black!10,arc=4pt,
+    left=0mm,right=0mm,top=0mm,bottom=0mm,
+    coltext=black!50}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% General math
+
+% Fix spacing for big delimiters, per https://tex.stackexchange.com/questions/2607/spacing-around-left-and-right/
+
+\let\originalleft\left
+\let\originalright\right
+\renewcommand{\left}{\mathopen{}\mathclose\bgroup\originalleft}
+\renewcommand{\right}{\aftergroup\egroup\originalright}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Induction rules
+
+\RequirePackage{mathpartir}
+\renewcommand{\TirNameStyle}{\textsc} %style of the induction rule name for mathpartir
+
+%%Reference to inference rules, inspired by https://tex.stackexchange.com/questions/340788/cross-referencing-inference-rules
+
+\NewDocumentCommand \mprlabel { m }{%
+	\def\@currentlabelname{#1}%
+  \phantomsection % Creating an anchor to get a correct hyper reference link
+}
+
+\NewDocumentCommand \inferdef {o m m}{%
+  \inferrule*[vcenter,left=\IfValueT{#1}{#1}]{#2}{#3}
+  \IfValueT{#1}{\mprlabel{\textsc{#1}}}
+}
+
+\NewDocumentCommand \inferadm {o m m}{%
+  \inferrule*[vcenter,left=\IfValueT{#1}{#1},fraction={===}]{#2}{#3}
+  \IfValueT{#1}{\mprlabel{\textsc{#1}}}
+}
+
+\newcommand{\ruleref}[1]{Rule \nameref{#1}}
+
+%mathpar hack for a standout judgment form,
+%inspired by http://lists.seas.upenn.edu/pipermail/types-list/2019/002157.html
+
+\newcommand{\maflushleft}{\strut \and \hfill}
+
+\NewDocumentCommand{\jform}{m o}{\boxed{#1}\IfValueT{#2}{\quad \text{\textcolor{gray}{#2}}}\maflushleft\\}
+
+\definecolor{impl}{HTML}{808080}
+\NewDocumentCommand{\impl}{m}{\mathcolor{impl}{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Category/CwF stuff
+
+\NewDocumentCommand{\Set}{}{\symbf{Set}}
+\NewDocumentCommand{\Prop}{}{\symbf{Prop}}
+\NewDocumentCommand{\pow}{m}{\operatorname{\mathcal{P}}{(#1)}}
+
+\DeclareMathOperator{\Ctx}{Ctx}
+\DeclareMathOperator{\Ty}{Ty}
+\DeclareMathOperator{\Tm}{Tm}
+\DeclareMathOperator{\Nf}{\ccol{Nf}}
+\DeclareMathOperator{\Ne}{\icol{Ne}}
+\DeclareMathOperator{\Sta}{\icol{Sta}}
+
+\NewDocumentCommand{\emp}{}{\cdot} % empty context/substitution/etc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Type theory
+
+%% Font stuff
+
+% To allow like breaks at points, see https://tex.stackexchange.com/questions/19094/allowing-line-break-at-in-inline-math-mode-breaks-citations
+\AtBeginDocument{%
+  \mathchardef\mathpoint\mathcode`\.
+  \mathcode`\.="8000
+}
+{\catcode`.=\active
+  \gdef.{\mathpoint\discretionary{}{}{}}
+}
+
+% For better spacing of :, see https://tex.stackexchange.com/questions/64423/exchange-meaning-of-and-colon
+
+\AtBeginDocument{\DeclareMathSymbol{:}{\mathpunct}{operators}{"3A}}
+\def\colon{\mathrel{:}}
+
+%See https://tex.stackexchange.com/questions/477662/fontspec-breaks-capital-greek-letters-in-declaremathoperator?rq=1
+  \let\l\relax
+  \DeclareMathOperator{\l}{λ}
+
+  \let\P\relax
+  \DeclareMathOperator{\P}{\symup{\Pi}}
+
+\DeclareDocumentCommand{\ctxty}{m}{\vdash #1}
+\DeclareDocumentCommand{\ty}{}{\colon}
+\DeclareDocumentCommand{\typing}{m m o}{#1 \vdash #2 \IfValueT{#3}{\ty #3}}
+
+\colorlet{icol}{ForestGreen}
+\colorlet{ccol}{BlueGreen}
+\DeclareDocumentCommand{\icol}{m}{\mathcolor{icol}{#1}}
+\DeclareDocumentCommand{\ccol}{m}{\mathcolor{ccol}{#1}}
+
+\colorlet{scol}{BrickRed}
+\colorlet{tcol}{RoyalBlue}
+\colorlet{mcol}{Purple}
+\DeclareDocumentCommand{\scol}{m}{\mathcolor{scol}{#1}}
+\DeclareDocumentCommand{\tcol}{m}{\mathcolor{tcol}{#1}}
+\DeclareDocumentCommand{\mcol}{m}{\mathcolor{mcol}{#1}}
+
+\DeclareDocumentCommand{\icolop}{}{\triangleright}
+\DeclareDocumentCommand{\ccolop}{}{\triangleleft}
+\DeclareDocumentCommand{\infer}{m m m}{#1 \vdash \icol{#2} \icolop #3}
+\DeclareDocumentCommand{\check}{m m m}{#1 \vdash \ccol{#2} \ccolop #3}
+\DeclareDocumentCommand{\stackty}{m m m m}{#1 \mid #3 \vdash \icol{#2} \icolop #4}
+
+\DeclareDocumentCommand{\convop}{}{\equiv}
+\DeclareDocumentCommand{\defconvop}{}{\mathrel{\vcentcolon\vcentcolon\convop}}
+\DeclareDocumentCommand{\conv}{m m m o}{
+  #1 \vdash #2 \convop #3 \IfValueT{#4}{\colon #4}}
+\DeclareDocumentCommand{\defconv}{m m m o}{
+  #1 \vdash #2 \defconvop #3 \IfValueT{#4}{\colon #4}}
+
+\DeclareDocumentCommand{\redop}{}{\rightsquigarrow}
+
+\DeclareDocumentCommand{\subs}{s m m m}{#2\IfBooleanTF{#1}{[#3 \coloneq #4]}{\left[#3 \coloneq #4\right]}}
+\DeclareDocumentCommand{\plug}{s m m}{#2\IfBooleanTF{#1}{[#3]}{\left[#3\right]}}
+
+\DeclareDocumentCommand{\univ}{o}{\mathcal{U}\IfValueT{#1}{_{#1}}}
+\DeclareDocumentCommand{\app}{o o o m m}{#4 \mathbin{@_{\IfValueT{#1}{#1 : #2.#3}}} #5}
+\DeclareDocumentCommand{\st}{}{*}
+\DeclareDocumentCommand{\dem}{m}{\underline{#1}}
+\DeclareDocumentCommand{\proj}{m m}{#2._{#1}}
+\DeclareDocumentCommand{\eras}{m}{\left| #1 \right|}
+\DeclareDocumentCommand{\part}{m m}{\scol{#1} \cup \tcol{#2}}
+
+\DeclareDocumentCommand{\sproj}{m}{\proj{#1}{\square}}
+\DeclareDocumentCommand{\sapp}{m}{\square~#1}
+\DeclareDocumentCommand{\snil}{}{\mathord{[]}}
+\DeclareDocumentCommand{\scons}{}{\mathrel{:\mkern-3mu:}}
+
+\DeclareMathOperator{\nf}{nf}
+\let\ne\relax
+\DeclareMathOperator{\ne}{ne}
