@@ -6,4 +6,8 @@ theories/core.v
 theories/unscoped.v
 theories/BasicAst.v
 theories/Ast.v
-theories/ASExtra.v
+theories/Syntax.v
+theories/Reduction.v
+theories/Typing.v
+theories/Bidir.v
+theories/Interpolation.v

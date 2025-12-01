@@ -339,8 +339,8 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
         \item \(\conv{\Gamma}{\subs{\scol{r}}{x}{\tcol{l}}}{\icol{t}}[\scol{T}]\),
         \item \(\scol{T}^+ \subseteq \scol{\Gamma_{s}}^+\) and
           \(\scol{T}^- \subseteq \scol{\Gamma_{s}}^-\),
-        \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap (\tcol{\Gamma_{t}}^- \cup \tcol{T}^+)\)
-          and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap (\tcol{\Gamma_{t}}^+ \cup \tcol{T}^-)\);
+        \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap \tcol{\Gamma_{t}}^-\)
+          and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap \tcol{\Gamma_{t}}^+\);
       \end{itemize}
     \item or “\(\tcol{T}\) is a target type”, \ie
       we have terms \(\scol{l} \in \Tm_{\Sigma}(\scol{\Gamma_{s}},\mcol{M})\) and
@@ -349,8 +349,8 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
         \item \(\conv{\Gamma}{\subs{\tcol{r}}{x}{\scol{l}}}{\icol{t}}[\scol{T}]\),
         \item \(\tcol{T}^+ \subseteq \tcol{\Gamma_{t}}^+\) and
           \(\tcol{T}^- \subseteq \tcol{\Gamma_{t}}^-\),
-        \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap (\tcol{\Gamma_{t}}^- \cup \tcol{T}^+)\)
-          and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap (\tcol{\Gamma_{t}}^+ \cup \tcol{T}^-)\).
+        \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap \tcol{\Gamma_{t}}^-\)
+          and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap \tcol{\Gamma_{t}}^+\).
       \end{itemize}
   \end{enumerate}
 \end{theorem}
@@ -380,12 +380,12 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
   (this is why we need this more complicated formulation with a context split!)
   and by induction hypothesis, we obtain
   \(\scol{l'} \in \Tm(\scol{\Gamma_{s}},\mcol{M})\) and
-  \(\tcol{r'} \in \Tm(\tcol{\Gamma_{t}}.\mcol{(x : M)}.\tcol{(y : A)})\),
+  \(\tcol{r'} \in \Tm(\tcol{\Gamma_{t}}.\tcol{(x : A).\mcol{(z : M)}})\),
   and we can take
   \[\begin{array}{rlll}
   \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{l'} & \ty \mcol{M} \\
-  \tcol{\Gamma_{t}}.\mcol{(x : M)} \vdash & \tcol{r} \coloneq &
-    \tcol{\l y.r'} &
+  \tcol{\Gamma_{t}}.\mcol{(z : M)} \vdash & \tcol{r} \coloneq &
+    \tcol{\l x.r'} &
     \ty \tcol{A \to B}
   \end{array}\]
 

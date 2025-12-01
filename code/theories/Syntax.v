@@ -1,7 +1,7 @@
 From smpl Require Import Smpl.
 From Stdlib Require Import ssrbool List.
-From Interpolation Require Export core unscoped Ast.
-From Interpolation Require Import Utils BasicAst.
+From Interpolation Require Export BasicAst core unscoped Ast.
+From Interpolation Require Import Utils.
 
 (* Export UnscopedNotations.
 #[global] Open Scope subst_scope. *)
@@ -12,7 +12,10 @@ Notation "'subst'" := (nat -> term) (only parsing).
 Declare Scope asubst_scope.
 Delimit Scope asubst_scope with asub.
 
-Arguments funcomp {X Y Z}%_type_scope (g f)%_function_scope.
+Arguments id {_} _/.
+Arguments Datatypes.id {_} _/.
+
+Arguments funcomp {X Y Z}%_type_scope (g f)%_function_scope _/.
 
 Notation "f >> g" := (funcomp g f) (at level 50) : function_scope.
 

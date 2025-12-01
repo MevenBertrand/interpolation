@@ -1,5 +1,5 @@
-From Interpolation Require Import core unscoped Utils BasicAst ASExtra.
-From Stdlib Require Import Relations Arith Lia Bool List.
+From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
+From Interpolation Require Import Utils Syntax Reduction.
 
 Set Structural Injection.
 Add Search Blacklist "_ind" "_sind" "_rec" "_rect".
@@ -13,56 +13,15 @@ Fixpoint nth_error {A} (l : list A) (n : nat) : option A :=
   | _ :: l', S n' => nth_error l' n'
   end.
 
-(** ** Evaluation *)
-
-Reserved Notation "t '-->' t'" (at level 40).
-
-Inductive step : term -> term -> Prop :=
-  | ST_Beta t1 v2 :
-        tApp (tLam t1) v2 --> t1[v2..]
-  | ST_Fun t1 t1' t2 :
-         t1 --> t1' ->
-         tApp t1 t2 --> tApp t1' t2
-  | ST_Fst t t' : tFst (tPair t t') --> t
-  | ST_Snd t t' : tSnd (tPair t t') --> t'
-  | ST_Proj b t t' :
-         t --> t' ->
-         tProj b t --> tProj b t'
-
-where "t '-->' t'" := (step t t').
-
-Hint Constructors step : core.
-
-Notation multistep := (clos_refl_trans term step).
-Notation "t1 '-->*' t2" := (multistep t1 t2) (at level 40).
-
-Lemma ST_Fun_multi f f' u :
-  f -->* f' ->
-  tApp f u -->* tApp f' u.
-Proof.
-  intros Hred.
-  induction Hred using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
-Qed.
-
-Lemma ST_Proj_multi b t t' :
-  t -->* t' ->
-  tProj b t -->* tProj b t'.
-Proof.
-  intros Hred.
-  induction Hred using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
-Qed.
-
 (** ** Typing *)
 
 Definition context := list type.
 
-Declare Scope context_scope.
-Delimit Scope context_scope with con.
-Bind Scope context_scope with context.
-
-Definition con_cons (Γ : context) (T : type) := cons T Γ.
-
-Notation "Γ ,,, T" := (con_cons Γ T) (at level 50).
+Notation "'ε'" := (@nil type).
+Notation "Γ ,,, T" := (@cons type T Γ) (at level 50).
+(* 
+Notation "'ε'" := (nil :> context) (only parsing).
+Notation "Γ ,,, T" := (cons T Γ :> context) (at level 50, only parsing). *)
 
 Definition in_context (n : nat) (Γ : context) (T : type) : Prop :=
   nth_error Γ n = Some T.
@@ -82,7 +41,7 @@ Inductive has_type : context -> term -> type -> Prop :=
 
 | T_Star Γ : (Γ |- tStar :: TUnit)
 
-| T_Abs Γ A B t :
+| T_Lam Γ A B t :
   (Γ ,,, A |- t :: B) ->
   Γ |- tLam t :: TFun A B
 
@@ -108,7 +67,7 @@ where "Γ '|-' t '::' T" := (has_type Γ t T) (Γ in scope context_scope).
 
 Hint Constructors has_type : core.
 
-Lemma var_empty n T : ~ in_context n nil T.
+Lemma var_empty n T : ~ in_context n ε T.
 Proof.
   unfold in_context ; cbn.
   discriminate.
@@ -149,8 +108,44 @@ Proof.
   induction Ht in Δ, r, Hr ; cbn ; eauto using ren_lift_has_type.
 Qed.
 
+Lemma id_ren_has_type (Δ: context) :
+  ren_has_type Δ Δ id.
+Proof.
+  now intros i T Hin ; cbn.
+Qed.
+
+Lemma ren_comp_has_type (Δ Γ Θ : context) (r r' : ren) :
+  ren_has_type Δ Γ r ->
+  ren_has_type Γ Θ r' ->
+  ren_has_type Δ Θ (r' >> r).
+Proof.
+  intros * Hr Hr' i T Hin.
+  unfold ren_has_type in * ; cbn.
+  now apply Hr', Hr in Hin.
+Qed.
+
+Lemma ren_has_type_ext (Δ Γ : context) (r r' : ren) :
+  ren_has_type Δ Γ r ->
+  r =1 r' ->
+  ren_has_type Δ Γ r'.
+Proof.
+  intros Hren e i T Hin.
+  rewrite <- e.
+  now apply Hren.
+Qed.
+
 Definition subst_has_type (Δ Γ : context) (s : subst) : Prop :=
   forall i T, in_context i Γ T -> Δ |- s i :: T.
+
+Lemma subst_has_type_ext (Δ Γ : context) (σ σ' : subst) :
+  subst_has_type Δ Γ σ ->
+  σ =1 σ' ->
+  subst_has_type Δ Γ σ'.
+Proof.
+  intros Hsub e i T Hin.
+  rewrite <- e.
+  now apply Hsub.
+Qed.
 
 Lemma subst_cons_has_type (Δ Γ : context) (T : type) (σ : subst) (t : term) :
   subst_has_type Δ Γ σ ->
@@ -164,11 +159,22 @@ Proof.
   - apply Hs, Hin.
 Qed.
 
+Lemma ren_subst_has_type (Δ Γ : context) r :
+  ren_has_type Δ Γ r ->
+  subst_has_type Δ Γ (r >> tVar).
+Proof.
+  intros Hr i T Hin ; cbn.
+  constructor.
+  now apply Hr.
+Qed.
+
+
 Lemma id_subst_has_type (Γ : context) :
   subst_has_type Γ Γ tVar.
 Proof.
-  intros i T Hin ; cbn.
-  induction Γ ; auto using var_empty.
+  eapply subst_has_type_ext.
+  - apply ren_subst_has_type, id_ren_has_type.
+  - reflexivity. 
 Qed.
 
 Lemma subst_one_has_type (Γ : context) (T : type) (t : term) :
@@ -195,6 +201,16 @@ Lemma subst_typing Δ Γ s t T :
 Proof.
   intros Hr Ht.
   induction Ht in Δ, s, Hr ; cbn ; eauto using subst_lift_has_type.
+Qed.
+
+Lemma subs_comp_has_type (Δ Γ Θ : context) (σ σ' : subst) :
+  subst_has_type Δ Γ σ ->
+  subst_has_type Γ Θ σ' ->
+  subst_has_type Δ Θ (σ' >> (subst_term σ)).
+Proof.
+  intros * Hσ Hσ' i T Hin ; cbn ; refold.
+  eapply subst_typing ; tea.
+  now apply Hσ'.
 Qed.
 
 (** ** A certified type-checker *)
