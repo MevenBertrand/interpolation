@@ -41,6 +41,8 @@ Infix "=1" := (pointwise_relation _ Logic.eq) (at level 70).
 
 (** ** Tactics *)
 
+Hint Constructors eq : core.
+
 (* To use in intro patterns, similar to SSReflects' /dup view *)
 Definition dup {A : Type} : A -> A * A := fun x => (x,x).
 

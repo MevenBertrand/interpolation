@@ -1,4 +1,4 @@
-From Interpolation Require Import Utils Syntax Reduction Typing Bidir.
+From Interpolation Require Import Utils Syntax Notations Reduction Typing Bidir.
 From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
 
 (** ** Primitives for context splitting *)
@@ -57,7 +57,7 @@ Fixpoint split_ren_t {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   end.
 
 Lemma split_ren_s_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
-  ren_has_type Γ Γs (split_ren_s s).
+  Γ |- (split_ren_s s) :: Γs.
 Proof.
   induction s ; cbn.
   - apply id_ren_has_type.
@@ -67,7 +67,7 @@ Proof.
 Qed.
 
 Lemma split_ren_t_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
-  ren_has_type Γ Γt (split_ren_t s).
+  Γ |- (split_ren_t s) :: Γt.
 Proof.
   induction s ; cbn.
   - apply id_ren_has_type.
@@ -101,7 +101,7 @@ Definition interpolate_ty Γs Γt A M :=
 
 Definition interpolate_tm {Γ Γs Γt} (s : split Γ Γs Γt) M A t l r :=
   (Γs |- l :: M) /\ (Γt ,,, M |- r :: A) /\
-  r⟨up_ren (split_ren_t s)⟩[l⟨split_ren_s s⟩..] -->* t.
+  r⟨up_ren (split_ren_t s)⟩[l⟨split_ren_s s⟩..] ⤳* t.
 
 Let Pcheck Γ T t := forall Γs Γt (s : split Γ Γs Γt),
   exists M l r,
@@ -128,7 +128,7 @@ Definition swap_var : ren :=
   end.
 
 Lemma swap_var_ty : forall Γ (A B : type),
-  ren_has_type ((Γ,,,A),,,B) ((Γ,,,B),,,A) swap_var.
+  ((Γ,,,A),,,B) |- swap_var :: ((Γ,,,B),,,A).
 Proof.
   intros Γ A B i T Hin.
   destruct i as [|[|i]] ; cbn in *.
@@ -161,7 +161,7 @@ Proof.
       prod_splitter.
       1: easy.
       * constructor.
-        eapply ren_typing ; [|eassumption].
+        eapply ren_typing ; [eassumption|].
         apply swap_var_ty.
       * apply R_Lam_cong.
         etransitivity ; tea.
@@ -184,8 +184,8 @@ Proof.
       prod_splitter.
       1: now constructor.
       * constructor.
-        all: eapply subst_typing ; [|easy].
-        all: eapply subst_cons_has_type ; [apply ren_subst_has_type, shift_has_type|..].
+        all: eapply subst_typing ; [easy|].
+        all: eapply subst_cons_has_type ; [|apply ren_subst_has_type, shift_has_type].
         all: repeat econstructor.
       * apply R_Pair_cong.
         all: etransitivity ; [|easy].
@@ -204,7 +204,7 @@ Proof.
       * unfold interpolate_tm in *.
         prod_splitter.
         1: now econstructor.
-        1: econstructor ; [easy|..] ; eapply ren_typing ; [|easy] ; now apply shift_has_type.
+        1: econstructor ; [now econstructor|..] ; eapply ren_typing ; [easy|] ; now apply shift_has_type.
         cbn.
         etransitivity.
         1: constructor ; apply ST_Beta.

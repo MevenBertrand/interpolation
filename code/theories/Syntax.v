@@ -1,6 +1,6 @@
 From smpl Require Import Smpl.
 From Stdlib Require Import ssrbool List.
-From Interpolation Require Export BasicAst core unscoped Ast.
+From Interpolation Require Export BasicAst core unscoped Ast Context.
 From Interpolation Require Import Utils.
 
 (* Export UnscopedNotations.
