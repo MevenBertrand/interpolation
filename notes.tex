@@ -305,7 +305,7 @@ Conversely, any neutral can be (uniquely) decomposed into a form
     \top^p & \coloneq \emptyset
   \end{align*}
   This is lifted to contexts as
-  \((\Gamma.(x : A))^p \coloneq \Gamma^p \cup A^p\). 
+  \((\Gamma.(x : A))^p \coloneq \Gamma^p \cup A^p\).
 \end{definition}
 
 \paragraph{Main theorem}
@@ -325,32 +325,30 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
   such that
   \begin{itemize}
     \item \(\conv{\Gamma}{\subs{\tcol{r}}{x}{\scol{l}}}{\ccol{t}}[\tcol{T}]\);
-    \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap (\tcol{\Gamma_{t}}^- \cup \tcol{T}^+)\) and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap (\tcol{\Gamma_{t}}^+ \cup \tcol{T}^-)\).
+    \item for all \(p\),
+    \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap (\tcol{\Gamma_{t}}^{-p} \cup \tcol{T}^p)\).
   \end{itemize}
   
   Moreover, given any neutral term
   \(\icol{t} \in \Ne_{\Sigma}(\Gamma,T)\), there is a type
   \(\mcol{M} \in \Ty_{\Sigma}\) such that either:
   \begin{enumerate}
-    \item “\(\scol{T}\) is a source type”, \ie
-      we have terms \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M})\) and
-  \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{T})\) such that
-      \begin{itemize}
-        \item \(\conv{\Gamma}{\subs{\scol{r}}{x}{\tcol{l}}}{\icol{t}}[\scol{T}]\),
-        \item \(\scol{T}^+ \subseteq \scol{\Gamma_{s}}^+\) and
-          \(\scol{T}^- \subseteq \scol{\Gamma_{s}}^-\),
-        \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap \tcol{\Gamma_{t}}^-\)
-          and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap \tcol{\Gamma_{t}}^+\);
-      \end{itemize}
-    \item or “\(\tcol{T}\) is a target type”, \ie
+    \item “\(\tcol{T}\) is a target type”, \ie
       we have terms \(\scol{l} \in \Tm_{\Sigma}(\scol{\Gamma_{s}},\mcol{M})\) and
       \(\tcol{r} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}}.\mcol{(x : M)}, \tcol{T})\) such that
       \begin{itemize}
         \item \(\conv{\Gamma}{\subs{\tcol{r}}{x}{\scol{l}}}{\icol{t}}[\scol{T}]\),
-        \item \(\tcol{T}^+ \subseteq \tcol{\Gamma_{t}}^+\) and
-          \(\tcol{T}^- \subseteq \tcol{\Gamma_{t}}^-\),
-        \item \(\mcol{M}^+ \subseteq \scol{\Gamma_{s}}^+ \cap \tcol{\Gamma_{t}}^-\)
-          and \(\mcol{M}^- \subseteq \scol{\Gamma_{s}}^- \cap \tcol{\Gamma_{t}}^+\).
+        \item and for all \(p\) polarity, \(\tcol{T}^p \subseteq \tcol{\Gamma_{t}}^p\) and
+          \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap \tcol{\Gamma_{t}}^{-p}\);
+      \end{itemize}
+    \item or “\(\scol{T}\) is a source type”, \ie
+      we have terms \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M})\) and
+  \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{T})\) such that
+      \begin{itemize}
+        \item \(\conv{\Gamma}{\subs{\scol{r}}{x}{\tcol{l}}}{\icol{t}}[\scol{T}]\),
+        \item and for all \(p\) polarity,
+          \(\scol{T}^p \subseteq \scol{\Gamma_{s}}^p\) and
+            \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^{-p} \cap \tcol{\Gamma_{t}}^p\).
       \end{itemize}
   \end{enumerate}
 \end{theorem}
@@ -394,15 +392,7 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
   depending on the source/target induction hypothesis for the main sub-neutral,
   or on whether the variable in is the source or target context.
 
-  \nameref{rule:var-b}/1: We have \((x \ty \scol{A}) \in \scol{\Gamma_s}\).
-  Then we take \(\mcol{M} \coloneq \top\)
-  \[\begin{array}{rlll}
-  \tcol{\Gamma_{t}} \vdash & \tcol{l} \coloneq & \tcol{\star} & \ty \mcol{M} \\
-  \scol{\Gamma_{s}}.\mcol{(\_ : M)} \vdash & \scol{r} \coloneq &
-    \scol{x} & \ty \scol{A}
-  \end{array}\]
-
-  \nameref{rule:var-b}/2: We have \((x \ty \tcol{A}) \in \tcol{\Gamma_t}\).
+  \nameref{rule:var-b}/1: We have \((x \ty \tcol{A}) \in \tcol{\Gamma_t}\).
   Then we take \(\mcol{M} \coloneq \top\)
   \[\begin{array}{rlll}
   \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{\star} & \ty \mcol{M} \\
@@ -410,7 +400,18 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
     \tcol{x} & \ty \tcol{A}
   \end{array}\]
 
-  \nameref{rule:demote-b}/1: By induction hypothesis, we get that \(\scol{A}\)
+  \nameref{rule:var-b}/2: We have \((x \ty \scol{A}) \in \scol{\Gamma_s}\).
+  Then we take \(\mcol{M} \coloneq \top\)
+  \[\begin{array}{rlll}
+  \tcol{\Gamma_{t}} \vdash & \tcol{l} \coloneq & \tcol{\star} & \ty \mcol{M} \\
+  \scol{\Gamma_{s}}.\mcol{(\_ : M)} \vdash & \scol{r} \coloneq &
+    \scol{x} & \ty \scol{A}
+  \end{array}\]
+
+  \nameref{rule:demote-b}/1: In this case we keep the exact
+    same interpolating type and interpolants.
+
+  \nameref{rule:demote-b}/2: By induction hypothesis, we get that \(\scol{A}\)
     is a “source type”,
     \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M})\) and
     \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{A})\).
@@ -423,10 +424,24 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
       \tcol{\Gamma_{t}}.\mcol{(z : M)} \vdash & \tcol{r'} \coloneq &
         \tcol{z~l} & \ty \tcol{A}
     \end{array}\]
-  \nameref{rule:demote-b}/2: In this case we keep the exact
-    same interpolating type and interpolants.
+
+
+  \nameref{rule:app-b}/1: This time, the induction hypothesis on \(\icol{t}\) gives
+  us some \(\tcol{A \to B}\) with vocabulary in \(\tcol{\Gamma_s}\) and
+  \(\mcol{M_t}\), \(\tcol{r_t}\) and \(\scol{l_t}\) such that
+  \(\icol{t} = \subs{\tcol{r_t}}{x}{\scol{l_t}}\). We can directly use the
+  induction hypothesis on \(\ccol{u}\), to get
+  \(\mcol{M_u}\), \(\tcol{r_u}\) and \(\scol{l_u}\) such that
+  \(\ccol{u} = \subs{\tcol{r_u}}{x}{\scol{l_u}}\). Then we take again
+  \(\mcol{M} \coloneq \mcol{M_t} \times \mcol{M_u}\), and
+  \[\begin{array}{rlll}
+      \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{(l_t,l_u)} &
+        \ty \mcol{M_t \times M_u} \\
+      \tcol{\Gamma_{t}}.\mcol{(z : M_t \times M_u)} \vdash & \tcol{r} \coloneq &
+        \tcol{\subs{r_t}{x}{\proj{1}{z}}~\subs{r_u}{x}{\proj{2}{z}}} & \ty \tcol{B}
+  \end{array}\]
     
-  \nameref{rule:app-b}/1: We are in the case of an application
+  \nameref{rule:app-b}/2: We are in the case of an application
   \(\icol{t}~\ccol{u}\), with the induction hypothesis on \(\icol{t}\) giving
   us some \(\scol{A \to B}\) with vocabulary in \(\scol{\Gamma_s}\) and
   \(\mcol{M_t}\), \(\scol{r_t}\) and \(\tcol{l_t}\) such that
@@ -442,21 +457,6 @@ of the form \(((\mathcal{B},\emptyset),\emptyset)\).
         \ty \mcol{M_t \times M_u} \\
       \scol{\Gamma_{t}}.\mcol{(z : M_t \times M_u)} \vdash & \scol{r} \coloneq &
         \scol{\subs{r_t}{x}{\proj{1}{z}}~\subs{r_u}{x}{\proj{2}{z}}} & \ty \scol{B}
-  \end{array}\]
-
-  \nameref{rule:app-b}/2: This time, the induction hypothesis on \(\icol{t}\) gives
-  us some \(\tcol{A \to B}\) with vocabulary in \(\tcol{\Gamma_s}\) and
-  \(\mcol{M_t}\), \(\tcol{r_t}\) and \(\scol{l_t}\) such that
-  \(\icol{t} = \subs{\tcol{r_t}}{x}{\scol{l_t}}\). We can directly use the
-  induction hypothesis on \(\ccol{u}\), to get
-  \(\mcol{M_u}\), \(\tcol{r_u}\) and \(\scol{l_u}\) such that
-  \(\ccol{u} = \subs{\tcol{r_u}}{x}{\scol{l_u}}\). Then we take again
-  \(\mcol{M} \coloneq \mcol{M_t} \times \mcol{M_u}\), and
-  \[\begin{array}{rlll}
-      \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{(l_t,l_u)} &
-        \ty \mcol{M_t \times M_u} \\
-      \tcol{\Gamma_{t}}.\mcol{(z : M_t \times M_u)} \vdash & \tcol{r} \coloneq &
-        \tcol{\subs{r_t}{x}{\proj{1}{z}}~\subs{r_u}{x}{\proj{2}{z}}} & \ty \tcol{B}
   \end{array}\]
 
   \nameref{rule:proji-b}: Here in all cases we keep the same interpolating type
