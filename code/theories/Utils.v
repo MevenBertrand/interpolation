@@ -30,6 +30,8 @@ Definition empty {A : Type} : A -> Prop := fun _ => False.
 
 Notation "∅" := empty.
 
+Arguments empty _/.
+
 Definition sing {A : Type} (a : A) : A -> Prop := fun x => x = a.
 
 Arguments sing _ _ _/.

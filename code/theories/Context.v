@@ -27,3 +27,13 @@ Lemma in_zero Γ T : in_context 0 (Γ,,,T) T.
 Proof. reflexivity. Qed.
 
 Hint Resolve in_zero : core.
+
+Lemma in_context_inj (n : nat) (Γ : context) (T T' : type) :
+  in_context n Γ T ->
+  in_context n Γ T' ->
+  T = T'.
+Proof.
+  intros.
+  unfold in_context in *.
+  congruence.
+Qed.

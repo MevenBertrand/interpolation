@@ -143,7 +143,7 @@ Qed.
 
 Lemma ren_subst_has_type (Δ Γ : context) r :
   (Δ |- r :: Γ) ->
-  (Δ |- (r >> tVar) :: Γ).
+  (Δ |- (r >> ids) :: Γ).
 Proof.
   intros Hr i T Hin ; cbn.
   constructor.

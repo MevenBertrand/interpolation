@@ -5,35 +5,12 @@ From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
 
 Inductive side : Set := | source | target.
 
+Definition flip_side s := match s with | source => target | target => source end.
+
 Inductive split : context -> context -> context -> Set :=
   | split_emp : split ε ε ε
   | split_s {Γ Γs Γt A} : split Γ Γs Γt -> split (Γ,,,A) (Γs,,,A) Γt
   | split_t {Γ Γs Γt A} : split Γ Γs Γt -> split (Γ,,,A) Γs (Γt,,,A).
-
-Fixpoint find_side {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) : option side :=
-  match n, s with
-  | _, split_emp => None
-  | 0, split_s _ => Some source
-  | 0, split_t _ => Some target
-  | S n', split_s s' | S n', split_t s' => find_side n' s'
-  end.
-
-Lemma in_context_find {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) T :
-  in_context n Γ T ->
-  find_side n s = None ->
-  False.
-Proof.
-  induction s in n |- * ; [|destruct n | destruct n] ; cbn.
-  - intros ; now eapply var_empty.
-  - congruence.
-  - intros Hin ?%IHs.
-    1: easy.
-    exact Hin.
-  - congruence.
-  - intros Hin ?%IHs.
-    1: easy.
-    exact Hin.
-Qed.
 
 Fixpoint flip_split {Γ Γs Γt} (s : split Γ Γs Γt) : split Γ Γt Γs :=
   match s with
@@ -99,6 +76,67 @@ Proof.
   reflexivity.
 Qed.
 
+
+Fixpoint find_side {Γ Γs Γt} (s : split Γ Γs Γt) (n : nat) : option side :=
+  match s, n with
+  | split_emp, _ => None
+  | split_s _, 0 => Some source
+  | split_t _, 0 => Some target
+  | split_s s', S n' | split_t s', S n' => find_side s' n'
+  end.
+
+Lemma find_flip {Γ Γs Γt} (s : split Γ Γs Γt) (n : nat) :
+  find_side (flip_split s) n = option_map flip_side (find_side s n).
+Proof.
+  induction s in n |- * ; cbn ; try easy.
+  all: now destruct n ; cbn.
+Qed.
+
+Lemma in_context_find_none {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) T :
+  in_context n Γ T ->
+  find_side s n = None ->
+  False.
+Proof.
+  induction s in n |- * ; [|destruct n | destruct n] ; cbn.
+  - intros ; now eapply var_empty.
+  - congruence.
+  - intros Hin ?%IHs.
+    1: easy.
+    exact Hin.
+  - congruence.
+  - intros Hin ?%IHs.
+    1: easy.
+    exact Hin.
+Qed.
+
+Lemma find_side_some_l {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) :
+  find_side s n = Some source ->
+  {n' & {T & in_context n' Γs T /\ n = split_ren_s s n'}}.
+Proof.
+  intros Hside.
+  induction s in n, Hside |- * ; [|destruct n | destruct n] ; cbn in *.
+  - congruence.
+  - eexists 0, _ ; split ; reflexivity.
+  - edestruct IHs as (n'&e&[]) ; tea.
+    subst.
+    eexists (S n'),_ ; split ; cbn ; tea ; reflexivity.
+  - congruence.
+  - edestruct IHs as (n'&e&[]) ; tea.
+    subst.
+    eexists n',_ ; split ; cbn ; tea ; reflexivity.
+Qed.
+
+Lemma find_side_some_r {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) :
+  find_side s n = Some target ->
+  {n' & {T & in_context n' Γt T /\ n = split_ren_t s n'}}.
+Proof.
+  intros e.
+  rewrite <- split_ren_s_flip.
+  apply find_side_some_l.
+  rewrite find_flip, e.
+  reflexivity.
+Qed.
+
 (** ** Atoms of a type/context *)
 
 Fixpoint atoms_ty (p : polarity) (A : type) {struct A} : base -> Prop :=
@@ -114,6 +152,23 @@ Fixpoint atoms_ctx (p : polarity) (Γ : context) : base -> Prop :=
   | nil => ∅
   | cons A Γ => atoms_ctx p Γ ∪ (atoms_ty p A)
   end.
+
+Lemma atoms_in n Γ T :
+  in_context n Γ T ->
+  (forall p, atoms_ty p T ⊆ atoms_ctx p Γ).
+Proof.
+  intros H.
+  unfold in_context in *.
+  induction n in Γ, H |- * ; cbn.
+  - destruct Γ ; cbn in * ; [congruence|].
+    intros ? ? ?.
+    right.
+    now congruence.
+  - destruct Γ ; cbn in * ; [congruence|].
+    intros ? ? ?.
+    left.
+    now apply IHn.
+Qed.
 
 Section Interpolation.
 
@@ -200,7 +255,7 @@ Proof.
     destruct (IHA Γs Γt s) as (M & l & r & HM & Ht).
     destruct (IHB Γs Γt s) as (M' & l' & r' & HM' & Ht').
     exists (TProd M M'), (tPair l l'),
-      (tPair (r[(tFst (tVar 0)).: (↑ >> tVar)]) (r'[(tSnd (tVar 0)) .: (↑ >> tVar)])).
+      (tPair (r[(tFst (tVar 0)).: (↑ >> ids)]) (r'[(tSnd (tVar 0)) .: (↑ >> ids)])).
     split.
     + intros p b [Hb|Hb'].
       1: specialize (HM p b Hb).
@@ -251,9 +306,26 @@ Proof.
         now asimpl.
   - (* case tVar *)
     intros ? n T Hin ?? s.
-    destruct (find_side n s) as [[]|] eqn:e.
-    3: exfalso ; now eauto using in_context_find.
-    + admit.
+    destruct (find_side s n) as [[]|] eqn:e.
+    3: exfalso ; now eauto using in_context_find_none.
+    + right.
+      apply find_side_some_l in e as (n'&A&[? ->]).
+      eapply in_context_inj in Hin.
+      2:now eapply split_ren_s_ty.
+      subst.
+      pose proof (split_ren_s_ty s).
+      split.
+      1: now eapply atoms_in.
+      exists TUnit, tStar, (tVar (S n')).
+      split.
+      1: intros ? ? ? ; now cbn in *.
+      unfold interpolate_tm.
+      prod_splitter.
+      * now constructor.
+      * constructor ; assumption.
+      * cbn.   
+
+
     + admit.
   - (* case tApp *)
     intros Γ A B n u _ Hn _ Hu Γs Γt s.

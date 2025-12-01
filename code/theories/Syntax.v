@@ -25,7 +25,7 @@ Notation "s ⟨ xi1 ⟩" := (ren1 xi1 s) (at level 7, left associativity, format
 
 Notation "s [ sigma ]" := (subst1 sigma s) (at level 7, left associativity, format "s '/' [ sigma ]") : asubst_scope.
 
-Notation "s [ t ]⇑" := (subst_term (scons t (shift >> tVar)) s) (at level 7, left associativity, format "s '/' [ t ]⇑") : asubst_scope.
+Notation "s [ t ]⇑" := (subst_term (scons t (shift >> ids)) s) (at level 7, left associativity, format "s '/' [ t ]⇑") : asubst_scope.
 
 Notation "s '..'" := (scons s ids) (at level 1, format "s ..") : asubst_scope.
 
@@ -59,3 +59,5 @@ Arguments ren1 {_ _ _}%_type_scope {Ren1} _ !_/.
 (* Ideally, we'd like Ren_term to not be there, and ren_term to be directly the Ren1 instance… *)
 Arguments Ren_term _ _ /.
 Arguments Ren1_subst {_ _ _} _ _/.
+Arguments ids {_ _} {_} _/.
+Arguments VarInstance_term _/.
