@@ -31,7 +31,7 @@ Section Typing.
     (Γ |- b :: B) ->
     (Γ |- tPair a b :: TProd A B)
 
-  | T_Fst Γ A B t :
+  | T_Proj Γ A B t :
     (Γ |- t :: TProd A B) ->
     (Γ |- tFst t :: A)
 

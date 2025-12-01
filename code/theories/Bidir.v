@@ -35,13 +35,9 @@ with infer : context -> type -> term -> Prop :=
   (Γ |- u ◃ A) ->
   Γ |- tApp f u ▹ B
 
-| I_Fst Γ A B t :
+| I_Proj Γ A B (b : bool) t :
   (Γ |- t ▹ TProd A B) ->
-  (Γ |- tFst t ▹ A)
-
-| I_Snd Γ A B t :
-  (Γ |- t ▹ TProd A B) ->
-  (Γ |- tSnd t ▹ B)
+  (Γ |- tProj b t ▹ (if b then A else B))
 
 where "Γ '|-' t ▹ T" := (infer Γ T t) (Γ in scope context_scope)
 and "Γ '|-' t ◃ T" := (check Γ T t) (Γ in scope context_scope).

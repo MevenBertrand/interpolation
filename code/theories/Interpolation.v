@@ -163,7 +163,8 @@ Qed.
 Theorem interpolation : bidir_concl Pcheck Pinf.
 Proof.
   apply bidir_ind.
-  - intros Γ Γs Γt s.
+  - (* case tStar *)
+    intros Γ Γs Γt s.
     exists TUnit, tStar, tStar.
     split.
     + intros ; cbn.
@@ -171,7 +172,8 @@ Proof.
     + red.
       prod_splitter.
       all: solve [constructor].
-  - intros Γ A B t _ IH Γs Γt s.
+  - (* case tLam *)
+    intros Γ A B t _ IH Γs Γt s.
     destruct (IH Γs (Γt,,,A) (split_t s)) as (M&l&r&HM&Ht).
     exists M, l, (tLam (r⟨swap_var⟩)).
     split.
@@ -193,7 +195,8 @@ Proof.
         asimpl.
         apply ext_term.
         intros [|[|]] ; reflexivity.
-  - intros Γ A B t t' _ IHA _ IHB Γs Γt s.
+  - (* case tPair *)
+    intros Γ A B t t' _ IHA _ IHB Γs Γt s.
     destruct (IHA Γs Γt s) as (M & l & r & HM & Ht).
     destruct (IHB Γs Γt s) as (M' & l' & r' & HM' & Ht').
     exists (TProd M M'), (tPair l l'),
@@ -222,7 +225,8 @@ Proof.
            apply R_subst ; try reflexivity.
            apply R_cons ; try reflexivity.
            do 2 constructor.
-  - intros * _ IH -> ?? s.
+  - (* case demote *)
+    intros * _ IH -> ?? s.
     destruct (IH _ _ s) as [[? (M&l&r&[HM ?])]|[Hat (M&l&r&[HM ?])]] ; tea.
     + exists M, l, r ; split.
       2: easy.
@@ -245,14 +249,44 @@ Proof.
         apply ereflexivity.
         substify.
         now asimpl.
-  - intros ? n T Hin ?? s.
+  - (* case tVar *)
+    intros ? n T Hin ?? s.
     destruct (find_side n s) as [[]|] eqn:e.
     3: exfalso ; now eauto using in_context_find.
     + admit.
     + admit.
-  - admit.
-  - admit.
-  - admit.
+  - (* case tApp *)
+    intros Γ A B n u _ Hn _ Hu Γs Γt s.
+    admit.
+  - (* case tProj *)
+    intros * _ IH Γs Γt s.
+    destruct (IH _ _ s) as [[IHb (M&l&r&Htm)]|[IHb (M&l&r&Htm)]].
+    + left.
+      split.
+      * intros p.
+        destruct b.
+        all: intros b Hb ; apply IHb.
+        all: now cbn.
+      * exists M, l, (tProj b r).
+        split ; [easy|].
+        unfold interpolate_tm in * ; prod_splitter ; try easy.
+        1: destruct b ; cbn ; now econstructor.
+        cbn.
+        apply R_Proj_cong ; try reflexivity.
+        apply Htm.
+    + right.
+      split.
+      * intros p.
+        destruct b.
+        all: intros b Hb ; apply IHb.
+        all: now cbn.
+      * exists M, l, (tProj b r).
+        split ; [easy|].
+        unfold interpolate_tm in * ; prod_splitter ; try easy.
+        1: destruct b ; cbn ; now econstructor.
+        cbn.
+        apply R_Proj_cong ; try reflexivity.
+        apply Htm.
 Admitted.
 
 End Interpolation.
