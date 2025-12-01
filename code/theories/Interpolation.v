@@ -187,7 +187,7 @@ Let Pcheck Γ T t := forall Γs Γt (s : split Γ Γs Γt),
 
 Let Pinf Γ T t := forall Γs Γt (s : split Γ Γs Γt),
   (
-    (forall p, atoms_ty p T ⊆ atoms_ctx (negp p) Γt) /\
+    (forall p, atoms_ty p T ⊆ atoms_ctx p Γt) /\
     (exists M l r, 
       (forall p, atoms_ty p M ⊆ (atoms_ctx p Γs) ∩ (atoms_ctx (negp p) Γt)) /\
       interpolate_tm s M T t l r)
@@ -313,7 +313,6 @@ Proof.
       eapply in_context_inj in Hin.
       2:now eapply split_ren_s_ty.
       subst.
-      pose proof (split_ren_s_ty s).
       split.
       1: now eapply atoms_in.
       exists TUnit, tStar, (tVar (S n')).
@@ -323,13 +322,89 @@ Proof.
       prod_splitter.
       * now constructor.
       * constructor ; assumption.
-      * cbn.   
-
-
-    + admit.
+      * cbn.
+        rewrite split_ren_t_split.
+        reflexivity.
+    + left.
+      apply find_side_some_r in e as (n'&A&[? ->]).
+      eapply in_context_inj in Hin.
+      2:now eapply split_ren_t_ty.
+      subst.
+      split.
+      1: now eapply atoms_in.
+      exists TUnit, tStar, (tVar (S n')).
+      split.
+      1: intros ? ? ? ; now cbn in *.
+      unfold interpolate_tm.
+      prod_splitter.
+      * now constructor.
+      * constructor ; assumption.
+      * reflexivity.
   - (* case tApp *)
     intros Γ A B n u _ Hn _ Hu Γs Γt s.
-    admit.
+    destruct (Hn _ _ s) as [[IHpol (Mt&lt&rt&IHt)]|[IHpol (Mt&lt&rt&IHt)]].
+    + left.
+      cbn in *.
+      specialize (Hu _ _ s) as (Mu&lu&ru&IHu).
+      split.
+      1: now intros ?? Hb ; eapply IHpol ; cbn.
+      exists (TProd Mt Mu), (tPair lt lu),
+        (tApp (rt[(tFst (tVar 0)).: (↑ >> ids)]) (ru[(tSnd (tVar 0)) .: (↑ >> ids)])).
+      cbn.
+      split.
+      * intros ? b ? ; cbn in *.
+        destruct IHt as [IHt _], IHu as [IHu _].
+        specialize (IHt p b).
+        specialize (IHu p b).
+        specialize (IHpol (negp p) b).
+        rewrite negp_inv in IHpol.
+        cbn in *.
+        easy.
+      * unfold interpolate_tm in *.
+        prod_splitter.
+        -- now constructor.
+        -- econstructor ; eapply subst_typing ; try easy.
+           all: apply subst_cons_has_type ; [now repeat econstructor|].
+           all: apply ren_subst_has_type, shift_has_type.
+        -- cbn.
+           apply R_App_cong.
+           all: etransitivity ; [|easy].
+           all: substify ; cbn.
+           all: asimpl ; refold.
+           all: apply R_subst ; [|reflexivity].
+           all: intros [|] ; cbn ; [|easy].
+           all: now do 2 econstructor.
+    + right.
+      cbn in *.
+      specialize (Hu _ _ (flip_split s)) as (Mu&lu&ru&IHu).
+      split.
+      1: now intros ?? Hb ; eapply IHpol ; cbn.
+      exists (TProd Mt Mu), (tPair lt lu),
+        (tApp (rt[(tFst (tVar 0)).: (↑ >> ids)]) (ru[(tSnd (tVar 0)) .: (↑ >> ids)])).
+      cbn.
+      split.
+      * intros ? b ? ; cbn in *.
+        destruct IHt as [IHt _], IHu as [IHu _].
+        specialize (IHt p b).
+        specialize (IHu p b).
+        specialize (IHpol (negp p) b).
+        rewrite negp_inv in IHpol.
+        cbn in *.
+        easy.
+      * unfold interpolate_tm in *.
+        prod_splitter.
+        -- now constructor.
+        -- econstructor ; eapply subst_typing ; try easy.
+           all: apply subst_cons_has_type ; [now repeat econstructor|].
+           all: apply ren_subst_has_type, shift_has_type.
+        -- cbn.
+           apply R_App_cong.
+           all: etransitivity ; [|easy].
+           all: substify ; cbn.
+           all: asimpl ; refold.
+           all: apply R_subst ; [|reflexivity].
+           all: intros [|] ; cbn ; [|easy].
+           all: now do 2 econstructor.
   - (* case tProj *)
     intros * _ IH Γs Γt s.
     destruct (IH _ _ s) as [[IHb (M&l&r&Htm)]|[IHb (M&l&r&Htm)]].
@@ -359,6 +434,6 @@ Proof.
         cbn.
         apply R_Proj_cong ; try reflexivity.
         apply Htm.
-Admitted.
+Qed.
 
 End Interpolation.

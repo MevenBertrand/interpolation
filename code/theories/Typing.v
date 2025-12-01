@@ -151,7 +151,7 @@ Proof.
 Qed.
 
 Lemma id_subst_has_type (Γ : context) :
-  Γ |- tVar :: Γ.
+  Γ |- ids :: Γ.
 Proof.
   eapply subst_has_type_ext.
   1: reflexivity.
