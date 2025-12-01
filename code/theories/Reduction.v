@@ -44,16 +44,12 @@ Notation term_red := (clos_refl_trans term term_ored).
 #[export] Instance HasORedTm : HasORed term := term_ored.
 #[export] Instance HasRedTm : HasRed term := term_red.
 
-
-Definition subst_red : relation subst :=
+#[export] Instance HasRedSubst : HasRed subst :=
   fun σ τ => forall i, σ i ⤳* τ i.
-
-#[export] Instance HasRedSubst : HasRed subst := subst_red.
 
   Ltac fold_red :=
     change term_ored with ored in * ;
-    change term_red with red in * ;
-    change subst_red with red in *.
+    change term_red with red in *.
 
   Smpl Add fold_red : refold.
 
@@ -65,6 +61,15 @@ Section Properties.
   Proof.
     constructor.
     all: now econstructor.
+  Qed.
+
+  Instance sred_po : PreOrder sred.
+  Proof.
+    unfold red, HasRedSubst.
+    constructor.
+    all: intros ? **.
+    1: reflexivity.
+    etransitivity ; eauto.
   Qed.
 
   Instance R_App_cong :
@@ -141,46 +146,29 @@ Section Properties.
     intros ?? Ht ?? Hσ [|] ; now cbn.
   Qed.
 
-  Instance R_subst : Proper (sred ==> ored (Obj := term) ==> red) subst1.
+
+  Instance ST_subst : Proper ((pointwise_relation _ eq) ==> ored (Obj := term) ==> ored) subst1.
   Proof.
     intros σ σ' Hsubst t t' Ht.
-    induction Ht in σ, σ', Hsubst |- * ; cbn.
-    - etransitivity.
-      1: do 2 constructor.
-      asimpl ; refold.
-      apply R_subst_same ; eauto.
-      apply R_cons ; eauto.
-      rewrite R_subst_same ; eauto ; reflexivity.
-    - erewrite IHHt ; tea.
-      apply R_App_cong ; try easy.
-      rewrite R_subst_same ; try easy.
-      easy.
-    - erewrite IHHt ; tea.
-      apply R_App_cong ; try easy.
-      rewrite R_subst_same ; try easy.
-      easy.
-    - erewrite IHHt.
-      2:{ now apply R_lift. }
-      now apply R_Lam_cong.
-    - etransitivity.
-      1: do 2 constructor.
-      now apply R_subst_same.
-    - etransitivity.
-      1: do 2 constructor.
-      now apply R_subst_same.
-    - erewrite IHHt ; tea.
-      now apply R_Proj_cong.
-    - erewrite IHHt ; tea.
-      apply R_Pair_cong ; try easy.
-      rewrite R_subst_same ; try easy.
-      easy.
-     - erewrite IHHt ; tea.
-      apply R_Pair_cong ; try easy.
-      rewrite R_subst_same ; try easy.
-      easy.
+    rewrite <- Hsubst ; clear σ' Hsubst.
+    induction Ht in σ |- * ; cbn ; try solve [now constructor].
+    replace (_[_][_]) with ((t1[up_term_term σ][v2[σ]..])).
+    1: constructor.
+    now asimpl.
+  Qed.
+
+  Instance R_subst : Proper (sred ==> red ==> red) subst1.
+  Proof.
+    intros σ σ' Hsubst t t' Ht.
+    etransitivity.
+    1: now apply R_subst_same.
+    clear -Ht.
+    induction Ht ; try solve [now econstructor].
+    constructor.
+    now apply ST_subst.
   Qed.
 
 End Properties.
 
-Existing Instances red_po R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_ren
+Existing Instances red_po sred_po R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_ren
   R_lift R_cons R_subst.

@@ -40,7 +40,7 @@ Fixpoint flip_split {Γ Γs Γt} (s : split Γ Γs Γt) : split Γ Γt Γs :=
   | split_emp => split_emp
   | split_s s => split_t (flip_split s)
   | split_t s => split_s (flip_split s)
-  end. 
+  end.
 
 Fixpoint split_ren_s {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   match s with
@@ -56,6 +56,30 @@ Fixpoint split_ren_t {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   | split_s s' => (split_ren_t s') >> ↑
   end.
 
+Lemma flip_split_inv {Γ Γs Γt} (s : split Γ Γs Γt) :
+  flip_split (flip_split s) = s.
+Proof.
+  induction s ; cbn.
+  1: easy.
+  all: now rewrite IHs.
+Qed.
+
+Lemma split_ren_s_flip {Γ Γs Γt} (s : split Γ Γs Γt) :
+  split_ren_s (flip_split s) = split_ren_t s.
+Proof.
+  induction s ; cbn.
+  1: easy.
+  all: now rewrite IHs.
+Qed.
+
+Lemma split_ren_t_split {Γ Γs Γt} (s : split Γ Γs Γt) :
+  split_ren_t (flip_split s) = split_ren_s s.
+Proof.
+  rewrite <- (flip_split_inv s) at 2.
+  rewrite split_ren_s_flip.
+  reflexivity.
+Qed.
+
 Lemma split_ren_s_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
   Γ |- (split_ren_s s) :: Γs.
 Proof.
@@ -69,11 +93,10 @@ Qed.
 Lemma split_ren_t_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
   Γ |- (split_ren_t s) :: Γt.
 Proof.
-  induction s ; cbn.
-  - apply id_ren_has_type.
-  - eapply ren_comp_has_type ; tea.
-    apply shift_has_type.
-  - now apply ren_lift_has_type.
+  eapply ren_has_type_ext.
+  2: eapply split_ren_s_ty.
+  rewrite split_ren_s_flip.
+  reflexivity.
 Qed.
 
 (** ** Atoms of a type/context *)
@@ -189,7 +212,16 @@ Proof.
         all: repeat econstructor.
       * apply R_Pair_cong.
         all: etransitivity ; [|easy].
-        all: admit.
+        -- substify.
+           asimpl.
+           apply R_subst ; try reflexivity.
+           apply R_cons ; try reflexivity.
+           do 2 constructor.
+        -- substify.
+           asimpl.
+           apply R_subst ; try reflexivity.
+           apply R_cons ; try reflexivity.
+           do 2 constructor.
   - intros * _ IH -> ?? s.
     destruct (IH _ _ s) as [[? (M&l&r&[HM ?])]|[Hat (M&l&r&[HM ?])]] ; tea.
     + exists M, l, r ; split.
@@ -208,7 +240,11 @@ Proof.
         cbn.
         etransitivity.
         1: constructor ; apply ST_Beta.
-        admit.
+        etransitivity ; [|easy].
+        rewrite split_ren_s_flip, split_ren_t_split.
+        apply ereflexivity.
+        substify.
+        now asimpl.
   - intros ? n T Hin ?? s.
     destruct (find_side n s) as [[]|] eqn:e.
     3: exfalso ; now eauto using in_context_find.
