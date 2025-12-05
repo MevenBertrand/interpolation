@@ -1,5 +1,7 @@
 -R theories Interpolation
 
+theories/InternalInterpolation.v
+
 theories/Utils.v
 
 theories/core.v

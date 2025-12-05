@@ -183,7 +183,7 @@ Definition interpolate_tm {Γ Γs Γt} (s : split Γ Γs Γt) M A t l r :=
 
 Let Pcheck Γ T t := forall Γs Γt (s : split Γ Γs Γt),
   exists M l r,
-    (forall p, atoms_ty p M ⊆ (atoms_ctx p Γs) ∩ (atoms_ctx (negp p) Γt ∪ atoms_ty p T)) /\ interpolate_tm s M T t l r.
+    interpolate_ty Γs Γt T M /\ interpolate_tm s M T t l r.
 
 Let Pinf Γ T t := forall Γs Γt (s : split Γ Γs Γt),
   (
@@ -222,7 +222,8 @@ Proof.
     intros Γ Γs Γt s.
     exists TUnit, tStar, tStar.
     split.
-    + intros ; cbn.
+    + unfold interpolate_ty.
+      intros ; cbn.
       intros ? [].
     + red.
       prod_splitter.
