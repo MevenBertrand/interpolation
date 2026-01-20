@@ -1,4 +1,4 @@
-From Interpolation Require Import Utils Syntax Notations.
+From Interpolation Require Import Utils Syntax Notations Elim.
 From Stdlib Require Import Setoid Morphisms Relation_Definitions RelationClasses.
 From Stdlib Require Import Relations Arith Lia Bool List.
 
@@ -10,28 +10,56 @@ Section Reduction.
   Close Scope typing_scope.
 
   Inductive term_ored : relation term :=
-    | ST_Beta t1 v2 :
+    (** beta rules *)
+    | ST_Beta_Fun t1 v2 :
           tApp (tLam t1) v2 ⤳ t1[v2..]
+
+    | ST_Fst t t' : tFst (tPair t t') ⤳ t
+    | ST_Snd t t' : tSnd (tPair t t') ⤳ t'
+
+    | ST_Left t bl br : tIf (tLeft t) bl br ⤳ bl[t..]
+    | ST_Right t bl br : tIf (tRight t) bl br ⤳ br[t..]
+
+    (** commuting conversions *)
+    | ST_Abort_Comm t e :
+      zip e (tAbort t) ⤳ tAbort t
+    | ST_If_Comm s bl br e :
+      zip e (tIf s bl br) ⤳ tIf s (zip e⟨↑⟩ bl) (zip e⟨↑⟩ br)
+
+    (** congruences *)
+    | ST_Lam t t' :
+      t ⤳ t' ->
+      tLam t ⤳ tLam t'
     | ST_App_l t1 t1' t2 :
           t1 ⤳ t1' ->
           tApp t1 t2 ⤳ tApp t1' t2
     | ST_App_r t1 t2 t2' :
           t2 ⤳ t2' ->
           tApp t1 t2 ⤳ tApp t1 t2'
-    | ST_Lam t t' :
-      t ⤳ t' ->
-      tLam t ⤳ tLam t'
-    | ST_Fst t t' : tFst (tPair t t') ⤳ t
-    | ST_Snd t t' : tSnd (tPair t t') ⤳ t'
     | ST_Proj b t t' :
           t ⤳ t' ->
           tProj b t ⤳ tProj b t'
     | ST_Pair_l t1 t1' t2 :
           t1 ⤳ t1' ->
           tPair t1 t2 ⤳ tPair t1' t2
-    | ST_Par_r t1 t2 t2' :
+    | ST_Pair_r t1 t2 t2' :
           t2 ⤳ t2' ->
           tPair t1 t2 ⤳ tPair t1 t2'
+    | ST_Abort t t' :
+        t ⤳ t' ->
+        tAbort t ⤳ tAbort t'
+    | ST_In b t t' :
+      t ⤳ t' ->
+      tIn b t ⤳ tIn b t'
+    | ST_If_s s s' bl br :
+      s ⤳ s' ->
+      tIf s bl br ⤳ tIf s' bl br
+    | ST_If_l s bl bl' br :
+      bl ⤳ bl' ->
+      tIf s bl br ⤳ tIf s bl' br
+    | ST_If_r s bl br br' :
+      br ⤳ br' ->
+      tIf s bl br ⤳ tIf s bl br'
 
   where "t '⤳' t'" := (term_ored t t').
 
@@ -72,6 +100,12 @@ Section Properties.
     etransitivity ; eauto.
   Qed.
 
+  Instance ored_red : subrelation ored red.
+  Proof.
+    intros ?? ?.
+    now constructor.
+  Qed.
+
   Instance R_App_cong :
     Proper (red ==> red ==> red) tApp.
   Proof.
@@ -99,14 +133,34 @@ Section Properties.
     induction Hq using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
   Qed.
 
+  Instance R_Abort_cong : Proper (red ==> red) tAbort.
+  Proof.
+    intros ?? Ht ; unfold Notations.red, HasRedTm in *.
+    induction Ht using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+  Qed.
+
+  Instance R_In_cong : Proper (eq ==> red ==> red) tIn.
+  Proof.
+    intros ?? -> ?? Hred ; unfold Notations.red, HasRedTm in *.
+    induction Hred using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+  Qed.
+
+  Instance R_If_cong : Proper (red ==> red ==> red ==> red) tIf.
+  Proof.
+    intros ?? Hs ?? Hl ?? Hr ; unfold Notations.red, HasRedTm in *.
+    induction Hs using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hl using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hr using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+  Qed.
+
   Instance ST_ren : Proper ((pointwise_relation _ eq) ==> ored ==> ored) ren1.
   Proof.
     intros ρ ρ' Hren t t' Ht.
     rewrite <- Hren ; clear ρ' Hren.
     induction Ht in ρ |- * ; cbn ; try solve [now constructor].
-    replace (_[_]⟨_⟩) with ((t1⟨upRen_term_term ρ⟩[v2⟨ρ⟩..])).
-    1: constructor.
-    now substify ; asimpl.
+    all: rewrite ?subst1_ren, ?zip_ren ; try solve [constructor].
+    replace (e⟨_⟩⟨_⟩) with (e⟨ρ⟩⟨↑⟩) by now asimpl.
+    constructor.
   Qed.
 
   Instance R_ren : Proper ((pointwise_relation _ eq) ==> red ==> red) ren1.
@@ -127,18 +181,25 @@ Section Properties.
       auto.
   Qed.
 
+  Instance R_scons : Proper (red ==> sred ==> sred) scons.
+  Proof.
+    intros ?? ? ?? ? [|]; cbn ; easy.
+  Qed.
+
   Instance R_subst_same : Proper (sred ==> @eq term ==> red) subst1.
   Proof.
     intros σ τ Hsubst ? t ->.
     induction t in σ, τ, Hsubst |- * ; cbn.
+    all: try solve [reflexivity|rewrite IHt ; tea ; reflexivity].
     - apply Hsubst.
-    - reflexivity.
     - erewrite IHt1, IHt2 ; tea ; reflexivity.
-    - rewrite IHt ; tea ; reflexivity.
     - rewrite IHt.
       1: reflexivity.
       now apply R_lift.
     - erewrite IHt1, IHt2 ; tea ; reflexivity.
+    - erewrite IHt1, IHt2, IHt3 ; tea.
+      1: reflexivity.
+      all: now apply R_lift.
   Qed.
 
   Instance R_cons : Proper (red ==> sred ==> sred) scons.
@@ -146,15 +207,15 @@ Section Properties.
     intros ?? Ht ?? Hσ [|] ; now cbn.
   Qed.
 
-
   Instance ST_subst : Proper ((pointwise_relation _ eq) ==> ored (Obj := term) ==> ored) subst1.
   Proof.
     intros σ σ' Hsubst t t' Ht.
     rewrite <- Hsubst ; clear σ' Hsubst.
-    induction Ht in σ |- * ; cbn ; try solve [now constructor].
-    replace (_[_][_]) with ((t1[up_term_term σ][v2[σ]..])).
-    1: constructor.
-    now asimpl.
+    induction Ht in σ |- *.
+    all: cbn ; rewrite ?subst1_subst, ?zip_subst ; try solve [now constructor].
+    replace (e⟨_⟩[_]) with (e[σ]⟨↑⟩) by
+      now substify ; asimpl ; substify.
+    constructor.
   Qed.
 
   Instance R_subst : Proper (sred ==> red ==> red) subst1.
@@ -170,5 +231,5 @@ Section Properties.
 
 End Properties.
 
-Existing Instances red_po sred_po R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_ren
+#[global]Existing Instances red_po sred_po ored_red R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_Abort_cong R_In_cong R_If_cong R_ren
   R_lift R_cons R_subst.

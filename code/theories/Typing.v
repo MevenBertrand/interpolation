@@ -18,7 +18,7 @@ Section Typing.
   | T_Star Γ : (Γ |- tStar :: TUnit)
 
   | T_Lam Γ A B t :
-    (Γ ,,, A |- t :: B) ->
+    (Γ ,, A |- t :: B) ->
     Γ |- tLam t :: TFun A B
 
   | T_App Γ A B f u :
@@ -31,13 +31,31 @@ Section Typing.
     (Γ |- b :: B) ->
     (Γ |- tPair a b :: TProd A B)
 
-  | T_Proj Γ A B t :
+  | T_Fst Γ A B t :
     (Γ |- t :: TProd A B) ->
     (Γ |- tFst t :: A)
 
   | T_Snd Γ A B t :
     (Γ |- t :: TProd A B) ->
     (Γ |- tSnd t :: B)
+
+  | T_Abort Γ A t :
+    (Γ |- t :: TEmp) ->
+    (Γ |- tAbort t :: A)
+
+  | T_Left Γ A B t :
+    (Γ |- t :: A) ->
+    (Γ |- tLeft t :: TSum A B)
+
+  | T_Right Γ A B t :
+    (Γ |- t :: B) ->
+    (Γ |- tRight t :: TSum A B)
+
+  | T_If Γ A B T s bl br :
+    (Γ |- s :: TSum A B) ->
+    (Γ,,A |- bl :: T) ->
+    (Γ,,B |- br :: T) ->
+    (Γ |- tIf s bl br :: T)
 
   where "Γ '|-' t '::' T" := (has_type Γ T t) (Γ in scope context_scope).
 
@@ -70,14 +88,14 @@ Hint Immediate var_empty : core.
 (** ** Renamings and substitutions preserve types *)
 
 
-Lemma shift_has_type (Γ : context) (T : type) : (Γ,,,T) |- ↑ :: Γ.
+Lemma shift_has_type (Γ : context) (T : type) : (Γ,,T) |- ↑ :: Γ.
 Proof.
   intros ? ** ; assumption.
 Qed.
 
 Lemma ren_lift_has_type (Δ Γ : context) (T : type) (r : ren) :
   (Δ |- r :: Γ) ->
-  (Δ,,,T) |- (up_ren r) ::  (Γ,,,T).
+  (Δ,,T) |- (up_ren r) ::  (Γ,,T).
 Proof.
   intros Hr i T' Hin.
   unfold typing, HasTypingRen, in_context in *.
@@ -132,7 +150,7 @@ Qed.
 Lemma subst_cons_has_type (Δ Γ : context) (T : type) (σ : subst) (t : term) :
   (Δ |- t :: T) ->
   (Δ |- σ :: Γ) ->
-  Δ |- (t .: σ) :: (Γ,,,T).
+  Δ |- (t .: σ) :: (Γ,,T).
 Proof.
   intros Hty Hs [] T' Hin ; cbn.
   - unfold in_context in Hin ; cbn in *.
@@ -160,7 +178,7 @@ Qed.
 
 Lemma subst_one_has_type (Γ : context) (T : type) (t : term) :
   (Γ |- t :: T) -> 
-  Γ |- (t..) ::  (Γ,,,T).
+  Γ |- (t..) ::  (Γ,,T).
 Proof.
   intros.
   now apply subst_cons_has_type, id_subst_has_type.
@@ -168,7 +186,7 @@ Qed.
 
 Lemma subst_lift_has_type (Δ Γ : context) (T : type) (σ : subst) :
   (Δ |- σ :: Γ) ->
-  (Δ,,,T) |- (⇑ σ) ::  (Γ,,,T).
+  (Δ,,T) |- (⇑ σ) ::  (Γ,,T).
 Proof.
   intros Hs.
   apply subst_cons_has_type.
@@ -187,7 +205,7 @@ Proof.
   all: econstructor ; eauto using subst_lift_has_type.
 Qed.
 
-Lemma subs_comp_has_type (Δ Γ Θ : context) (σ σ' : subst) :
+Lemma subst_comp_has_type (Δ Γ Θ : context) (σ σ' : subst) :
   (Δ |- σ :: Γ) ->
   (Γ |- σ' :: Θ) ->
   (Δ |- (σ' >> (subst_term σ)) :: Θ).
@@ -197,13 +215,31 @@ Proof.
   now apply Hσ'.
 Qed.
 
+Lemma tip_has_type (Γ : context) (A B : type) (f : term -> term) :
+  (Γ,,A |- f (tVar 0) :: B) ->
+  (Γ,,A |- tip f :: Γ,,B).
+Proof.
+  unfold tip.
+  intros.
+  apply subst_cons_has_type, ren_subst_has_type, shift_has_type.
+  assumption.
+Qed.
+
+Lemma swap_var_ty Γ (A B : type) :
+  ((Γ,,A),,B) |- swap_var :: ((Γ,,B),,A).
+Proof.
+  intros i T Hin.
+  destruct i as [|[|i]] ; cbn in *.
+  all: exact Hin.
+Qed.
+
 (** ** Types have decidable equality *)
 
 Fixpoint eqb_ty (T T' : type) : bool :=
   match T, T' with
   | TBase b, TBase b' => eqb_base b b'
-  | TUnit, TUnit => true
-  | TFun A B, TFun A' B' | TProd A B, TProd A' B' =>
+  | TUnit, TUnit | TEmp, TEmp => true
+  | TFun A B, TFun A' B' | TProd A B, TProd A' B' | TSum A B, TSum A' B' =>
     eqb_ty A A' && eqb_ty B B'
   | _, _ => false
   end.

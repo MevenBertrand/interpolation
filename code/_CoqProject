@@ -12,6 +12,7 @@ theories/Context.v
 theories/Syntax.v
 
 theories/Notations.v
+theories/Elim.v
 theories/Reduction.v
 theories/Typing.v
 theories/Bidir.v

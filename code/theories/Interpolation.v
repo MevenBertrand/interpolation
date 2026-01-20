@@ -9,8 +9,8 @@ Definition flip_side s := match s with | source => target | target => source end
 
 Inductive split : context -> context -> context -> Set :=
   | split_emp : split ε ε ε
-  | split_s {Γ Γs Γt A} : split Γ Γs Γt -> split (Γ,,,A) (Γs,,,A) Γt
-  | split_t {Γ Γs Γt A} : split Γ Γs Γt -> split (Γ,,,A) Γs (Γt,,,A).
+  | split_s {Γ Γs Γt A} : split Γ Γs Γt -> split (Γ,,A) (Γs,,A) Γt
+  | split_t {Γ Γs Γt A} : split Γ Γs Γt -> split (Γ,,A) Γs (Γt,,A).
 
 Fixpoint flip_split {Γ Γs Γt} (s : split Γ Γs Γt) : split Γ Γt Γs :=
   match s with
@@ -22,14 +22,14 @@ Fixpoint flip_split {Γ Γs Γt} (s : split Γ Γs Γt) : split Γ Γt Γs :=
 Fixpoint split_ren_s {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   match s with
   | split_emp => id
-  | split_s s' => up_ren (split_ren_s s')
+  | split_s s' => ⇑ (split_ren_s s')
   | split_t s' => (split_ren_s s') >> ↑
   end.
 
 Fixpoint split_ren_t {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   match s with
   | split_emp => id
-  | split_t s' => up_ren (split_ren_t s')
+  | split_t s' => ⇑ (split_ren_t s')
   | split_s s' => (split_ren_t s') >> ↑
   end.
 
@@ -142,9 +142,9 @@ Qed.
 Fixpoint atoms_ty (p : polarity) (A : type) {struct A} : base -> Prop :=
   match A with
   | TBase b => if p then (sing b) else ∅
-  | TUnit => ∅
+  | TUnit | TEmp => ∅
   | TFun A B => atoms_ty (negp p) A ∪ atoms_ty p B
-  | TProd A B => atoms_ty p A ∪ atoms_ty p B
+  | TProd A B | TSum A B => atoms_ty p A ∪ atoms_ty p B
   end.
 
 Fixpoint atoms_ctx (p : polarity) (Γ : context) : base -> Prop :=
@@ -178,8 +178,8 @@ Definition interpolate_ty Γs Γt A M :=
   forall p, atoms_ty p M ⊆ (atoms_ctx p Γs) ∩ (atoms_ctx (negp p) Γt ∪ atoms_ty p A).
 
 Definition interpolate_tm {Γ Γs Γt} (s : split Γ Γs Γt) M A t l r :=
-  (Γs |- l :: M) /\ (Γt ,,, M |- r :: A) /\
-  r⟨up_ren (split_ren_t s)⟩[l⟨split_ren_s s⟩..] ⤳* t.
+  (Γs |- l :: M) /\ (Γt ,, M |- r :: A) /\
+  r⟨⇑ (split_ren_t s)⟩[l⟨split_ren_s s⟩..] ⤳* t.
 
 Let Pcheck Γ T t := forall Γs Γt (s : split Γ Γs Γt),
   exists M l r,
@@ -198,23 +198,6 @@ Let Pinf Γ T t := forall Γs Γt (s : split Γ Γs Γt),
       interpolate_tm (flip_split s) M T t l r)
   ).
 
-Definition swap_var : ren :=
-  fun n => match n with
-  | 0 => 1
-  | 1 => 0
-  | n => n
-  end.
-
-Lemma swap_var_ty : forall Γ (A B : type),
-  ((Γ,,,A),,,B) |- swap_var :: ((Γ,,,B),,,A).
-Proof.
-  intros Γ A B i T Hin.
-  destruct i as [|[|i]] ; cbn in *.
-  all: exact Hin.
-Qed.
-
-(* Hypothesis swap_var_eq : forall t u, t [u..] = t [swap_var] [⇑ (u..)]. *)
-
 Theorem interpolation : bidir_concl Pcheck Pinf.
 Proof.
   apply bidir_ind.
@@ -230,7 +213,7 @@ Proof.
       all: solve [constructor].
   - (* case tLam *)
     intros Γ A B t _ IH Γs Γt s.
-    destruct (IH Γs (Γt,,,A) (split_t s)) as (M&l&r&HM&Ht).
+    destruct (IH Γs (Γt,,A) (split_t s)) as (M&l&r&HM&Ht).
     exists M, l, (tLam (r⟨swap_var⟩)).
     split.
     (* the good-looking proof would do setoid rewriting with subset equivalence… *)
@@ -253,10 +236,10 @@ Proof.
         intros [|[|]] ; reflexivity.
   - (* case tPair *)
     intros Γ A B t t' _ IHA _ IHB Γs Γt s.
-    destruct (IHA Γs Γt s) as (M & l & r & HM & Ht).
-    destruct (IHB Γs Γt s) as (M' & l' & r' & HM' & Ht').
+    destruct (IHA Γs Γt s) as (M & l & r & HM & (?&?&et)).
+    destruct (IHB Γs Γt s) as (M' & l' & r' & HM' & (?&?&et')).
     exists (TProd M M'), (tPair l l'),
-      (tPair (r[(tFst (tVar 0)).: (↑ >> ids)]) (r'[(tSnd (tVar 0)) .: (↑ >> ids)])).
+      (tPair (r[tip tFst]) (r'[tip tSnd])).
     split.
     + intros p b [Hb|Hb'].
       1: specialize (HM p b Hb).
@@ -265,25 +248,127 @@ Proof.
     + unfold interpolate_tm in * ; cbn in *.
       prod_splitter.
       1: now constructor.
-      * constructor.
-        all: eapply subst_typing ; [easy|].
-        all: eapply subst_cons_has_type ; [|apply ren_subst_has_type, shift_has_type].
-        all: repeat econstructor.
-      * apply R_Pair_cong.
-        all: etransitivity ; [|easy].
-        -- substify.
-           asimpl.
-           apply R_subst ; try reflexivity.
-           apply R_cons ; try reflexivity.
-           do 2 constructor.
-        -- substify.
-           asimpl.
-           apply R_subst ; try reflexivity.
-           apply R_cons ; try reflexivity.
-           do 2 constructor.
+      * constructor ; eapply subst_typing, tip_has_type ;
+        try easy ; repeat econstructor.
+      * now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, et, et'.
+  - (* case tLeft *)
+    intros * _ IH ?? s.
+    destruct (IH _ _ s) as (M & l & r & HM & Ht).
+    exists M, l, (tLeft r).
+    split.
+    + intros ?? Hb.
+      specialize (HM _ _ Hb).
+      now cbn in *.
+    + unfold interpolate_tm in * ; cbn in *.
+      destruct Ht as (?&?&e).
+      prod_splitter.
+      * easy.
+      * now constructor.
+      * now rewrite e.
+  - (* case tRight *)
+    intros * _ IH ?? s.
+    destruct (IH _ _ s) as (M & l & r & HM & Ht).
+    exists M, l, (tRight r).
+    split.
+    + intros ?? Hb.
+      specialize (HM _ _ Hb).
+      now cbn in *.
+    + unfold interpolate_tm in * ; cbn in *.
+      destruct Ht as (?&?&e).
+      prod_splitter.
+      * easy.
+      * now constructor.
+      * now rewrite e.
+  - (* case tAbort *)
+    intros * _ IH ?? s.
+    destruct (IH _ _ s) as (M & l & r & HM & Ht).
+    exists M, l, (tAbort r).
+    split.
+    + intros ?? Hb.
+      specialize (HM _ _ Hb).
+      now cbn in *.
+    + unfold interpolate_tm in * ; cbn in *.
+      destruct Ht as (?&?&e).
+      prod_splitter.
+      * easy.
+      * now constructor.
+      * now rewrite e.
+  - (* case tIf *)
+    intros Γ A B T s bl br ? IHs ? IHl ? IHr ?? sp.
+    destruct (IHs _ _ sp) as [[HMsum (M&l&r&[HMs (?&?&es)])]|[HMsum (M&l&r&[HMs (?&?&es)])]] ; tea.
+    + destruct (IHl _ _ (split_t sp)) as (Ml & ll & rl & HMl & (?&?&etl)).
+      destruct (IHr _ _ (split_t sp)) as (Mr & lr & rr & HMr & (?&?&etr)).
+      unfold interpolate_tm in *.
+      exists (TProd M (TProd Ml Mr)), (tPair l (tPair ll lr)),
+        ((tIf r[tip tFst]
+          rl[(tip (fun x => (tFst (tSnd x))))]⟨swap_var⟩
+          rr[(tip (fun x => tSnd (tSnd x)))]⟨swap_var⟩)).
+      split.
+      * intros p x Hp.
+        specialize (HMsum (negp p) x).
+        specialize (HMs p x).
+        specialize (HMl p x).
+        specialize (HMr p x).
+        now cbn in *.
+      * prod_splitter.
+        -- now repeat constructor.
+        -- econstructor.
+           2-3: eapply ren_typing ; [..|now eapply swap_var_ty].
+           all: eapply subst_typing, tip_has_type ; eauto.
+           all: now repeat econstructor.
+        -- cbn ; refold.
+           rewrite !swap_shift2, !swap_shift1, !tip_shift, !tip_subst ; cbn ; try easy.
+           now rewrite !ST_Snd, !ST_Fst, !renRen_term, etl, etr, es.
+    + rewrite split_ren_s_flip, split_ren_t_split in es.
+      destruct (IHl _ _ (split_s sp)) as (Ml & ll & rl & HMl & (?&?&etl)).
+      destruct (IHr _ _ (split_s sp)) as (Mr & lr & rr & HMr & (?&?&etr)).
+      unfold interpolate_tm in *.
+      exists (TFun M (TSum Ml Mr)),
+        (tLam (tIf r (tLeft ll⟨↑⟩⟨swap_var⟩) (tRight lr⟨↑⟩⟨swap_var⟩))),
+        (tIf (tApp (tVar 0) l⟨↑⟩) rl⟨↑⟩⟨swap_var⟩ rr⟨↑⟩⟨swap_var⟩).
+      split.
+      * intros p x Hp.
+        clear -HMsum HMs HMl HMr Hp.
+        unfold interpolate_ty in *.
+        cbn in *.
+        specialize (HMsum p x).
+        specialize (HMs (negp p) x).
+        rewrite negp_inv in HMs.
+        specialize (HMl p x).
+        specialize (HMr p x).
+        now cbn in *.
+      * prod_splitter.
+        -- repeat econstructor.
+           all: now eauto using ren_typing, shift_has_type, swap_var_ty.
+        -- repeat econstructor.
+           all: eauto using ren_typing, swap_var_ty, shift_has_type.
+        -- cbn ; refold.
+           clear -es etl etr.
+           rewrite !swap_shift2, !swap_shift1, !ST_Beta_Fun.
+           cbn.
+           epose proof (ST_If_Comm _ _ _ (eIf _ _)) as He.
+           cbn in He.
+           rewrite He ; clear He.
+           rewrite !ST_Left, !ST_Right, !swap_shift2, !swap_shift1 ; refold.
+           apply R_If_cong.
+           all: etransitivity ; [|eassumption].
+           all: apply ereflexivity.
+           ++ now substify ; asimpl.
+           ++ cbn.
+              rewrite !renRen_term ; refold.
+              apply subst_term_morphism.
+              ** intros [|] ; cbn ; [|easy].
+                 now substify ; asimpl. 
+              ** now substify ; asimpl.
+           ++ cbn.
+              rewrite !renRen_term ; refold.
+              apply subst_term_morphism.
+              ** intros [|] ; cbn ; [|easy].
+                 now substify ; asimpl. 
+              ** now substify ; asimpl.
   - (* case demote *)
     intros * _ IH -> ?? s.
-    destruct (IH _ _ s) as [[? (M&l&r&[HM ?])]|[Hat (M&l&r&[HM ?])]] ; tea.
+    destruct (IH _ _ s) as [[? (M&l&r&[HM ?])]|[Hat (M&l&r&[HM Hrl])]] ; tea.
     + exists M, l, r ; split.
       2: easy.
       intros p b [?%HM Hb]%dup ; cbn in * ; easy.
@@ -296,13 +381,13 @@ Proof.
       * unfold interpolate_tm in *.
         prod_splitter.
         1: now econstructor.
-        1: econstructor ; [now econstructor|..] ; eapply ren_typing ; [easy|] ; now apply shift_has_type.
+        1: econstructor ; [now econstructor|..] ; eapply ren_typing ; [easy|] ;
+          now apply shift_has_type.
         cbn.
-        etransitivity.
-        1: constructor ; apply ST_Beta.
-        etransitivity ; [|easy].
-        rewrite split_ren_s_flip, split_ren_t_split.
+        rewrite ST_Beta_Fun.
+        etransitivity ; [|eapply Hrl].
         apply ereflexivity.
+        rewrite split_ren_s_flip, split_ren_t_split.
         substify.
         now asimpl.
   - (* case tVar *)
@@ -342,21 +427,21 @@ Proof.
       * constructor ; assumption.
       * reflexivity.
   - (* case tApp *)
-    intros Γ A B n u _ Hn _ Hu Γs Γt s.
-    destruct (Hn _ _ s) as [[IHpol (Mt&lt&rt&IHt)]|[IHpol (Mt&lt&rt&IHt)]].
+    intros Γ A B n u _ Hn _ IHu Γs Γt s.
+    destruct (Hn _ _ s) as
+      [[IHpol (Mt&lt&rt&(IHt&?&?&et))]|[IHpol (Mt&lt&rt&(IHt&?&?&et))]].
     + left.
       cbn in *.
-      specialize (Hu _ _ s) as (Mu&lu&ru&IHu).
+      specialize (IHu _ _ s) as (Mu&lu&ru&(IHMu&?&?&eu)).
       split.
       1: now intros ?? Hb ; eapply IHpol ; cbn.
       exists (TProd Mt Mu), (tPair lt lu),
-        (tApp (rt[(tFst (tVar 0)).: (↑ >> ids)]) (ru[(tSnd (tVar 0)) .: (↑ >> ids)])).
+        (tApp (rt[tip tFst]) (ru[(tip tSnd)])).
       cbn.
       split.
       * intros ? b ? ; cbn in *.
-        destruct IHt as [IHt _], IHu as [IHu _].
         specialize (IHt p b).
-        specialize (IHu p b).
+        specialize (IHMu p b).
         specialize (IHpol (negp p) b).
         rewrite negp_inv in IHpol.
         cbn in *.
@@ -365,29 +450,21 @@ Proof.
         prod_splitter.
         -- now constructor.
         -- econstructor ; eapply subst_typing ; try easy.
-           all: apply subst_cons_has_type ; [now repeat econstructor|].
-           all: apply ren_subst_has_type, shift_has_type.
+           all: apply tip_has_type ; repeat econstructor.
         -- cbn.
-           apply R_App_cong.
-           all: etransitivity ; [|easy].
-           all: substify ; cbn.
-           all: asimpl ; refold.
-           all: apply R_subst ; [|reflexivity].
-           all: intros [|] ; cbn ; [|easy].
-           all: now do 2 econstructor.
+           now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, eu, et.
     + right.
       cbn in *.
-      specialize (Hu _ _ (flip_split s)) as (Mu&lu&ru&IHu).
+      specialize (IHu _ _ (flip_split s)) as (Mu&lu&ru&(IHMu&?&?&eu)).
       split.
       1: now intros ?? Hb ; eapply IHpol ; cbn.
       exists (TProd Mt Mu), (tPair lt lu),
-        (tApp (rt[(tFst (tVar 0)).: (↑ >> ids)]) (ru[(tSnd (tVar 0)) .: (↑ >> ids)])).
+        (tApp (rt[tip tFst]) (ru[tip tSnd])).
       cbn.
       split.
       * intros ? b ? ; cbn in *.
-        destruct IHt as [IHt _], IHu as [IHu _].
         specialize (IHt p b).
-        specialize (IHu p b).
+        specialize (IHMu p b).
         specialize (IHpol (negp p) b).
         rewrite negp_inv in IHpol.
         cbn in *.
@@ -396,16 +473,9 @@ Proof.
         prod_splitter.
         -- now constructor.
         -- econstructor ; eapply subst_typing ; try easy.
-           all: apply subst_cons_has_type ; [now repeat econstructor|].
-           all: apply ren_subst_has_type, shift_has_type.
+           all: apply tip_has_type ; repeat econstructor.
         -- cbn.
-           apply R_App_cong.
-           all: etransitivity ; [|easy].
-           all: substify ; cbn.
-           all: asimpl ; refold.
-           all: apply R_subst ; [|reflexivity].
-           all: intros [|] ; cbn ; [|easy].
-           all: now do 2 econstructor.
+           now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, eu, et.
   - (* case tProj *)
     intros * _ IH Γs Γt s.
     destruct (IH _ _ s) as [[IHb (M&l&r&Htm)]|[IHb (M&l&r&Htm)]].
