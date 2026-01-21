@@ -1,0 +1,17 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% General text
+
+\RequirePackage{xspace}
+
+\DeclareDocumentCommand{\ie}{}{\textit{i.e.}\xspace}
+\DeclareDocumentCommand{\eg}{}{\textit{e.g.}\xspace}
+\DeclareDocumentCommand{\Rocq}{}{\textsc{Rocq}\xspace}
+
+% Color for personal notes
+\newcommand{\mynote}[3]{{\color{#1} \fbox{\bfseries\scriptsize#2}
+		{\small$\blacktriangleright$\emph{#3}$\blacktriangleleft$}}~}
+
+\newcommand{\mlb}[1]{\mynote{BrickRed}{MLB}{#1}}
+
+\DeclareDocumentCommand{\STLC}{o}{STLC\IfValueT{#1}{_{#1}}\xspace}
+\DeclareDocumentCommand{\STLCp}{o}{STLC\textsubscript{+\IfValueT{#1}{#1}}\xspace}

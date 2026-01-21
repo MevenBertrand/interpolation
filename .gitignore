@@ -58,3 +58,7 @@ code/Makefile.rocq.conf
 *.gz
 
 *.toc
+
+*.vtc
+
+paper/main.pdf
