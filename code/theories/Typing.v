@@ -7,51 +7,53 @@ Add Search Blacklist "_ind" "_sind" "_rec" "_rect".
 Set Default Goal Selector "!".
 Import ListNotations.
 
+Create HintDb typing discriminated. 
+
 Section Typing.
   Close Scope typing_scope.
 
   Inductive has_type : context -> type -> term -> Prop :=
-  | T_Var Γ n T :
+  | _T_Var Γ n T :
     in_context n Γ T ->
     Γ |- tVar n :: T
 
-  | T_Star Γ : (Γ |- tStar :: TUnit)
+  | _T_Star Γ : (Γ |- tStar :: TUnit)
 
-  | T_Lam Γ A B t :
+  | _T_Lam Γ A B t :
     (Γ ,, A |- t :: B) ->
     Γ |- tLam t :: TFun A B
 
-  | T_App Γ A B f u :
+  | _T_App Γ A B f u :
     (Γ |- f :: TFun A B) ->
     (Γ |- u :: A) ->
     Γ |- tApp f u :: B
 
-  | T_Pair Γ A B a b :
+  | _T_Pair Γ A B a b :
     (Γ |- a :: A) ->
     (Γ |- b :: B) ->
     (Γ |- tPair a b :: TProd A B)
 
-  | T_Fst Γ A B t :
+  | _T_Fst Γ A B t :
     (Γ |- t :: TProd A B) ->
     (Γ |- tFst t :: A)
 
-  | T_Snd Γ A B t :
+  | _T_Snd Γ A B t :
     (Γ |- t :: TProd A B) ->
     (Γ |- tSnd t :: B)
 
-  | T_Abort Γ A t :
+  | _T_Abort Γ A t :
     (Γ |- t :: TEmp) ->
     (Γ |- tAbort t :: A)
 
-  | T_Left Γ A B t :
+  | _T_Left Γ A B t :
     (Γ |- t :: A) ->
     (Γ |- tLeft t :: TSum A B)
 
-  | T_Right Γ A B t :
+  | _T_Right Γ A B t :
     (Γ |- t :: B) ->
     (Γ |- tRight t :: TSum A B)
 
-  | T_If Γ A B T s bl br :
+  | _T_If Γ A B T s bl br :
     (Γ |- s :: TSum A B) ->
     (Γ,,A |- bl :: T) ->
     (Γ,,B |- br :: T) ->
@@ -60,8 +62,6 @@ Section Typing.
   where "Γ '|-' t '::' T" := (has_type Γ T t) (Γ in scope context_scope).
 
 End Typing.
-
-Hint Constructors has_type : core.
 
 #[export] Instance HasTypingTm : HasTyping context type term := has_type.
 
@@ -77,41 +77,89 @@ Ltac fold_typing := change has_type with (typing (Ctx := context) (Ty := type) (
 
 Smpl Add fold_typing : refold.
 
+Lemma T_Var Γ n T :
+    in_context n Γ T ->
+    Γ |- tVar n :: T.
+Proof ltac:(now constructor).
+
+Lemma T_Star Γ : (Γ |- tStar :: TUnit).
+Proof ltac:(now constructor).
+
+Lemma T_Lam Γ A B t :
+    (Γ ,, A |- t :: B) ->
+    Γ |- tLam t :: TFun A B.
+Proof ltac:(now constructor).
+
+Lemma T_App Γ A B f u :
+    (Γ |- f :: TFun A B) ->
+    (Γ |- u :: A) ->
+    Γ |- tApp f u :: B.
+Proof ltac:(now econstructor).
+
+Lemma T_Pair Γ A B a b :
+    (Γ |- a :: A) ->
+    (Γ |- b :: B) ->
+    (Γ |- tPair a b :: TProd A B).
+Proof ltac:(now constructor).
+
+Lemma T_Fst Γ A B t :
+    (Γ |- t :: TProd A B) ->
+    (Γ |- tFst t :: A).
+Proof ltac:(now econstructor).
+
+Lemma T_Snd Γ A B t :
+    (Γ |- t :: TProd A B) ->
+    (Γ |- tSnd t :: B).
+Proof ltac:(now econstructor).
+
+Lemma T_Abort Γ A t :
+    (Γ |- t :: TEmp) ->
+    (Γ |- tAbort t :: A).
+Proof ltac:(now constructor).
+
+Lemma T_Left Γ A B t :
+    (Γ |- t :: A) ->
+    (Γ |- tLeft t :: TSum A B).
+Proof ltac:(now constructor).
+
+Lemma T_Right Γ A B t :
+    (Γ |- t :: B) ->
+    (Γ |- tRight t :: TSum A B).
+Proof ltac:(now constructor).
+
+Lemma T_If Γ A B T s bl br :
+    (Γ |- s :: TSum A B) ->
+    (Γ,,A |- bl :: T) ->
+    (Γ,,B |- br :: T) ->
+    (Γ |- tIf s bl br :: T).
+Proof ltac:(now econstructor).
+
+Hint Resolve T_Var  T_Star T_Lam T_App T_Pair T_Fst T_Snd T_Abort T_Left T_Right T_If : typing.
+
 Lemma var_empty n T : ~ in_context n ε T.
 Proof.
   unfold in_context ; cbn.
   discriminate.
 Qed.
 
-Hint Immediate var_empty : core.
+Hint Extern 0 (False) => (eapply var_empty) : typing.
 
-(** ** Renamings and substitutions preserve types *)
+Hint Extern 0 (in_context _ _ _) => reflexivity : typing.
 
+(** ** Typing for renamings and substitutions *)
 
-Lemma shift_has_type (Γ : context) (T : type) : (Γ,,T) |- ↑ :: Γ.
+(** Not in the [typing] hint database because it is too wild, needs to be applied directly *)
+Instance ren_has_type_ext (Δ Γ : context) :
+  Proper ((pointwise_relation _ eq) ==> iff) (typing (Obj := ren) Δ Γ).
 Proof.
-  intros ? ** ; assumption.
+  intros ?? Hren. 
+  split ; intros e i T Hin.
+  1: rewrite <- Hren.
+  2: rewrite Hren.
+  all: now apply e.
 Qed.
 
-Lemma ren_lift_has_type (Δ Γ : context) (T : type) (r : ren) :
-  (Δ |- r :: Γ) ->
-  (Δ,,T) |- (up_ren r) ::  (Γ,,T).
-Proof.
-  intros Hr i T' Hin.
-  unfold typing, HasTypingRen, in_context in *.
-  now destruct i ; cbn.
-Qed.
-
-Lemma ren_typing (Δ Γ : context) (T : type) (t : term) (r : ren) :
-  (Γ |- t :: T) ->
-  (Δ |- r :: Γ) ->
-  Δ |- t⟨r⟩ :: T.
-Proof.
-  intros Ht Hr.
-  induction Ht in Δ, r, Hr ; cbn ; econstructor ; eauto using ren_lift_has_type.
-Qed.
-
-Lemma id_ren_has_type (Δ : context) :
+Lemma ren_id_has_type (Δ : context) :
   Δ |- id :: Δ.
 Proof.
   now intros i T Hin ; cbn.
@@ -127,24 +175,65 @@ Proof.
   assumption.
 Qed.
 
-Instance ren_has_type_ext (Δ Γ : context) :
-  Proper ((pointwise_relation _ eq) ==> iff) (typing (Obj := ren) Δ Γ).
+Lemma shift_has_type (Γ : context) (T : type) : (Γ,,T) |- ↑ :: Γ.
 Proof.
-  intros ?? Hren. 
-  split ; intros e i T Hin.
-  1: rewrite <- Hren.
-  2: rewrite Hren.
-  all: now apply e.
+  intros ? ** ; assumption.
 Qed.
 
+Lemma ren_cons_has_type (Δ Γ : context) (T : type) (ρ : ren) (n : nat) :
+  in_context n Δ T ->
+  (Δ |- ρ :: Γ) ->
+  Δ |- (n .: ρ) :: (Γ,,T).
+Proof.
+  intros Hty Hs [] T' Hin ; cbn.
+  - unfold in_context in Hin ; cbn in *.
+    injection Hin ; subst.
+    assumption.
+  - apply Hs, Hin.
+Qed.
+
+Hint Resolve ren_id_has_type ren_comp_has_type shift_has_type ren_cons_has_type : typing.
+
+Lemma ren_lift_has_type (Δ Γ : context) (T : type) (r : ren) :
+  (Δ |- r :: Γ) ->
+  (Δ,,T) |- (⇑ r) ::  (Γ,,T).
+Proof.
+  intros.
+  change (Δ,, T |- 0 .: r >> S :: Γ,, T).
+  eauto with typing.
+Qed.
+
+Hint Resolve ren_lift_has_type : typing.
+
+Lemma ren_typing (Δ Γ : context) (T : type) (t : term) (r : ren) :
+  (Γ |- t :: T) ->
+  (Δ |- r :: Γ) ->
+  Δ |- t⟨r⟩ :: T.
+Proof.
+  intros Ht Hr.
+  induction Ht in Δ, r, Hr ; cbn ; eauto 10 with typing.
+Qed.
+
+Hint Resolve ren_typing : typing.
+
+(** Same, not in the hint database because it is too wild *)
 Instance subst_has_type_ext (Δ Γ : context) :
   Proper ((pointwise_relation _ eq) ==> iff) (typing (Obj := subst) Δ Γ).
 Proof.
-  intros ?? Hsubst. 
+  intros ?? Hsubst.
   split ; intros e i T Hin.
   1: rewrite <- Hsubst.
   2: rewrite Hsubst.
   all: now apply e.
+Qed.
+
+Lemma ren_subst_has_type (Δ Γ : context) (r : ren) :
+  (Δ |- r :: Γ) ->
+  (Δ |- (r >> ids) :: Γ).
+Proof.
+  intros Hr i T Hin ; cbn.
+  constructor.
+  now apply Hr.
 Qed.
 
 Lemma subst_cons_has_type (Δ Γ : context) (T : type) (σ : subst) (t : term) :
@@ -159,21 +248,12 @@ Proof.
   - apply Hs, Hin.
 Qed.
 
-Lemma ren_subst_has_type (Δ Γ : context) r :
-  (Δ |- r :: Γ) ->
-  (Δ |- (r >> ids) :: Γ).
-Proof.
-  intros Hr i T Hin ; cbn.
-  constructor.
-  now apply Hr.
-Qed.
+Hint Resolve ren_subst_has_type subst_cons_has_type : typing.
 
 Lemma id_subst_has_type (Γ : context) :
   Γ |- ids :: Γ.
 Proof.
-  eapply subst_has_type_ext.
-  1: reflexivity.
-  apply ren_subst_has_type, id_ren_has_type.
+  eauto with typing.
 Qed.
 
 Lemma subst_one_has_type (Γ : context) (T : type) (t : term) :
@@ -181,19 +261,21 @@ Lemma subst_one_has_type (Γ : context) (T : type) (t : term) :
   Γ |- (t..) ::  (Γ,,T).
 Proof.
   intros.
-  now apply subst_cons_has_type, id_subst_has_type.
+  eauto with typing.
 Qed.
 
 Lemma subst_lift_has_type (Δ Γ : context) (T : type) (σ : subst) :
   (Δ |- σ :: Γ) ->
-  (Δ,,T) |- (⇑ σ) ::  (Γ,,T).
+  (Δ,,T) |- (⇑ σ) :: (Γ,,T).
 Proof.
-  intros Hs.
-  apply subst_cons_has_type.
-  1: now econstructor.
-  intros i T' Hin ; cbn.
-  eapply ren_typing ; eauto using shift_has_type.
+  intros.
+  eapply subst_cons_has_type.
+  1: eauto with typing.
+  do 2 red ; cbn.
+  eauto with typing.
 Qed.
+
+Hint Resolve id_subst_has_type subst_one_has_type subst_lift_has_type : typing.
 
 Lemma subst_typing (Δ Γ : context) t T (σ : subst) :
   (Γ |- t :: T) ->
@@ -201,18 +283,18 @@ Lemma subst_typing (Δ Γ : context) t T (σ : subst) :
   Δ |- t[σ] :: T.
 Proof.
   intros Ht Hσ.
-  induction Ht in Δ, σ, Hσ ; cbn ; eauto using subst_lift_has_type.
-  all: econstructor ; eauto using subst_lift_has_type.
+  induction Ht in Δ, σ, Hσ ; cbn ; eauto 10 with typing.
 Qed.
+
+Hint Resolve subst_typing : typing.
 
 Lemma subst_comp_has_type (Δ Γ Θ : context) (σ σ' : subst) :
   (Δ |- σ :: Γ) ->
   (Γ |- σ' :: Θ) ->
   (Δ |- (σ' >> (subst_term σ)) :: Θ).
 Proof.
-  intros * Hσ Hσ' i T Hin ; cbn ; refold.
-  eapply subst_typing ; tea.
-  now apply Hσ'.
+  do 2 red.
+  eauto with typing.
 Qed.
 
 Lemma tip_has_type (Γ : context) (A B : type) (f : term -> term) :
@@ -220,18 +302,17 @@ Lemma tip_has_type (Γ : context) (A B : type) (f : term -> term) :
   (Γ,,A |- tip f :: Γ,,B).
 Proof.
   unfold tip.
-  intros.
-  apply subst_cons_has_type, ren_subst_has_type, shift_has_type.
-  assumption.
+  eauto with typing.
 Qed.
 
-Lemma swap_var_ty Γ (A B : type) :
+Lemma swap_var_has_type Γ (A B : type) :
   ((Γ,,A),,B) |- swap_var :: ((Γ,,B),,A).
 Proof.
-  intros i T Hin.
-  destruct i as [|[|i]] ; cbn in *.
-  all: exact Hin.
+  unfold swap_var.
+  eauto with typing.
 Qed.
+
+Hint Resolve subst_comp_has_type tip_has_type swap_var_has_type : typing.
 
 (** ** Types have decidable equality *)
 

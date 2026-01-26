@@ -61,10 +61,7 @@ Lemma split_ren_s_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
   Γ |- (split_ren_s s) :: Γs.
 Proof.
   induction s ; cbn.
-  - apply id_ren_has_type.
-  - now apply ren_lift_has_type.
-  - eapply ren_comp_has_type ; tea.
-    apply shift_has_type.
+  all: eauto with typing.
 Qed.
 
 Lemma split_ren_t_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
@@ -76,6 +73,7 @@ Proof.
   reflexivity.
 Qed.
 
+Hint Resolve split_ren_s_ty split_ren_t_ty : typing.
 
 Fixpoint find_side {Γ Γs Γt} (s : split Γ Γs Γt) (n : nat) : option side :=
   match s, n with
@@ -98,7 +96,7 @@ Lemma in_context_find_none {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) T :
   False.
 Proof.
   induction s in n |- * ; [|destruct n | destruct n] ; cbn.
-  - intros ; now eapply var_empty.
+  - eauto with typing.
   - congruence.
   - intros Hin ?%IHs.
     1: easy.
@@ -210,30 +208,24 @@ Proof.
       intros ? [].
     + red.
       prod_splitter.
-      all: solve [constructor].
+      1-2: now auto with typing.
+      reflexivity.
   - (* case tLam *)
     intros Γ A B t _ IH Γs Γt s.
     destruct (IH Γs (Γt,,A) (split_t s)) as (M&l&r&HM&Ht).
     exists M, l, (tLam (r⟨swap_var⟩)).
     split.
-    (* the good-looking proof would do setoid rewriting with subset equivalence… *)
     + intros p b Hb.
       specialize (HM p b Hb).
       now cbn in *.
     + unfold interpolate_tm in * ; cbn in *.
       destruct Ht as (?&?&e).
       prod_splitter.
-      1: easy.
-      * constructor.
-        eapply ren_typing ; [eassumption|].
-        apply swap_var_ty.
-      * apply R_Lam_cong.
-        etransitivity ; tea.
-        apply ereflexivity.
-        substify.
-        asimpl.
-        apply ext_term.
-        intros [|[|]] ; reflexivity.
+      1-2: now eauto with typing.
+      refold.
+      rewrite swap_shift2, swap_shift1, <- e.
+      apply ereflexivity.
+      now asimpl.
   - (* case tPair *)
     intros Γ A B t t' _ IHA _ IHB Γs Γt s.
     destruct (IHA Γs Γt s) as (M & l & r & HM & (?&?&et)).
@@ -247,10 +239,8 @@ Proof.
       all: now cbn in *.
     + unfold interpolate_tm in * ; cbn in *.
       prod_splitter.
-      1: now constructor.
-      * constructor ; eapply subst_typing, tip_has_type ;
-        try easy ; repeat econstructor.
-      * now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, et, et'.
+      1-2: now eauto 20 with typing.
+      now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, et, et'.
   - (* case tLeft *)
     intros * _ IH ?? s.
     destruct (IH _ _ s) as (M & l & r & HM & Ht).
@@ -262,9 +252,8 @@ Proof.
     + unfold interpolate_tm in * ; cbn in *.
       destruct Ht as (?&?&e).
       prod_splitter.
-      * easy.
-      * now constructor.
-      * now rewrite e.
+      1-2: eauto with typing.
+      now rewrite e.
   - (* case tRight *)
     intros * _ IH ?? s.
     destruct (IH _ _ s) as (M & l & r & HM & Ht).
@@ -276,9 +265,8 @@ Proof.
     + unfold interpolate_tm in * ; cbn in *.
       destruct Ht as (?&?&e).
       prod_splitter.
-      * easy.
-      * now constructor.
-      * now rewrite e.
+      1-2: eauto with typing.
+      now rewrite e.
   - (* case tAbort *)
     intros * _ IH ?? s.
     destruct (IH _ _ s) as (M & l & r & HM & Ht).
@@ -290,9 +278,8 @@ Proof.
     + unfold interpolate_tm in * ; cbn in *.
       destruct Ht as (?&?&e).
       prod_splitter.
-      * easy.
-      * now constructor.
-      * now rewrite e.
+      1-2: eauto with typing.
+      now rewrite e.
   - (* case tIf *)
     intros Γ A B T s bl br ? IHs ? IHl ? IHr ?? sp.
     destruct (IHs _ _ sp) as [[HMsum (M&l&r&[HMs (?&?&es)])]|[HMsum (M&l&r&[HMs (?&?&es)])]] ; tea.
@@ -311,14 +298,10 @@ Proof.
         specialize (HMr p x).
         now cbn in *.
       * prod_splitter.
-        -- now repeat constructor.
-        -- econstructor.
-           2-3: eapply ren_typing ; [..|now eapply swap_var_ty].
-           all: eapply subst_typing, tip_has_type ; eauto.
-           all: now repeat econstructor.
-        -- cbn ; refold.
-           rewrite !swap_shift2, !swap_shift1, !tip_shift, !tip_subst ; cbn ; try easy.
-           now rewrite !ST_Snd, !ST_Fst, !renRen_term, etl, etr, es.
+        1-2: now eauto 20 with typing.
+        cbn ; refold.
+        rewrite !swap_shift2, !swap_shift1, !tip_shift, !tip_subst ; cbn ; try easy.
+        now rewrite !ST_Snd, !ST_Fst, !renRen_term, etl, etr, es.
     + rewrite split_ren_s_flip, split_ren_t_split in es.
       destruct (IHl _ _ (split_s sp)) as (Ml & ll & rl & HMl & (?&?&etl)).
       destruct (IHr _ _ (split_s sp)) as (Mr & lr & rr & HMr & (?&?&etr)).
@@ -338,37 +321,34 @@ Proof.
         specialize (HMr p x).
         now cbn in *.
       * prod_splitter.
-        -- repeat econstructor.
-           all: now eauto using ren_typing, shift_has_type, swap_var_ty.
-        -- repeat econstructor.
-           all: eauto using ren_typing, swap_var_ty, shift_has_type.
-        -- cbn ; refold.
-           clear -es etl etr.
-           rewrite !swap_shift2, !swap_shift1, !ST_Beta_Fun.
-           cbn.
-           epose proof (ST_If_Comm _ _ _ (eIf _ _)) as He.
-           cbn in He.
-           rewrite He ; clear He.
-           rewrite !ST_Left, !ST_Right, !swap_shift2, !swap_shift1 ; refold.
-           apply R_If_cong.
-           all: etransitivity ; [|eassumption].
-           all: apply ereflexivity.
-           ++ now substify ; asimpl.
-           ++ cbn.
-              rewrite !renRen_term ; refold.
-              apply subst_term_morphism.
-              ** intros [|] ; cbn ; [|easy].
-                 now substify ; asimpl. 
-              ** now substify ; asimpl.
-           ++ cbn.
-              rewrite !renRen_term ; refold.
-              apply subst_term_morphism.
-              ** intros [|] ; cbn ; [|easy].
-                 now substify ; asimpl. 
-              ** now substify ; asimpl.
+        1-2: now eauto 20 with typing.
+        cbn ; refold.
+        clear -es etl etr.
+        rewrite !swap_shift2, !swap_shift1, !ST_Beta_Fun.
+        cbn.
+        epose proof (ST_If_Comm _ _ _ (eIf _ _)) as He.
+        cbn in He.
+        rewrite He ; clear He.
+        rewrite !ST_Left, !ST_Right, !swap_shift2, !swap_shift1 ; refold.
+        apply R_If_cong.
+        all: etransitivity ; [|eassumption].
+        all: apply ereflexivity.
+        ++ now substify ; asimpl.
+        ++ cbn.
+          rewrite !renRen_term ; refold.
+          apply subst_term_morphism.
+          ** intros [|] ; cbn ; [|easy].
+              now substify ; asimpl. 
+          ** now substify ; asimpl.
+        ++ cbn.
+          rewrite !renRen_term ; refold.
+          apply subst_term_morphism.
+          ** intros [|] ; cbn ; [|easy].
+              now substify ; asimpl. 
+          ** now substify ; asimpl.
   - (* case demote *)
     intros * _ IH -> ?? s.
-    destruct (IH _ _ s) as [[? (M&l&r&[HM ?])]|[Hat (M&l&r&[HM Hrl])]] ; tea.
+    destruct (IH _ _ s) as [[? (M&l&r&[HM ?])]|[Hat (M&l&r&[HM (?&?&erl)])]] ; tea.
     + exists M, l, r ; split.
       2: easy.
       intros p b [?%HM Hb]%dup ; cbn in * ; easy.
@@ -380,12 +360,9 @@ Proof.
         now apply Hat.
       * unfold interpolate_tm in *.
         prod_splitter.
-        1: now econstructor.
-        1: econstructor ; [now econstructor|..] ; eapply ren_typing ; [easy|] ;
-          now apply shift_has_type.
+        1-2: now eauto 20 with typing.
         cbn.
-        rewrite ST_Beta_Fun.
-        etransitivity ; [|eapply Hrl].
+        rewrite ST_Beta_Fun, <- erl.
         apply ereflexivity.
         rewrite split_ren_s_flip, split_ren_t_split.
         substify.
@@ -406,11 +383,9 @@ Proof.
       1: intros ? ? ? ; now cbn in *.
       unfold interpolate_tm.
       prod_splitter.
-      * now constructor.
-      * constructor ; assumption.
-      * cbn.
-        rewrite split_ren_t_split.
-        reflexivity.
+      1-2: eauto with typing.
+      cbn.
+      now rewrite split_ren_t_split.
     + left.
       apply find_side_some_r in e as (n'&A&[? ->]).
       eapply in_context_inj in Hin.
@@ -423,9 +398,8 @@ Proof.
       1: intros ? ? ? ; now cbn in *.
       unfold interpolate_tm.
       prod_splitter.
-      * now constructor.
-      * constructor ; assumption.
-      * reflexivity.
+      1-2: eauto with typing.
+      reflexivity.
   - (* case tApp *)
     intros Γ A B n u _ Hn _ IHu Γs Γt s.
     destruct (Hn _ _ s) as
@@ -448,11 +422,9 @@ Proof.
         easy.
       * unfold interpolate_tm in *.
         prod_splitter.
-        -- now constructor.
-        -- econstructor ; eapply subst_typing ; try easy.
-           all: apply tip_has_type ; repeat econstructor.
-        -- cbn.
-           now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, eu, et.
+        1-2: now eauto 20 with typing.
+        cbn.
+        now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, eu, et.
     + right.
       cbn in *.
       specialize (IHu _ _ (flip_split s)) as (Mu&lu&ru&(IHMu&?&?&eu)).
@@ -471,14 +443,12 @@ Proof.
         easy.
       * unfold interpolate_tm in *.
         prod_splitter.
-        -- now constructor.
-        -- econstructor ; eapply subst_typing ; try easy.
-           all: apply tip_has_type ; repeat econstructor.
-        -- cbn.
-           now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, eu, et.
+        1-2: now eauto 20 with typing.
+        cbn.
+        now rewrite !tip_shift, !tip_subst, ST_Fst, ST_Snd, eu, et.
   - (* case tProj *)
     intros * _ IH Γs Γt s.
-    destruct (IH _ _ s) as [[IHb (M&l&r&Htm)]|[IHb (M&l&r&Htm)]].
+    destruct (IH _ _ s) as [[IHb (M&l&r&(?&?&?&etm))]|[IHb (M&l&r&(?&?&?&etm))]].
     + left.
       split.
       * intros p.
@@ -487,11 +457,11 @@ Proof.
         all: now cbn.
       * exists M, l, (tProj b r).
         split ; [easy|].
-        unfold interpolate_tm in * ; prod_splitter ; try easy.
-        1: destruct b ; cbn ; now econstructor.
+        unfold interpolate_tm in * ; prod_splitter.
+        2: destruct b.
+        1-3: now eauto with typing.
         cbn.
-        apply R_Proj_cong ; try reflexivity.
-        apply Htm.
+        now rewrite etm.
     + right.
       split.
       * intros p.
@@ -500,11 +470,11 @@ Proof.
         all: now cbn.
       * exists M, l, (tProj b r).
         split ; [easy|].
-        unfold interpolate_tm in * ; prod_splitter ; try easy.
-        1: destruct b ; cbn ; now econstructor.
+        unfold interpolate_tm in * ; prod_splitter.
+        2: destruct b ; cbn.
+        1-3: now eauto with typing.
         cbn.
-        apply R_Proj_cong ; try reflexivity.
-        apply Htm.
+        now rewrite etm.
 Qed.
 
 End Interpolation.
