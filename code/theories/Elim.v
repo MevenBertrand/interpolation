@@ -6,8 +6,8 @@ Import ListNotations.
 
 Definition zip (e : elim) (t : term) : term :=
   match e with
-  | eProj b => tProj b t
   | eApp u => tApp t u
+  | eProj b => tProj b t
   | eAbort => tAbort t
   | eIf bl br => tIf t bl br
   end.

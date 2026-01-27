@@ -1,4 +1,4 @@
-From Interpolation Require Import Utils Syntax Notations Reduction Typing Bidir.
+From Interpolation Require Import Utils Syntax Notations Reduction Typing Bidir MetaTheory.
 From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
 
 (** ** Primitives for context splitting *)
@@ -19,18 +19,18 @@ Fixpoint flip_split {Γ Γs Γt} (s : split Γ Γs Γt) : split Γ Γt Γs :=
   | split_t s => split_s (flip_split s)
   end.
 
-Fixpoint split_ren_s {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
+Fixpoint sren_s {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   match s with
   | split_emp => id
-  | split_s s' => ⇑ (split_ren_s s')
-  | split_t s' => (split_ren_s s') >> ↑
+  | split_s s' => ⇑ (sren_s s')
+  | split_t s' => (sren_s s') >> ↑
   end.
 
-Fixpoint split_ren_t {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
+Fixpoint sren_t {Γ Γs Γt} (s : split Γ Γs Γt) : ren :=
   match s with
   | split_emp => id
-  | split_t s' => ⇑ (split_ren_t s')
-  | split_s s' => (split_ren_t s') >> ↑
+  | split_t s' => ⇑ (sren_t s')
+  | split_s s' => (sren_t s') >> ↑
   end.
 
 Lemma flip_split_inv {Γ Γs Γt} (s : split Γ Γs Γt) :
@@ -41,39 +41,39 @@ Proof.
   all: now rewrite IHs.
 Qed.
 
-Lemma split_ren_s_flip {Γ Γs Γt} (s : split Γ Γs Γt) :
-  split_ren_s (flip_split s) = split_ren_t s.
+Lemma sren_s_flip {Γ Γs Γt} (s : split Γ Γs Γt) :
+  sren_s (flip_split s) = sren_t s.
 Proof.
   induction s ; cbn.
   1: easy.
   all: now rewrite IHs.
 Qed.
 
-Lemma split_ren_t_split {Γ Γs Γt} (s : split Γ Γs Γt) :
-  split_ren_t (flip_split s) = split_ren_s s.
+Lemma sren_t_split {Γ Γs Γt} (s : split Γ Γs Γt) :
+  sren_t (flip_split s) = sren_s s.
 Proof.
   rewrite <- (flip_split_inv s) at 2.
-  rewrite split_ren_s_flip.
+  rewrite sren_s_flip.
   reflexivity.
 Qed.
 
-Lemma split_ren_s_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
-  Γ |- (split_ren_s s) :: Γs.
+Lemma sren_s_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
+  Γ ⊢ (sren_s s) :: Γs.
 Proof.
   induction s ; cbn.
   all: eauto with typing.
 Qed.
 
-Lemma split_ren_t_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
-  Γ |- (split_ren_t s) :: Γt.
+Lemma sren_t_ty {Γ Γs Γt} (s : split Γ Γs Γt) :
+  Γ ⊢ (sren_t s) :: Γt.
 Proof.
   eapply ren_has_type_ext.
-  2: eapply split_ren_s_ty.
-  rewrite split_ren_s_flip.
+  2: eapply sren_s_ty.
+  rewrite sren_s_flip.
   reflexivity.
 Qed.
 
-Hint Resolve split_ren_s_ty split_ren_t_ty : typing.
+Hint Resolve sren_s_ty sren_t_ty : typing.
 
 Fixpoint find_side {Γ Γs Γt} (s : split Γ Γs Γt) (n : nat) : option side :=
   match s, n with
@@ -109,7 +109,7 @@ Qed.
 
 Lemma find_side_some_l {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) :
   find_side s n = Some source ->
-  {n' & {T & in_context n' Γs T /\ n = split_ren_s s n'}}.
+  {n' & {T & in_context n' Γs T /\ n = sren_s s n'}}.
 Proof.
   intros Hside.
   induction s in n, Hside |- * ; [|destruct n | destruct n] ; cbn in *.
@@ -126,10 +126,10 @@ Qed.
 
 Lemma find_side_some_r {Γ Γs Γt} (n : nat) (s : split Γ Γs Γt) :
   find_side s n = Some target ->
-  {n' & {T & in_context n' Γt T /\ n = split_ren_t s n'}}.
+  {n' & {T & in_context n' Γt T /\ n = sren_t s n'}}.
 Proof.
   intros e.
-  rewrite <- split_ren_s_flip.
+  rewrite <- sren_s_flip.
   apply find_side_some_l.
   rewrite find_flip, e.
   reflexivity.
@@ -176,8 +176,8 @@ Definition interpolate_ty Γs Γt A M :=
   forall p, atoms_ty p M ⊆ (atoms_ctx p Γs) ∩ (atoms_ctx (negp p) Γt ∪ atoms_ty p A).
 
 Definition interpolate_tm {Γ Γs Γt} (s : split Γ Γs Γt) M A t l r :=
-  (Γs |- l :: M) /\ (Γt ,, M |- r :: A) /\
-  r⟨⇑ (split_ren_t s)⟩[l⟨split_ren_s s⟩..] ⤳* t.
+  (Γs ⊢ l :: M) /\ (Γt ,, M ⊢ r :: A) /\
+  r⟨⇑ (sren_t s)⟩[l⟨sren_s s⟩..] ⤳* t.
 
 Let Pcheck Γ T t := forall Γs Γt (s : split Γ Γs Γt),
   exists M l r,
@@ -196,7 +196,7 @@ Let Pinf Γ T t := forall Γs Γt (s : split Γ Γs Γt),
       interpolate_tm (flip_split s) M T t l r)
   ).
 
-Theorem interpolation : bidir_concl Pcheck Pinf.
+Theorem interpolation_ind : bidir_concl Pcheck Pinf.
 Proof.
   apply bidir_ind.
   - (* case tStar *)
@@ -269,17 +269,29 @@ Proof.
       now rewrite e.
   - (* case tAbort *)
     intros * _ IH ?? s.
-    destruct (IH _ _ s) as (M & l & r & HM & Ht).
-    exists M, l, (tAbort r).
-    split.
-    + intros ?? Hb.
-      specialize (HM _ _ Hb).
-      now cbn in *.
-    + unfold interpolate_tm in * ; cbn in *.
-      destruct Ht as (?&?&e).
-      prod_splitter.
-      1-2: eauto with typing.
-      now rewrite e.
+    destruct (IH _ _ s) as [[_ (M&l&r&[HM (?&?&e)])]|[_ (M&l&r&[HM (?&?&e)])]] ; tea.
+    + exists M, l, (tAbort r).
+      split.
+      * intros ?? Hb.
+        specialize (HM _ _ Hb).
+        now cbn in *.
+      * unfold interpolate_tm in * ; cbn in *.
+        prod_splitter.
+        1-2: eauto with typing.
+        now rewrite e.
+    + exists (TFun M TEmp), (tLam r), (tAbort (tApp (tVar 0) l⟨↑⟩)).
+      split.
+      * intros p b [[HΓ%HM Hb]%dup|] ; cbn in * ; [|easy].
+        now rewrite negp_inv in HΓ.
+      * unfold interpolate_tm in *.
+        prod_splitter.
+        1-2: eauto 20 with typing.
+        cbn.
+        rewrite ST_Beta_Fun, <- e.
+        apply ereflexivity.
+        rewrite sren_s_flip, sren_t_split.
+        substify.
+        now asimpl.
   - (* case tIf *)
     intros Γ A B T s bl br ? IHs ? IHl ? IHr ?? sp.
     destruct (IHs _ _ sp) as [[HMsum (M&l&r&[HMs (?&?&es)])]|[HMsum (M&l&r&[HMs (?&?&es)])]] ; tea.
@@ -302,7 +314,7 @@ Proof.
         cbn ; refold.
         rewrite !swap_shift2, !swap_shift1, !tip_shift, !tip_subst ; cbn ; try easy.
         now rewrite !ST_Snd, !ST_Fst, !renRen_term, etl, etr, es.
-    + rewrite split_ren_s_flip, split_ren_t_split in es.
+    + rewrite sren_s_flip, sren_t_split in es.
       destruct (IHl _ _ (split_s sp)) as (Ml & ll & rl & HMl & (?&?&etl)).
       destruct (IHr _ _ (split_s sp)) as (Mr & lr & rr & HMr & (?&?&etr)).
       unfold interpolate_tm in *.
@@ -326,10 +338,7 @@ Proof.
         clear -es etl etr.
         rewrite !swap_shift2, !swap_shift1, !ST_Beta_Fun.
         cbn.
-        epose proof (ST_If_Comm _ _ _ (eIf _ _)) as He.
-        cbn in He.
-        rewrite He ; clear He.
-        rewrite !ST_Left, !ST_Right, !swap_shift2, !swap_shift1 ; refold.
+        rewrite ST_If_If, !ST_Left, !ST_Right, !swap_shift2, !swap_shift1 ; refold.
         apply R_If_cong.
         all: etransitivity ; [|eassumption].
         all: apply ereflexivity.
@@ -364,7 +373,7 @@ Proof.
         cbn.
         rewrite ST_Beta_Fun, <- erl.
         apply ereflexivity.
-        rewrite split_ren_s_flip, split_ren_t_split.
+        rewrite sren_s_flip, sren_t_split.
         substify.
         now asimpl.
   - (* case tVar *)
@@ -374,7 +383,7 @@ Proof.
     + right.
       apply find_side_some_l in e as (n'&A&[? ->]).
       eapply in_context_inj in Hin.
-      2:now eapply split_ren_s_ty.
+      2:now eapply sren_s_ty.
       subst.
       split.
       1: now eapply atoms_in.
@@ -385,11 +394,11 @@ Proof.
       prod_splitter.
       1-2: eauto with typing.
       cbn.
-      now rewrite split_ren_t_split.
+      now rewrite sren_t_split.
     + left.
       apply find_side_some_r in e as (n'&A&[? ->]).
       eapply in_context_inj in Hin.
-      2:now eapply split_ren_t_ty.
+      2:now eapply sren_t_ty.
       subst.
       split.
       1: now eapply atoms_in.
@@ -478,3 +487,33 @@ Proof.
 Qed.
 
 End Interpolation.
+
+
+Corollary interpolation (A C : type) (t : term) :
+  (ε,,A ⊢ t :: C) ->
+  exists B u r l,
+    (forall p, atoms_ty p B ⊆ (atoms_ty p A) ∩ (atoms_ty p C)) /\
+    (ε,,A ⊢ l :: B) /\ (ε,,B ⊢ r :: C) /\
+    (r[l .: (↑ >> ids)] ⤳* u) /\ t ⤳* u.
+Proof.
+  intros Ht.
+  pose proof (normalisation _ _ _ Ht) as (u&?&Hnorm).
+  unshelve eapply interpolation_ind in Hnorm as (B&l&r&Hty&Htm&?&?).
+  3: exact (split_s split_emp).
+  unfold interpolate_tm, interpolate_ty in * ; cbn in *.
+  exists B, u, r, l.
+  prod_splitter.
+  - intros p b.
+    specialize (Hty p b) ; cbn in *.
+    intuition.
+  - assumption.
+  - assumption.
+  - etransitivity ; tea.
+    apply ereflexivity.
+    substify ; asimpl ; refold.
+    apply subst_term_morphism ; [|easy].
+    intros [|] ; cbn ; [|easy].
+    renamify ; refold.
+    now rewrite up_id.
+  - assumption. 
+Qed.

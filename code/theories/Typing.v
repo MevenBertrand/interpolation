@@ -15,51 +15,51 @@ Section Typing.
   Inductive has_type : context -> type -> term -> Prop :=
   | _T_Var Γ n T :
     in_context n Γ T ->
-    Γ |- tVar n :: T
+    Γ ⊢ tVar n :: T
 
-  | _T_Star Γ : (Γ |- tStar :: TUnit)
+  | _T_Star Γ : (Γ ⊢ tStar :: TUnit)
 
   | _T_Lam Γ A B t :
-    (Γ ,, A |- t :: B) ->
-    Γ |- tLam t :: TFun A B
+    (Γ ,, A ⊢ t :: B) ->
+    Γ ⊢ tLam t :: TFun A B
 
   | _T_App Γ A B f u :
-    (Γ |- f :: TFun A B) ->
-    (Γ |- u :: A) ->
-    Γ |- tApp f u :: B
+    (Γ ⊢ f :: TFun A B) ->
+    (Γ ⊢ u :: A) ->
+    Γ ⊢ tApp f u :: B
 
   | _T_Pair Γ A B a b :
-    (Γ |- a :: A) ->
-    (Γ |- b :: B) ->
-    (Γ |- tPair a b :: TProd A B)
+    (Γ ⊢ a :: A) ->
+    (Γ ⊢ b :: B) ->
+    (Γ ⊢ tPair a b :: TProd A B)
 
   | _T_Fst Γ A B t :
-    (Γ |- t :: TProd A B) ->
-    (Γ |- tFst t :: A)
+    (Γ ⊢ t :: TProd A B) ->
+    (Γ ⊢ tFst t :: A)
 
   | _T_Snd Γ A B t :
-    (Γ |- t :: TProd A B) ->
-    (Γ |- tSnd t :: B)
+    (Γ ⊢ t :: TProd A B) ->
+    (Γ ⊢ tSnd t :: B)
 
   | _T_Abort Γ A t :
-    (Γ |- t :: TEmp) ->
-    (Γ |- tAbort t :: A)
+    (Γ ⊢ t :: TEmp) ->
+    (Γ ⊢ tAbort t :: A)
 
   | _T_Left Γ A B t :
-    (Γ |- t :: A) ->
-    (Γ |- tLeft t :: TSum A B)
+    (Γ ⊢ t :: A) ->
+    (Γ ⊢ tLeft t :: TSum A B)
 
   | _T_Right Γ A B t :
-    (Γ |- t :: B) ->
-    (Γ |- tRight t :: TSum A B)
+    (Γ ⊢ t :: B) ->
+    (Γ ⊢ tRight t :: TSum A B)
 
   | _T_If Γ A B T s bl br :
-    (Γ |- s :: TSum A B) ->
-    (Γ,,A |- bl :: T) ->
-    (Γ,,B |- br :: T) ->
-    (Γ |- tIf s bl br :: T)
+    (Γ ⊢ s :: TSum A B) ->
+    (Γ,,A ⊢ bl :: T) ->
+    (Γ,,B ⊢ br :: T) ->
+    (Γ ⊢ tIf s bl br :: T)
 
-  where "Γ '|-' t '::' T" := (has_type Γ T t) (Γ in scope context_scope).
+  where "Γ '⊢' t '::' T" := (has_type Γ T t) (Γ in scope context_scope).
 
 End Typing.
 
@@ -71,7 +71,7 @@ End Typing.
 
 #[export] Instance HasTypingSubst : HasTyping context context subst :=
  fun (Δ Γ : context) (s : subst) =>
-  forall i T, in_context i Γ T -> Δ |- s i :: T.
+  forall i T, in_context i Γ T -> Δ ⊢ s i :: T.
 
 Ltac fold_typing := change has_type with (typing (Ctx := context) (Ty := type) (Obj := term)) in *.
 
@@ -79,62 +79,62 @@ Smpl Add fold_typing : refold.
 
 Lemma T_Var Γ n T :
     in_context n Γ T ->
-    Γ |- tVar n :: T.
+    Γ ⊢ tVar n :: T.
 Proof ltac:(now constructor).
 
-Lemma T_Star Γ : (Γ |- tStar :: TUnit).
+Lemma T_Star Γ : (Γ ⊢ tStar :: TUnit).
 Proof ltac:(now constructor).
 
 Lemma T_Lam Γ A B t :
-    (Γ ,, A |- t :: B) ->
-    Γ |- tLam t :: TFun A B.
+    (Γ ,, A ⊢ t :: B) ->
+    Γ ⊢ tLam t :: TFun A B.
 Proof ltac:(now constructor).
 
 Lemma T_App Γ A B f u :
-    (Γ |- f :: TFun A B) ->
-    (Γ |- u :: A) ->
-    Γ |- tApp f u :: B.
+    (Γ ⊢ f :: TFun A B) ->
+    (Γ ⊢ u :: A) ->
+    Γ ⊢ tApp f u :: B.
 Proof ltac:(now econstructor).
 
 Lemma T_Pair Γ A B a b :
-    (Γ |- a :: A) ->
-    (Γ |- b :: B) ->
-    (Γ |- tPair a b :: TProd A B).
+    (Γ ⊢ a :: A) ->
+    (Γ ⊢ b :: B) ->
+    (Γ ⊢ tPair a b :: TProd A B).
 Proof ltac:(now constructor).
 
 Lemma T_Fst Γ A B t :
-    (Γ |- t :: TProd A B) ->
-    (Γ |- tFst t :: A).
+    (Γ ⊢ t :: TProd A B) ->
+    (Γ ⊢ tFst t :: A).
 Proof ltac:(now econstructor).
 
 Lemma T_Snd Γ A B t :
-    (Γ |- t :: TProd A B) ->
-    (Γ |- tSnd t :: B).
+    (Γ ⊢ t :: TProd A B) ->
+    (Γ ⊢ tSnd t :: B).
 Proof ltac:(now econstructor).
 
 Lemma T_Abort Γ A t :
-    (Γ |- t :: TEmp) ->
-    (Γ |- tAbort t :: A).
+    (Γ ⊢ t :: TEmp) ->
+    (Γ ⊢ tAbort t :: A).
 Proof ltac:(now constructor).
 
 Lemma T_Left Γ A B t :
-    (Γ |- t :: A) ->
-    (Γ |- tLeft t :: TSum A B).
+    (Γ ⊢ t :: A) ->
+    (Γ ⊢ tLeft t :: TSum A B).
 Proof ltac:(now constructor).
 
 Lemma T_Right Γ A B t :
-    (Γ |- t :: B) ->
-    (Γ |- tRight t :: TSum A B).
+    (Γ ⊢ t :: B) ->
+    (Γ ⊢ tRight t :: TSum A B).
 Proof ltac:(now constructor).
 
 Lemma T_If Γ A B T s bl br :
-    (Γ |- s :: TSum A B) ->
-    (Γ,,A |- bl :: T) ->
-    (Γ,,B |- br :: T) ->
-    (Γ |- tIf s bl br :: T).
+    (Γ ⊢ s :: TSum A B) ->
+    (Γ,,A ⊢ bl :: T) ->
+    (Γ,,B ⊢ br :: T) ->
+    (Γ ⊢ tIf s bl br :: T).
 Proof ltac:(now econstructor).
 
-Hint Resolve T_Var  T_Star T_Lam T_App T_Pair T_Fst T_Snd T_Abort T_Left T_Right T_If : typing.
+Hint Resolve T_Var T_Star T_Lam T_App T_Pair T_Fst T_Snd T_Abort T_Left T_Right T_If : typing.
 
 Lemma var_empty n T : ~ in_context n ε T.
 Proof.
@@ -160,30 +160,30 @@ Proof.
 Qed.
 
 Lemma ren_id_has_type (Δ : context) :
-  Δ |- id :: Δ.
+  Δ ⊢ id :: Δ.
 Proof.
   now intros i T Hin ; cbn.
 Qed.
 
 Lemma ren_comp_has_type (Δ Γ Θ : context) (r r' : ren) :
-  (Δ |- r :: Γ) ->
-  (Γ |- r' :: Θ) ->
-  (Δ |- (r' >> r) :: Θ).
+  (Δ ⊢ r :: Γ) ->
+  (Γ ⊢ r' :: Θ) ->
+  (Δ ⊢ (r' >> r) :: Θ).
 Proof.
   intros * Hr Hr' i T Hin.
   apply Hr', Hr in Hin.
   assumption.
 Qed.
 
-Lemma shift_has_type (Γ : context) (T : type) : (Γ,,T) |- ↑ :: Γ.
+Lemma shift_has_type (Γ : context) (T : type) : (Γ,,T) ⊢ ↑ :: Γ.
 Proof.
   intros ? ** ; assumption.
 Qed.
 
 Lemma ren_cons_has_type (Δ Γ : context) (T : type) (ρ : ren) (n : nat) :
   in_context n Δ T ->
-  (Δ |- ρ :: Γ) ->
-  Δ |- (n .: ρ) :: (Γ,,T).
+  (Δ ⊢ ρ :: Γ) ->
+  Δ ⊢ (n .: ρ) :: (Γ,,T).
 Proof.
   intros Hty Hs [] T' Hin ; cbn.
   - unfold in_context in Hin ; cbn in *.
@@ -195,20 +195,20 @@ Qed.
 Hint Resolve ren_id_has_type ren_comp_has_type shift_has_type ren_cons_has_type : typing.
 
 Lemma ren_lift_has_type (Δ Γ : context) (T : type) (r : ren) :
-  (Δ |- r :: Γ) ->
-  (Δ,,T) |- (⇑ r) ::  (Γ,,T).
+  (Δ ⊢ r :: Γ) ->
+  (Δ,,T) ⊢ (⇑ r) ::  (Γ,,T).
 Proof.
   intros.
-  change (Δ,, T |- 0 .: r >> S :: Γ,, T).
+  change (Δ,, T ⊢ 0 .: r >> S :: Γ,, T).
   eauto with typing.
 Qed.
 
 Hint Resolve ren_lift_has_type : typing.
 
 Lemma ren_typing (Δ Γ : context) (T : type) (t : term) (r : ren) :
-  (Γ |- t :: T) ->
-  (Δ |- r :: Γ) ->
-  Δ |- t⟨r⟩ :: T.
+  (Γ ⊢ t :: T) ->
+  (Δ ⊢ r :: Γ) ->
+  Δ ⊢ t⟨r⟩ :: T.
 Proof.
   intros Ht Hr.
   induction Ht in Δ, r, Hr ; cbn ; eauto 10 with typing.
@@ -228,8 +228,8 @@ Proof.
 Qed.
 
 Lemma ren_subst_has_type (Δ Γ : context) (r : ren) :
-  (Δ |- r :: Γ) ->
-  (Δ |- (r >> ids) :: Γ).
+  (Δ ⊢ r :: Γ) ->
+  (Δ ⊢ (r >> ids) :: Γ).
 Proof.
   intros Hr i T Hin ; cbn.
   constructor.
@@ -237,9 +237,9 @@ Proof.
 Qed.
 
 Lemma subst_cons_has_type (Δ Γ : context) (T : type) (σ : subst) (t : term) :
-  (Δ |- t :: T) ->
-  (Δ |- σ :: Γ) ->
-  Δ |- (t .: σ) :: (Γ,,T).
+  (Δ ⊢ t :: T) ->
+  (Δ ⊢ σ :: Γ) ->
+  Δ ⊢ (t .: σ) :: (Γ,,T).
 Proof.
   intros Hty Hs [] T' Hin ; cbn.
   - unfold in_context in Hin ; cbn in *.
@@ -251,22 +251,22 @@ Qed.
 Hint Resolve ren_subst_has_type subst_cons_has_type : typing.
 
 Lemma id_subst_has_type (Γ : context) :
-  Γ |- ids :: Γ.
+  Γ ⊢ ids :: Γ.
 Proof.
   eauto with typing.
 Qed.
 
 Lemma subst_one_has_type (Γ : context) (T : type) (t : term) :
-  (Γ |- t :: T) -> 
-  Γ |- (t..) ::  (Γ,,T).
+  (Γ ⊢ t :: T) -> 
+  Γ ⊢ (t..) ::  (Γ,,T).
 Proof.
   intros.
   eauto with typing.
 Qed.
 
 Lemma subst_lift_has_type (Δ Γ : context) (T : type) (σ : subst) :
-  (Δ |- σ :: Γ) ->
-  (Δ,,T) |- (⇑ σ) :: (Γ,,T).
+  (Δ ⊢ σ :: Γ) ->
+  (Δ,,T) ⊢ (⇑ σ) :: (Γ,,T).
 Proof.
   intros.
   eapply subst_cons_has_type.
@@ -278,9 +278,9 @@ Qed.
 Hint Resolve id_subst_has_type subst_one_has_type subst_lift_has_type : typing.
 
 Lemma subst_typing (Δ Γ : context) t T (σ : subst) :
-  (Γ |- t :: T) ->
-  (Δ |- σ :: Γ) ->
-  Δ |- t[σ] :: T.
+  (Γ ⊢ t :: T) ->
+  (Δ ⊢ σ :: Γ) ->
+  Δ ⊢ t[σ] :: T.
 Proof.
   intros Ht Hσ.
   induction Ht in Δ, σ, Hσ ; cbn ; eauto 10 with typing.
@@ -289,24 +289,24 @@ Qed.
 Hint Resolve subst_typing : typing.
 
 Lemma subst_comp_has_type (Δ Γ Θ : context) (σ σ' : subst) :
-  (Δ |- σ :: Γ) ->
-  (Γ |- σ' :: Θ) ->
-  (Δ |- (σ' >> (subst_term σ)) :: Θ).
+  (Δ ⊢ σ :: Γ) ->
+  (Γ ⊢ σ' :: Θ) ->
+  (Δ ⊢ (σ' >> (subst_term σ)) :: Θ).
 Proof.
   do 2 red.
   eauto with typing.
 Qed.
 
 Lemma tip_has_type (Γ : context) (A B : type) (f : term -> term) :
-  (Γ,,A |- f (tVar 0) :: B) ->
-  (Γ,,A |- tip f :: Γ,,B).
+  (Γ,,A ⊢ f (tVar 0) :: B) ->
+  (Γ,,A ⊢ tip f :: Γ,,B).
 Proof.
   unfold tip.
   eauto with typing.
 Qed.
 
 Lemma swap_var_has_type Γ (A B : type) :
-  ((Γ,,A),,B) |- swap_var :: ((Γ,,B),,A).
+  ((Γ,,A),,B) ⊢ swap_var :: ((Γ,,B),,A).
 Proof.
   unfold swap_var.
   eauto with typing.

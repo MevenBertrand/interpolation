@@ -7,11 +7,17 @@ Delimit Scope typing_scope with ty.
 Open Scope typing_scope.
 
 Class HasTyping (Ctx Ty Obj : Type) := typing : Ctx -> Ty -> Obj -> Prop.
+Class HasSemTyping (Ctx Ty Obj : Type) := sem_typing : Ctx -> Ty -> Obj -> Prop.
+Class HasClosedSemTyping (Ty Obj : Type) := cl_sem_typing : Ty -> Obj -> Prop.
 Class HasRed (Obj : Type) := red : relation Obj.
 Class HasORed (Obj : Type) := ored : relation Obj.
 
 (** The object t has type A in Γ *)
-Notation "Γ '|-' t '::' T" := (typing Γ T t)
+Notation "Γ '⊢' t '::' T" := (typing Γ T t)
+  (at level 101, t at level 59) : typing_scope.
+
+(** The object t is semantically well-typed in Γ *)
+Notation "Γ '⊩' t '::' T" := (sem_typing Γ T t)
   (at level 101, t at level 59) : typing_scope.
 
 (** Term t one-step reduces to term t' *)

@@ -65,6 +65,7 @@ Ltac change_autosubst :=
     change subst_term with (@subst1 _ _ _ Subst_term) in *;
     change (fun i => (?σ i)⟨?ρ⟩) with (@ren1 _ _ _ Ren1_subst ρ σ) in * ;
     change up_ren with (@up_term _ _ up_term_ren) in * ;
+    change (up_term_ren ?t) with (@up_term _ _ up_term_ren t) in * ;
     change upRen_term_term with (@up_term _ _ up_term_ren) in * ;
     change up_term_term with (@up_term _ _ Up_term_term) in *.
 
@@ -79,6 +80,35 @@ Arguments VarInstance_term _/.
 
 (** ** Lemmas *)
 
+Lemma up_up_ren ρ ρ' (t : term) : t⟨⇑ ρ⟩⟨⇑ ρ'⟩ = t⟨⇑ (ρ >> ρ')⟩.
+Proof.
+  substify ; asimpl ; refold.
+  apply subst_term_morphism.
+  1: now intros [|].
+  easy.
+Qed.
+
+Lemma up_up_subst_ren (σ : subst) (ρ : ren) (t : term) :
+  t[⇑ σ]⟨⇑ ρ⟩ = t[⇑ (σ >> ren_term ρ)].
+Proof.
+  substify ; asimpl ; refold.
+  apply subst_term_morphism.
+  2: easy.
+  intros [|] ; cbn ; refold ; try easy.
+  substify ; refold.
+  apply subst_term_morphism.
+  2: easy.
+  now intros [|].
+Qed.
+
+Lemma up_id (t : term) : t⟨⇑ id⟩ = t.
+Proof.
+  rewrite ren_term_morphism.
+  1: apply rinstId'_term.
+  1: now intros [|].
+  easy.
+Qed.
+
 Lemma subst1_ren (t u : term) (ρ : ren) : t[u..]⟨ρ⟩ = t⟨⇑ ρ⟩[u⟨ρ⟩..].
 Proof.
   now substify ; asimpl.
@@ -89,7 +119,31 @@ Proof.
   now asimpl.
 Qed.
 
-Lemma elim_ren e ρ : e⟨ρ⟩ = e[ρ >> tVar].
+Lemma up_lift_ren (t : term) ρ : t⟨↑⟩⟨⇑ ρ⟩ = t⟨ρ⟩⟨↑⟩.
+Proof.
+  now asimpl.
+Qed.
+
+Lemma up_lift_up_ren (t : term) ρ : t⟨⇑ ↑⟩⟨⇑ (⇑ ρ)⟩ = t⟨⇑ ρ⟩⟨⇑ ↑⟩.
+Proof.
+  intros ; asimpl ; refold.
+  apply ren_term_morphism ; [|reflexivity].
+  intros [|] ; reflexivity.
+Qed.
+
+Lemma up_lift_subst (t : term) σ : t⟨↑⟩[⇑ σ] = t[σ]⟨↑⟩.
+Proof.
+  now asimpl.
+Qed.
+
+Lemma up_lift_up_subst (t : term) σ : t⟨⇑ ↑⟩[⇑ (⇑ σ)] = t[⇑ σ]⟨⇑ ↑⟩.
+Proof.
+  intros ; asimpl ; refold.
+  apply subst_term_morphism ; [|reflexivity].
+  intros [|] ; reflexivity.
+Qed.
+
+Lemma elim_ren (e : elim) ρ : e⟨ρ⟩ = e[ρ >> tVar].
 Proof.
   substify ; refold.
   reflexivity.

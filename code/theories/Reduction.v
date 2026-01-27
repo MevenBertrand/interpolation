@@ -21,10 +21,23 @@ Section Reduction.
     | ST_Right t bl br : tIf (tRight t) bl br ⤳ br[t..]
 
     (** commuting conversions *)
-    | ST_Abort_Comm t e :
-      zip e (tAbort t) ⤳ tAbort t
-    | ST_If_Comm s bl br e :
-      zip e (tIf s bl br) ⤳ tIf s (zip e⟨↑⟩ bl) (zip e⟨↑⟩ br)
+    | ST_App_Abort u t :
+      tApp (tAbort t) u ⤳ tAbort t
+    | ST_Proj_Abort b t :
+      tProj b (tAbort t) ⤳ tAbort t
+    | ST_Abort_Abort t :
+      tAbort (tAbort t) ⤳ tAbort t
+    | ST_If_Abort bl br t :
+      tIf (tAbort t) bl br ⤳ tAbort t
+
+    | ST_App_If u s bl br :
+      tApp (tIf s bl br) u ⤳ tIf s (tApp bl u⟨↑⟩) (tApp br u⟨↑⟩)
+    | ST_Proj_If b s bl br :
+      tProj b (tIf s bl br) ⤳ tIf s (tProj b bl) (tProj b br)
+    | ST_Abort_If s bl br :
+      tAbort (tIf s bl br) ⤳ tIf s (tAbort bl) (tAbort br)
+    | ST_If_If bl br s bl' br' :
+      tIf (tIf s bl br) bl' br' ⤳ tIf s (tIf bl bl'⟨⇑ ↑⟩ br'⟨⇑ ↑⟩) (tIf br bl'⟨⇑ ↑⟩ br'⟨⇑ ↑⟩)
 
     (** congruences *)
     | ST_Lam t t' :
@@ -157,10 +170,8 @@ Section Properties.
   Proof.
     intros ρ ρ' Hren t t' Ht.
     rewrite <- Hren ; clear ρ' Hren.
-    induction Ht in ρ |- * ; cbn ; try solve [now constructor].
-    all: rewrite ?subst1_ren, ?zip_ren ; try solve [constructor].
-    replace (e⟨_⟩⟨_⟩) with (e⟨ρ⟩⟨↑⟩) by now asimpl.
-    constructor.
+    induction Ht in ρ |- * ; cbn ; refold ;
+      rewrite ?subst1_ren, ?up_lift_ren, ?up_lift_up_ren ; now constructor.
   Qed.
 
   Instance R_ren : Proper ((pointwise_relation _ eq) ==> red ==> red) ren1.
@@ -211,11 +222,8 @@ Section Properties.
   Proof.
     intros σ σ' Hsubst t t' Ht.
     rewrite <- Hsubst ; clear σ' Hsubst.
-    induction Ht in σ |- *.
-    all: cbn ; rewrite ?subst1_subst, ?zip_subst ; try solve [now constructor].
-    replace (e⟨_⟩[_]) with (e[σ]⟨↑⟩) by
-      now substify ; asimpl ; substify.
-    constructor.
+    induction Ht in σ |- * ;
+      cbn ; rewrite ?subst1_subst, ?up_lift_subst, ?up_lift_up_subst ; now constructor.
   Qed.
 
   Instance R_subst : Proper (sred ==> red ==> red) subst1.
