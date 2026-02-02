@@ -1,8 +1,47 @@
 From Interpolation Require Import Utils Syntax Notations Elim.
+From Corelib Require Import Program.Basics.
 From Stdlib Require Import Setoid Morphisms Relation_Definitions RelationClasses.
 From Stdlib Require Import Relations Arith Lia Bool List.
 
 Import ListNotations.
+
+
+Instance clos_refl_trans_po A R : PreOrder (clos_refl_trans A R).
+Proof.
+  constructor.
+  all: now econstructor.
+Qed.
+
+Instance pointwise_po A B (R : relation B) `{! PreOrder R} : PreOrder (pointwise_relation A R).
+Proof.
+  unfold pointwise_relation.
+  constructor.
+  all: intros ? **.
+  1: reflexivity.
+  etransitivity ; eauto.
+Qed.
+
+Instance clos_refl_trans_sub A R : subrelation R (clos_refl_trans A R).
+Proof.
+  intros ?? ?.
+  now constructor.
+Qed.
+
+Lemma step_l A (R : relation A) (x y z : A) : R x y -> clos_refl_trans A R y z -> clos_refl_trans A R x z.
+Proof.
+  intros.
+  etransitivity ; tea.
+  now constructor.
+Qed.
+
+Lemma step_r A (R : relation A) (x y z : A) : clos_refl_trans A R x y ->  R y z -> clos_refl_trans A R x z.
+Proof.
+  intros.
+  etransitivity ; tea.
+  now constructor.
+Qed.
+
+Create HintDb red discriminated.
 
 (** ** Reduction *)
 
@@ -11,8 +50,8 @@ Section Reduction.
 
   Inductive term_ored : relation term :=
     (** beta rules *)
-    | ST_Beta_Fun t1 v2 :
-          tApp (tLam t1) v2 ⤳ t1[v2..]
+    | ST_Beta_Fun f t :
+          tApp (tLam f) t ⤳ f[t..]
 
     | ST_Fst t t' : tFst (tPair t t') ⤳ t
     | ST_Snd t t' : tSnd (tPair t t') ⤳ t'
@@ -78,15 +117,18 @@ Section Reduction.
 
 End Reduction.
 
-Hint Constructors term_ored : core.
+Hint Constructors term_ored : red.
 
 Notation term_red := (clos_refl_trans term term_ored).
+
+Hint Resolve rt_refl rt_step rt_trans : red.
+
+Hint Unfold pointwise_relation : red.
 
 #[export] Instance HasORedTm : HasORed term := term_ored.
 #[export] Instance HasRedTm : HasRed term := term_red.
 
-#[export] Instance HasRedSubst : HasRed subst :=
-  fun σ τ => forall i, σ i ⤳* τ i.
+#[export] Instance HasRedSubst : HasRed subst := pointwise_relation nat term_red.
 
   Ltac fold_red :=
     change term_ored with ored in * ;
@@ -98,72 +140,51 @@ Section Properties.
   #[local] Notation red := (Notations.red (Obj := term)) (only parsing).
   #[local] Notation sred := (Notations.red (Obj := subst)) (only parsing).
 
-  Instance red_po : PreOrder red.
-  Proof.
-    constructor.
-    all: now econstructor.
-  Qed.
-
-  Instance sred_po : PreOrder sred.
-  Proof.
-    unfold red, HasRedSubst.
-    constructor.
-    all: intros ? **.
-    1: reflexivity.
-    etransitivity ; eauto.
-  Qed.
-
-  Instance ored_red : subrelation ored red.
-  Proof.
-    intros ?? ?.
-    now constructor.
-  Qed.
-
   Instance R_App_cong :
     Proper (red ==> red ==> red) tApp.
   Proof.
     intros ?? Hf ?? Hu ; unfold Notations.red, HasRedTm in *.
-    induction Hf using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
-    induction Hu using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hf using clos_refl_trans_ind_left ; eauto with red.
+    induction Hu using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance R_Lam_cong : Proper (red ==> red) tLam.
   Proof.
     intros ?? Ht ; unfold Notations.red, HasRedTm in *.
-    induction Ht using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Ht using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance R_Proj_cong : Proper (eq ==> red ==> red) tProj.
   Proof.
     intros ?? -> ?? Hred ; unfold Notations.red, HasRedTm in *.
-    induction Hred using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hred using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance R_Pair_cong : Proper (red ==> red ==> red) tPair.
   Proof.
     intros ?? Hp ?? Hq ; unfold Notations.red, HasRedTm in *.
-    induction Hp using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
-    induction Hq using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hp using clos_refl_trans_ind_left ; eauto with red.
+    induction Hq using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance R_Abort_cong : Proper (red ==> red) tAbort.
   Proof.
     intros ?? Ht ; unfold Notations.red, HasRedTm in *.
-    induction Ht using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Ht using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance R_In_cong : Proper (eq ==> red ==> red) tIn.
   Proof.
     intros ?? -> ?? Hred ; unfold Notations.red, HasRedTm in *.
-    induction Hred using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hred using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance R_If_cong : Proper (red ==> red ==> red ==> red) tIf.
   Proof.
     intros ?? Hs ?? Hl ?? Hr ; unfold Notations.red, HasRedTm in *.
-    induction Hs using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
-    induction Hl using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
-    induction Hr using clos_refl_trans_ind_left ; eauto using rt_refl, rt_step, rt_trans.
+    induction Hs using clos_refl_trans_ind_left ; eauto with red.
+    induction Hl using clos_refl_trans_ind_left ; eauto with red.
+    induction Hr using clos_refl_trans_ind_left ; eauto with red.
   Qed.
 
   Instance ST_ren : Proper ((pointwise_relation _ eq) ==> ored ==> ored) ren1.
@@ -171,7 +192,7 @@ Section Properties.
     intros ρ ρ' Hren t t' Ht.
     rewrite <- Hren ; clear ρ' Hren.
     induction Ht in ρ |- * ; cbn ; refold ;
-      rewrite ?subst1_ren, ?up_lift_ren, ?up_lift_up_ren ; now constructor.
+      rewrite ?subst1_ren, ?up_lift_ren, ?up_lift_up_ren ; now econstructor.
   Qed.
 
   Instance R_ren : Proper ((pointwise_relation _ eq) ==> red ==> red) ren1.
@@ -186,10 +207,10 @@ Section Properties.
 
   Lemma R_lift : Proper (sred ==> sred) up_term_term.
   Proof.
-    intros ?? ? [|] ; cbn.
+    intros ?? Hred [|] ; cbn.
     - reflexivity.
     - rewrite R_ren ; try reflexivity.
-      auto.
+      apply Hred.
   Qed.
 
   Instance R_scons : Proper (red ==> sred ==> sred) scons.
@@ -239,5 +260,5 @@ Section Properties.
 
 End Properties.
 
-#[global]Existing Instances red_po sred_po ored_red R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_Abort_cong R_In_cong R_If_cong R_ren
+#[global]Existing Instances R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_Abort_cong R_In_cong R_If_cong R_ren
   R_lift R_cons R_subst.

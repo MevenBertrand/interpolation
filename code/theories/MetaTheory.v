@@ -118,7 +118,8 @@ Fixpoint value (Γ : context) (T : type) (t : term) : Prop :=
     Γ t
   | TProd A B => (Γ ⊢ t ◃ T) /\ (forall (b : bool), _reducible value Γ (if b then A else B) (tProj b t))
   | TFun A B => (Γ ⊢ t ◃ T) /\
-      (forall Δ u ρ, (Δ ⊢ ρ :: Γ) -> _reducible value Δ A u -> _reducible value Δ B (tApp t⟨ρ⟩ u))
+      (forall Δ u ρ, (Δ ⊢ ρ :: Γ) -> _reducible value Δ A u ->
+        _reducible value Δ B (tApp t⟨ρ⟩ u))
   end.
 
 Notation reducible := (_reducible value).
@@ -596,16 +597,16 @@ Lemma sem_Lam Γ A B t :
 Proof.
   intros Ht Δ γ Hγ.
   cbn ; refold.
-  edestruct (Ht (Δ,,A) (⇑ γ)) as [u [Hred]].
+  edestruct (Ht (Δ,,A) (⇑ γ)) as [t' [Hred]].
   1: now eapply sem_Up.
-  exists (tLam u).
+  exists (tLam t').
   split ; [now rewrite Hred|].
   cbn.
   split.
   1: now eauto using reify with typing.
   intros Ξ v ** ; refold.
   eapply red_antired.
-  2: rewrite ST_Beta_Fun ; reflexivity.
+  2: now rewrite ST_Beta_Fun.
   edestruct (Ht Ξ) as [v' [Hred']].
   1:{
     apply sem_cons ; [|eassumption].
