@@ -1,0 +1,34 @@
+(FUN 
+  app : term -> term -> term
+  abs : (term -> term) -> term
+
+  abort : term -> term
+
+  inl : term -> term
+  inr : term -> term
+  match : term -> (term -> term) -> (term -> term) -> term
+)
+(VAR
+  x : term
+  y : term
+  z : term
+  s : term
+  t : term
+  u : term
+  b1 : term -> term
+  b2 : term -> term
+  b1' : term -> term
+  b2' : term -> term
+  F : term -> term
+)
+(RULES
+
+  app (abort z) u -> abort z,
+  abort (abort z) -> abort z,
+  match (abort z) (\x.b1 x) (\x.b2 x) -> abort z,
+
+  app (match s (\x. b1 x) (\x.b2 x)) u -> match s (\x. app (b1 x) u) (\x. app (b2 x) u),
+  abort (match s (\x. b1 x) (\x.b2 x)) -> match s (\x. abort (b1 x)) (\x. abort (b2 x)),
+  match (match s (\x.b1 x) (\x.b2 x)) (\y.b1' y) (\y.b2' y) ->
+    match s (\x. match (b1 x) (\y.b1' y) (\y.b2' y)) (\x. match (b2 x) (\y.b1' y) (\y.b2' y)),
+)
