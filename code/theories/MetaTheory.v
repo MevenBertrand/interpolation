@@ -93,7 +93,7 @@ Proof.
 Qed.
 
 (** And can be run on normal forms to yield a normal form *)
-Definition run_nf Γ T t : covered (fun Δ t => Δ ⊢ t ◃ T) Γ t -> Γ ⊢ t ◃ T.
+Definition covered_nf Γ T t : covered (fun Δ t => Δ ⊢ t ◃ T) Γ t -> Γ ⊢ t ◃ T.
 Proof.
   induction 1 ; eauto with typing.
 Qed.
@@ -111,14 +111,14 @@ Definition _reducible (c : context -> type -> term -> Prop) (Γ : context) (T : 
 Fixpoint value (Γ : context) (T : type) (t : term) : Prop :=
   match T with
   | TBase _ | TEmp => covered (fun Δ u => Δ ⊢ u ▹ T) Γ t
-  | TUnit => covered (fun Δ u => (Δ ⊢ u ▹ T) \/ u = tStar) Γ t
+  | TUnit => (Γ ⊢ t ◃ T)
   | TSum A B => covered
     (fun Δ u => (Δ ⊢ u ▹ T) \/
       (exists a, u = tLeft a /\ value Δ A a) \/ (exists b, u = tRight b /\ value Δ B b))
     Γ t
   | TProd A B => (Γ ⊢ t ◃ T) /\ (forall (b : bool), _reducible value Γ (if b then A else B) (tProj b t))
   | TFun A B => (Γ ⊢ t ◃ T) /\
-      (forall Δ u ρ, (Δ ⊢ ρ :: Γ) -> _reducible value Δ A u ->
+      (forall Δ u ρ, (Δ ⊢ ρ :: Γ) -> value Δ A u ->
         _reducible value Δ B (tApp t⟨ρ⟩ u))
   end.
 
@@ -128,7 +128,7 @@ Notation reducible := (_reducible value).
 
 (** A reducible environment is one where all values are reducible *)
 Definition reducible_env (Δ Γ : context) (γ : subst) : Prop :=
-  forall i T, in_context i Γ T -> reducible Δ T (γ i).
+  forall i T, in_context i Γ T -> value Δ T (γ i).
 
 Instance sem_typing_env : HasSemTyping context context subst := reducible_env.
 
@@ -166,63 +166,34 @@ Qed.
 
 Hint Extern 0 => (progress subst) : typing.
 
-Lemma reify_reflect (T : type) :
-  (forall Γ t, (Γ ⊢ t ▹ T) -> value Γ T t) /\ (forall Γ t, value Γ T t -> Γ ⊢ t ◃ T).
+Lemma reify (T : type) (Γ : context) (t : term) : value Γ T t -> Γ ⊢ t ◃ T.
+Proof.
+  induction T in Γ, t |- * ; cbn ; refold ; try easy.
+  all: intros ; eapply covered_nf, map_cover ; tea.
+  all: cbn ; eauto with typing.
+  intros * [|[[]|[]]].
+  all: cbn ; intuition eauto with typing.
+Qed.
+
+Lemma reflect (T : type) :
+  (forall Γ t, (Γ ⊢ t ▹ T) -> value Γ T t).
 Proof.
   induction T ; cbn ; refold.
-  - split.
-    + intros.
-      now constructor.
-    + intros.
-      eapply run_nf, map_cover ; tea.
-      cbn ; eauto with typing.
-  - split.
-    + intros.
-      now constructor.
-    + intros.
-      eapply run_nf, map_cover ; tea.
-      cbn ; intuition eauto with typing. 
-  - split ; [|easy].
-    intros * Hne.
+  all: try solve [now econstructor].
+  - intros * Hne.
     split ; [eauto with typing|].
     intros b.
-    eexists ; split ; [reflexivity|..].
+    apply value_red.
     assert (Γ ⊢ tProj b t ▹ (if b then T1 else T2)) by now econstructor.
     destruct b ; solve [now apply IHT1|now apply IHT2].
-  - split ; [|easy].
-    intros.
+  - intros.
     split.
     1: now eauto with typing.
-    intros * ? [u' [Hred]].
-    apply (red_antired (tApp t⟨ρ⟩ u')).
-    2: now rewrite Hred.
+    intros.
     eapply value_red, IHT2.
     econstructor.
     1: now eauto with typing.
-    now apply IHT1.
-  - split.
-    + intros.
-      now constructor.
-    + intros.
-      eapply run_nf, map_cover ; tea.
-      cbn ; eauto with typing.
-  - split.
-    + intros.
-      now constructor.
-    + intros.
-      eapply run_nf, map_cover ; tea.
-      intros * [|[[]|[]]].
-      all: cbn ; intuition eauto with typing.
-Qed.
-
-Corollary reflect Γ T t :  (Γ ⊢ t ▹ T) -> value Γ T t.
-Proof.
-  apply reify_reflect.
-Qed.
-
-Corollary reify Γ T t :  value Γ T t -> Γ ⊢ t ◃ T.
-Proof.
-  apply reify_reflect.
+    now apply reify.
 Qed.
 
 (** *** Reducibility is stable under weakening *)
@@ -245,8 +216,6 @@ Proof.
   intros Hval Hren.
   induction T in Γ, Δ, t, r, Hren, Hval |- * ; cbn in *;
     try solve [intuition eauto using ren_covered with typing].
-  - eapply ren_covered ; eauto.
-    intuition eauto with typing. 
   - split ; [intuition eauto with typing|].
     intros b.
     destruct Hval as [_ Hval].
@@ -272,18 +241,6 @@ Proof.
       now exists b⟨r'⟩.
 Qed.
 
-Lemma ren_red (Δ Γ : context) (T : type) (t : term) (r : ren) :
-  reducible Γ T t ->
-  (Δ ⊢ r :: Γ) ->
-  reducible Δ T t⟨r⟩.
-Proof.
-  intros [u ] ?.
-  exists (u⟨r⟩).
-  split.
-  - now apply R_ren.
-  - now eapply ren_value.
-Qed.
-
 Lemma sem_ren_subst (Ξ Δ Γ : context) (γ : subst) (r : ren) :
   (Δ ⊩ γ :: Γ) ->
   (Ξ ⊢ r :: Δ) ->
@@ -291,55 +248,26 @@ Lemma sem_ren_subst (Ξ Δ Γ : context) (γ : subst) (r : ren) :
 Proof.
   intros Hγ ? i **.
   cbn.
-  now eapply ren_red.
+  now eapply ren_value.
 Qed.
 
 (** *** Semantic typing of various substitutions *)
 
-Lemma sem_id (Γ : context) : (Γ ⊩ ids :: Γ).
-Proof.
-  intros i ** ; cbn.
-  apply value_red, reflect.
-  eauto with typing.
-Qed.
-
-(** Semantic typing implies reducibility *)
-Corollary sem_red (Γ : context) (A : type) (t : term) : (Γ ⊩ t :: A) -> reducible Γ A t.
-Proof.
-  intros Ht.
-  specialize (Ht Γ ids (sem_id _)).
-  enough (t[ids] = t) as [] by easy.
-  now asimpl.
-Qed.
-
 Lemma sem_Up {Δ Γ : context} {A : type} {γ : subst} : (Δ ⊩ γ :: Γ) -> (Δ,,A) ⊩ ⇑ γ :: (Γ ,, A).
 Proof.
   intros Hγ [|] T ? ; cbn in * ; refold.
-  - apply value_red, reflect ; eauto with typing.
-  - eapply ren_red ; eauto with typing.
+  - apply reflect ; eauto with typing.
+  - eapply ren_value ; eauto with typing.
 Qed.
 
 Lemma sem_cons (Δ Γ : context) (A : type) (γ : subst) (t : term) :
   (Δ ⊩ γ :: Γ) ->
-  reducible Δ A t ->
+  value Δ A t ->
   Δ ⊩ t .: γ :: (Γ ,, A).
 Proof.
   intros Hγ Ht [|] ? Hin ; cbn.
   - now inversion Hin ; subst.
   - now apply Hγ.
-Qed.
-
-Lemma sem_one_subst (Γ : context) (A B : type) (a b : term) :
-  (Γ ⊩ a :: A) -> (Γ,,A ⊩ b :: B) -> (Γ ⊩ b[a..] :: B).
-Proof.
-  intros Ha Hb Δ γ Hγ.
-  edestruct (Hb Δ (a[γ] .: γ)) as [v []].
-  - intros [|] ? Hin ; cbn.
-    + inversion Hin ; subst ; clear Hin.
-      now eapply Ha.
-    + apply Hγ, Hin.
-  - exists v.
-    now asimpl ; refold.
 Qed.
 
 (** *** We can push eliminators to the leaves of a cover *)
@@ -472,8 +400,12 @@ Proof.
   induction T in Γ, T , t , Hcov |- *.
   all: try solve [now exists t ; cbn ; eauto using join_cover].
   - apply value_red ; cbn.
+    apply covered_nf.
+    eapply map_cover ; tea.
+    now cbn.
+  - apply value_red ; cbn.
     split.
-    + eapply run_nf, map_cover ; tea.
+    + eapply covered_nf, map_cover ; tea.
       cbn ; easy.
     + intros b.
       eapply proj_cover in Hcov as [t' []] ; cbn in *.
@@ -487,7 +419,7 @@ Proof.
       destruct b ; now eapply red_antired.
   - apply value_red ; cbn.
     split.
-    + eapply run_nf, map_cover ; tea.
+    + eapply covered_nf, map_cover ; tea.
       cbn ; easy.
     + intros Δ u ρ Hρ Hred.
       eapply ren_covered in Hcov ; tea.
@@ -501,7 +433,7 @@ Proof.
         intros ?? (f&?&?&->&[_ Hred']).
         replace f with f⟨id⟩ by now asimpl.
         apply Hred' ; eauto with typing.
-        now eapply ren_red.
+        now eapply ren_value.
       }
       now eapply red_antired.
 Qed.
@@ -523,7 +455,7 @@ Lemma sem_Var n Γ T :
 Proof.
   intros Hin Δ γ Hγ.
   specialize (Hγ _ _ Hin).
-  assumption.
+  now apply value_red.
 Qed.
 
 Lemma sem_Star Γ :
@@ -547,8 +479,7 @@ Proof.
   apply (red_antired (tApp f' u')).
   - replace f' with (f'⟨ids⟩) by (now asimpl).
     apply Hf'.
-    1: now eauto with typing.
-    now apply value_red.
+    all: now eauto with typing.
   - now rewrite Hredf, Hredu.
 Qed.
 
@@ -615,6 +546,8 @@ Proof.
   exists v' ; split ; [|easy].
   replace (t[_]) with (t[⇑ γ]⟨⇑ ρ⟩[v..]) in Hred'
     by (substify ; now asimpl).
+  assert (t[⇑ γ]⟨⇑ ρ⟩[v..] ⤳* t'⟨⇑ ρ⟩ [v..])
+    by now rewrite Hred.
   (* confluence *)
 Admitted.
 
@@ -691,7 +624,7 @@ Proof.
         now intros [|].
     }
     eapply Hl, sem_cons.
-    2: now apply value_red.
+    2: assumption.
     now eapply sem_ren_subst.
   - eapply red_antired.
     2: now rewrite ST_Right.
@@ -703,9 +636,11 @@ Proof.
         now intros [|].
     }
     eapply Hr, sem_cons.
-    2: now apply value_red.
+    2: assumption.
     now eapply sem_ren_subst.
 Qed.
+
+(** *** The fundamental lemma: typing implies semantic typing *)
 
 Theorem fundamental Γ T (t : term) :
   (Γ ⊢ t :: T) ->
@@ -713,6 +648,7 @@ Theorem fundamental Γ T (t : term) :
 Proof.
   intros Hty.
   induction Hty.
+  - now apply sem_Const.
   - now apply sem_Var.
   - now apply sem_Star.
   - now apply sem_Lam.
@@ -724,6 +660,22 @@ Proof.
   - now eapply sem_Left.
   - now eapply sem_Right.
   - now eapply sem_If.
+Qed.
+
+(** We conclude by using the above with the identity substitution *)
+Lemma sem_id (Γ : context) : (Γ ⊩ ids :: Γ).
+Proof.
+  intros i ** ; cbn.
+  apply reflect.
+  eauto with typing.
+Qed.
+
+Corollary sem_red (Γ : context) (A : type) (t : term) : (Γ ⊩ t :: A) -> reducible Γ A t.
+Proof.
+  intros Ht.
+  specialize (Ht Γ ids (sem_id _)).
+  enough (t[ids] = t) as [] by easy.
+  now asimpl.
 Qed.
 
 Corollary normalisation Γ T (t : term) :
