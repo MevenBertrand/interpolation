@@ -64,6 +64,7 @@
 \DeclareMathOperator{\Ctx}{Ctx}
 \DeclareMathOperator{\Ty}{Ty}
 \DeclareMathOperator{\Sub}{Sub}
+\DeclareMathOperator{\Ren}{Ren}
 \DeclareMathOperator{\tyof}{ty}
 \DeclareMathOperator{\Tm}{Tm}
 \DeclareMathOperator{\Nf}{\ccol{Nf}}
@@ -101,6 +102,8 @@
 \DeclareDocumentCommand{\ctxty}{o m}{\vdash\IfValueT{#1}{_{#1}} #2}
 \DeclareDocumentCommand{\ty}{}{\colon}
 \DeclareDocumentCommand{\typing}{o m m o}{#2 \vdash\IfValueT{#1}{_{#1}} #3 \IfValueT{#4}{\ty #4}}
+\DeclareDocumentCommand{\semty}{o m m o}{#2 \Vdash\IfValueT{#1}{_{#1}} #3 \IfValueT{#4}{\ty #4}}
+
 
 \colorlet{icol}{ForestGreen}
 \colorlet{ccol}{BlueGreen}
@@ -116,8 +119,8 @@
 
 \DeclareDocumentCommand{\icolop}{}{\triangleright}
 \DeclareDocumentCommand{\ccolop}{}{\triangleleft}
-\DeclareDocumentCommand{\infer}{m m m}{#1 \vdash \icol{#2} \icolop #3}
-\DeclareDocumentCommand{\check}{m m m}{#1 \vdash \ccol{#2} \ccolop #3}
+\DeclareDocumentCommand{\infer}{o m m m}{#2 \vdash\IfValueT{#1}{_{#1}} \icol{#3} \icolop #4}
+\DeclareDocumentCommand{\check}{o m m m}{#2 \vdash\IfValueT{#1}{_{#1}} \ccol{#3} \ccolop #4}
 \DeclareDocumentCommand{\stackty}{m m m m}{#1 \mid #3 \vdash \icol{#2} \icolop #4}
 
 \DeclareDocumentCommand{\convop}{}{\equiv}
@@ -130,6 +133,8 @@
 \DeclareDocumentCommand{\oredop}{}{\rightsquigarrow}
 \DeclareDocumentCommand{\redop}{}{\oredop^*}
 \DeclareDocumentCommand{\ored}{m m}{#1 \oredop #2}
+\DeclareDocumentCommand{\red}{m m}{#1 \redop #2}
+\DeclareDocumentCommand{\lred}{m m}{#1 \approx #2}
 
 
 %\DeclareDocumentCommand{\subs}{s m m m}{#2\IfBooleanTF{#1}{[#3 \coloneq #4]}{\left[#3 \coloneq #4\right]}}
@@ -145,7 +150,8 @@
 \DeclareMathOperator{\rai}{raise}
 \DeclareMathOperator{\inl}{inl}
 \DeclareMathOperator{\inr}{inr}
-\DeclareDocumentCommand{\ite}{m m m}{\operatorname{if}(#1,#2,#3)}
+\DeclareMathOperator{\iteop}{if}
+\DeclareDocumentCommand{\ite}{m m m}{\iteop(#1,#2,#3)}
 \DeclareDocumentCommand{\dem}{m}{\underline{#1}}
 \DeclareDocumentCommand{\proj}{m m}{#2._{#1}}
 \DeclareDocumentCommand{\eras}{m}{\left| #1 \right|}
