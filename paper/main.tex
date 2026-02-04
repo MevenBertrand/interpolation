@@ -678,23 +678,278 @@ while destructors are the hard part for positive types.
 \end{theorem}
 
 From \cref{lem:reflect} we get that variables are values at all types, and
-thus that the identity substitution is a value substitution. Hence we conclude
+thus that the identity substitution is a value substitution. Hence, we conclude
 
 \begin{corollary}[Normalisation]
   Any well-typed term reduces to a normal form.
+\end{corollary}
 
 \section{Interpolation}
+\label{sec:interpolation}
 
-\mlb{
-Where we explain the core of our interpolation proof.
-}
+With our characterisation of normal forms in hand, we can move to the
+main interpolation result. Following Čubrić~\cite{Cubric1994}, we give a
+polarised version in the fashion of Craig interpolation \cite{??}, and
+thus start with a polarised notion of atoms.
+
+\begin{definition}[Atoms]
+  Let \(A \in \Ty_{\mathcal{B}}\). We define \(A^+ \subseteq \mathcal{B}\)
+    (resp.\ \(A^- \subseteq \mathcal{B}\)), the \emph{positive}
+    (resp.\ \emph{negative}) \emph{atoms} of \(A\) by induction:\\[-1.5em]
+  \begin{minipage}[t]{0.15\textwidth}
+  \begin{align*}
+    b^{+} & \coloneq \{b\} \\
+    b^{-} & \coloneq \emptyset
+  \end{align*}
+  \end{minipage}
+  \begin{minipage}[t]{0.15\textwidth}
+  \begin{align*}
+    \top^p & \coloneq \emptyset \\
+    \bot^p & \coloneq \emptyset \\
+  \end{align*}
+  \end{minipage}
+  \begin{minipage}[t]{0.25\textwidth}
+  \begin{align*}
+    (A + B)^{p} & \coloneq A^p \cup B^p \\
+    (A \times B)^{p} & \coloneq A^p \cup B^p \\
+  \end{align*}
+  \end{minipage}
+  \begin{minipage}[t]{0.2\textwidth}
+  \begin{align*}
+    (A \to B)^{p} & \coloneq A^p \cup B^p \\
+  \end{align*}
+  \end{minipage}\\
+  This is lifted pointwise to contexts as
+  \((\Gamma.(x : A))^p \coloneq \Gamma^p \cup A^p\).
+\end{definition}
+
+Although stating the final theorem does not need it, in the proof by induction
+it is necessary to keep track of which variables in the context are “coming from”
+the conclusion, and thus we need to maintain a context partition in the following sense.
+
+\begin{definition}[Context partition]
+  \emph{Context partition} \(\Gamma = \part{\Gamma_{1}}{\Gamma_{2}}\)
+  is the relation defined by
+  \begin{mathpar}
+    \inferdef{ }{\emp = \part{\emp}{\emp}} \and
+    \inferdef{\Gamma = \part{\Gamma_{1}}{\Gamma_{2}}}{
+      \Gamma. (x : A) = \part{\Gamma_{1}.(x : A)}{\Gamma_{2}}} \and
+    \inferdef{\Gamma = \part{\Gamma_{1}}{\Gamma_{2}}}{
+      \Gamma. (x : A) = \part{\Gamma_{1}}{\Gamma_{2}. (x : A)}}
+  \end{mathpar}
+\end{definition}
+
+In a named setting this is a mere relation: as long as we enforce that variable
+names in contexts are unique, they tell us how the partitioning is done.
+In the formalisation, where we use a nameless syntax, context partition becomes
+structure: there are two proofs of \(A.A = \part{A}{A}\), respectively corresponding,
+in a named setting, to \((x:A).(y:A) = \part{(x:A)}{(y:A)}\) and
+\((x:A).(y:A) = \part{(y:A)}{(x:A)}\). We spare the reader the substitution
+calculus arising from this, \eg the fact that if \(\Gamma = \part{\Gamma_1}{\Gamma_2}\)
+then there is a renaming \(\typing{\Gamma}{\rho}[\scol{\Gamma_1}]\).
+
+\subsection{Constant-free}
+
+Our first version of interpolation works for a constant-free language: for
+the remainder of this section we fix a language \(\lang = (\base,\emptyset,\_)\).
+
+\begin{theorem}[Interpolation, constant-free]
+  Assume \(\typing[\lang]{\Gamma}{t}[T]\), then there exists a type \(M\) and terms
+  \(\typing{\Gamma}{l}[M]\) and \(\typing{(x:M)}{r}[T]\) such that
+  \begin{itemize}
+  \item \(M\) uses only the atoms common to \(\Gamma\) and \(T\):
+    for any \(p \in \{+,-\}\) \(M^p \subseteq \Gamma^p \cap T^p\);
+  \item \(t\) is the composition of \(r\) and \(s\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\).
+  \end{itemize}
+\end{theorem}
+
+Since by normalisation every term is equal to a normal form, it is enough
+to show the following theorem for normal forms,
+and specialize it to the trivial partition \(\Gamma = \part{\Gamma}{\emp}\).
+
+\begin{theorem}[Interpolation, inductive statement]
+  Assume a partitioned context \(\Gamma = \part{\Gamma_{s}}{\Gamma_{t}}\).
+  %
+  Given any normal form \(\ccol{t} \in \Nf(\Gamma,\tcol{T})\),
+  there is a type \(\mcol{M}\) and terms
+  \(\scol{l} \in \Tm(\scol{\Gamma_{s}},\mcol{M})\) and
+  \(\tcol{r} \in \Tm(\tcol{\Gamma_{t}}.\mcol{(x : M)}, \tcol{T})\)
+  such that
+  \begin{itemize}
+    \item for all \(p\),
+    \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap (\tcol{\Gamma_{t}}^{-p} \cup \tcol{T}^p)\);
+    \item and \(\conv{\Gamma}{\subs{\tcol{r}}{\scol{l}..}}{\ccol{t}}[\tcol{T}]\). 
+  \end{itemize}
+  %
+  Moreover, given any neutral term \(\icol{t} \in \Ne(\Gamma,T)\), either
+  \begin{enumerate}
+    \item “\(\scol{T}\) is a source type”, \ie \(\scol{T}^p \subseteq \scol{\Gamma_{s}}^p\),
+      and we have a type \(\mcol{M}\) and terms \(\tcol{l} \in \Tm(\tcol{\Gamma_{t}},\mcol{M})\) and
+  \(\scol{r} \in \Tm(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{T})\) such that
+      \begin{itemize}
+        \item \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^{-p} \cap \tcol{\Gamma_{t}}^p\),
+        \item and \(\conv{\Gamma}{\subs{\scol{r}}{\tcol{l}..}}{\icol{t}}[\scol{T}]\);
+      \end{itemize}
+    \item or “\(\tcol{T}\) is a target type”, \ie for all \(p\),
+      \(\tcol{T}^p \subseteq \tcol{\Gamma_{t}}^p\), and we have a type \(\mcol{M}\)
+      and terms \(\scol{l} \in \Tm(\scol{\Gamma_{s}},\mcol{M})\) and
+      \(\tcol{r} \in \Tm(\tcol{\Gamma_{t}}.\mcol{(x : M)}, \tcol{T})\) such that
+      \begin{itemize}
+        \item \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap \tcol{\Gamma_{t}}^{-p}\),
+        \item \(\conv{\Gamma}{\subs{\tcol{r}}{\scol{l}..}}{\icol{t}}[\scol{T}]\)
+      \end{itemize}
+  \end{enumerate}
+\end{theorem}
+
+The first part of the statement, for normal forms, is a generalisation of
+the interpolation judgment using the partition to take into account that some
+type information initially in the target type can be moved in the context,
+\eg in the case of a \(\lambda\)-abstraction. This is more or less the content
+of the main lemma in the original proof \cite[Lemma 3.7]{Cubric1994}.
+Its counterpart for neutrals, however, was not at all explicit in the original
+proof, which did not use neutrals altogether. Instead, the proof went by strong
+induction on the size of terms, replacing subterms by variables, which
+we replace by a much more direct reasoning by mutual induction.
+An interesting aspect to note is that in case 1.\ for neutrals
+interpolation is reversed, in that the roles of the source and target context
+are exchanged in the typing of the interpolants compared to the statement for normal forms.
+
+\begin{proof}
+  As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
+  %
+  The \(\Nf\) cases are rather direct.\\
+  %
+  \nameref{rule:star-b}: \(\tcol{T}\) is \(\top\), so we can take
+  \(\mcol{M} = \top\), and \(\scol{l} = \tcol{r} = \star\).\\
+  %
+  % \nameref{rule:pair-b}: \(\tcol{T}\) is \(\tcol{T_1} \times \tcol{T_2}\), \(\ccol{t}\)
+  % is \(\ccol{(t_1,t_2)}\). By induction,
+  % we obtain \(\scol{l_i} \in \Tm(\scol{\Gamma_{s}},\mcol{M_i})\)
+  % and \(\scol{r_i} \in \Tm(\tcol{\Gamma_{t}}.\mcol{(x : M_i)},\tcol{T_i})\).
+  % We can then take \(\mcol{M} \coloneq \mcol{M_1 \times M_2}\) and
+  % \[\begin{array}{rlll}
+  %   \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq &
+  %     \scol{(l_1,l_2)} & \ty \mcol{M_1 \times M_2} \\
+  %   \tcol{\Gamma_{t}}.\mcol{(x : M_1 \times M_2)} \vdash &
+  %     \tcol{r} \coloneq & \tcol{(\subs{r_1}{\proj{1}{y}..},\subs{r_2}{\proj{2}{y}..})} &
+  %     \ty \tcol{T_1 \times T_2}
+  % \end{array}\]
+  %
+  \nameref{rule:lam-b}: We extend the \emph{target} context \(\tcol{\Gamma_{t}}\)
+  with the extra variable (this is why we need the formulation with a context partition!)
+  and by induction hypothesis, we obtain
+  \(\scol{l'} \in \Tm(\scol{\Gamma_{s}},\mcol{M})\) and
+  \(\tcol{r'} \in \Tm(\tcol{\Gamma_{t}}.\tcol{(x : A).\mcol{(z : M)}})\),
+  and we can take
+  \[\begin{array}{rlll}
+  \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{l'} & \ty \mcol{M} \\
+  \tcol{\Gamma_{t}}.\mcol{(z : M)} \vdash & \tcol{r} \coloneq &
+    \tcol{\l x.r'} &
+    \ty \tcol{A \to B}
+  \end{array}\]
+  %
+  \nameref{rule:pair-b}, \nameref{rule:inl-b}, \nameref{rule:inr-b} are similar:
+  we post-compose \(\tcol{r}\) as obtained by recursive interpolation
+  by the relevant constructor, except we do not need to think about context extension.
+
+  The \(\Ne\) cases are more interesting. For each rule, we have two subcases,
+  depending on whether the induction hypothesis for the main sub-neutral is
+  in case 1 or 2 above, \ie on whether the main variable of the neutral
+  in is the source or target context.\\
+  %
+  \nameref{rule:var-b}/source: We have \((x \ty \scol{A}) \in \scol{\Gamma_s}\).
+  Then we take \(\mcol{M} \coloneq \top\)
+  \[\begin{array}{rlll}
+  \tcol{\Gamma_{t}} \vdash & \tcol{l} \coloneq & \tcol{\star} & \ty \mcol{M} \\
+  \scol{\Gamma_{s}}.\mcol{(\_ : M)} \vdash & \scol{r} \coloneq &
+    \scol{x} & \ty \scol{A}
+  \end{array}\]
+  %
+  \nameref{rule:var-b}/target: We have \((x \ty \tcol{A}) \in \tcol{\Gamma_t}\).
+  Then we take \(\mcol{M} \coloneq \top\)
+  \[\begin{array}{rlll}
+  \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{\star} & \ty \mcol{M} \\
+  \tcol{\Gamma_{t}}.\mcol{(\_ : M)} \vdash & \tcol{r} \coloneq &
+    \tcol{x} & \ty \tcol{A}
+  \end{array}\]
+  %
+  \nameref{rule:demote-b}/source: By induction hypothesis, we get that \(\scol{A}\)
+    is a source type,
+    \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M})\) and
+    \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{A})\).
+    This is where we need to handle the reversal between the source and target
+    context that appears in the source case for neutrals.
+    Luckily, by the second premise of the rule, we have \(\scol{A} = \tcol{B}\),
+    thus these types can only use atom common to \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
+    Hence, \(\mcol{M'} \coloneq \mcol{M \to A}\) is a valid interpolating type,
+    and we take for terms
+    \[\begin{array}{rlll}
+      \scol{\Gamma_{s}} \vdash & \scol{l'} \coloneq & \scol{\l x.r} & \ty \mcol{M \to A} \\
+      \tcol{\Gamma_{t}}.\mcol{(z : M)} \vdash & \tcol{r'} \coloneq &
+        \tcol{z~l} & \ty \tcol{A}
+    \end{array}\]
+  \\
+  %
+  \nameref{rule:demote-b}/target: In this case we keep the exact
+    same interpolating type and interpolants.
+  %
+  \nameref{rule:app-b}/source: We have an application
+  \(\icol{t}~\ccol{u}\), and the induction hypothesis on \(\icol{t}\) gives
+  some \(\scol{A \to B}\) with atoms in \(\scol{\Gamma_s}\) and
+  \(\mcol{M_t}\), \(\scol{r_t}\) and \(\tcol{l_t}\) such that
+  \(\icol{t} = \subs{\scol{r_t}}{\tcol{l_t}..}\). Because \(\scol{A}\) has its
+  atoms in \(\scol{\Gamma_s}\), by induction hypothesis we can
+  interpolate \(\ccol{u}\) with a “reversed” colouring on \(\Gamma\),
+  \ie inverting the roles of \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
+  This gives us \(\mcol{M_u}\), \(\scol{r_u}\) and \(\tcol{l_u}\) such that
+  \(\ccol{u} = \subs{\scol{r_u}}{\tcol{l_u}..}\). Then we take
+  \(\mcol{M} \coloneq \mcol{M_t} \times \mcol{M_u}\), and
+  \[\begin{array}{rlll}
+      \tcol{\Gamma_{t}} \vdash & \tcol{l} \coloneq & \tcol{(l_t,l_u)} &
+        \ty \mcol{M_t \times M_u} \\
+      \scol{\Gamma_{t}}.\mcol{(z : M_t \times M_u)} \vdash & \scol{r} \coloneq &
+        \scol{\subs{r_t}{\proj{1}{z}..}~\subs{r_u}{\proj{2}{z}..}} & \ty \scol{B}
+  \end{array}\]
+  %
+  \nameref{rule:app-b}/target: This time, the induction hypothesis on \(\icol{t}\) gives
+  us some \(\tcol{A \to B}\) with atoms in \(\tcol{\Gamma_s}\) and
+  \(\mcol{M_t}\), \(\tcol{r_t}\) and \(\scol{l_t}\) such that
+  \(\icol{t} = \subs{\tcol{r_t}}{\scol{l_t}..}\). We can directly use the
+  induction hypothesis on \(\ccol{u}\), to get
+  \(\mcol{M_u}\), \(\tcol{r_u}\) and \(\scol{l_u}\) such that
+  \(\ccol{u} = \subs{\tcol{r_u}}{\scol{l_u}..}\). Then we take again
+  \(\mcol{M} \coloneq \mcol{M_t} \times \mcol{M_u}\), and
+  \[\begin{array}{rlll}
+      \scol{\Gamma_{s}} \vdash & \scol{l} \coloneq & \scol{(l_t,l_u)} &
+        \ty \mcol{M_t \times M_u} \\
+      \tcol{\Gamma_{t}}.\mcol{(z : M_t \times M_u)} \vdash & \tcol{r} \coloneq &
+        \tcol{\subs{r_t}{\proj{1}{z}..}~\subs{r_u}{\proj{2}{z}..}} & \ty \tcol{B}
+  \end{array}\]
+  %
+  \nameref{rule:proji-b}: Here in all cases we keep the same interpolating type
+    and left interpolant, and simply post-compose the right interpolant with
+    the relevant projection.\\
+  \nameref{rule:raise-b}, \nameref{rule:if-b}: \mlb{TODO!}
+\end{proof}
+
+It is interesting to note that the interpolant we construct is not
+the same as Čubrić. \mlb{Find the example again, and explain the currification
+by the action of \nameref{rule:demote-b}.}
+
+\subsection{Constants and equations}
+
+\mlb{Where we explain how to add constants, and that equations change virtually nothing.}
+
+\subsection{Comments}
+
+\mlb{Can we explain interpolation as a factorisation system??}
 
 \section{Comments on the formalisation}
 
 \mlb{Where we explain things on the \Rocq proof}
 \begin{enumerate}
   \item Autosubst/Sulfur
-  \item How far can we push automation? We do auto-loading + setoid rewriting, can
+  \item How far can we push automation? We do \texttt{auto}-loading + setoid rewriting, can
     we go further?
   \item Confluence proof?
 \end{enumerate}
