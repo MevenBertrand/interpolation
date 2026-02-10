@@ -1,5 +1,5 @@
 From Stdlib Require Import List.
-From Interpolation Require Import Ast.
+From Interpolation Require Import BasicAst.
 
 Import ListNotations.
 
@@ -10,15 +10,19 @@ Fixpoint nth_error {A} (l : list A) (n : nat) : option A :=
   | _ :: l', S n' => nth_error l' n'
   end.
 
-(** ** Typing *)
+(** ** Contexts *)
 
-Definition context := list type.
+
+Definition context `{b : Base} := list type.
 
 Notation "'ε'" := (@nil type).
-Notation "Γ ,, T" := (@cons type T Γ) (at level 50).
+Notation "Γ ,, T" := (@cons type T Γ : context) (at level 50).
 (* 
 Notation "'ε'" := (nil :> context) (only parsing).
 Notation "Γ ,, T" := (cons T Γ :> context) (at level 50, only parsing). *)
+
+Section Context.
+Context `{b : Base}.
 
 Definition in_context (n : nat) (Γ : context) (T : type) : Prop :=
   nth_error Γ n = Some T.
@@ -37,3 +41,5 @@ Proof.
   unfold in_context in *.
   congruence.
 Qed.
+
+End Context.

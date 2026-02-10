@@ -4,20 +4,25 @@ From Stdlib Require Import Relations Arith Lia Bool List.
 
 Import ListNotations.
 
-Definition zip (e : elim) (t : term) : term :=
-  match e with
-  | eApp u => tApp t u
-  | eProj b => tProj b t
-  | eAbort => tAbort t
-  | eIf bl br => tIf t bl br
-  end.
+Section Elims.
+Context `{Lang}.
 
-Lemma zip_subst e t (σ : subst) : (zip e t)[σ] = zip (e[σ]) (t[σ]).
-Proof.
-  destruct e ; reflexivity.
-Qed.
+  Definition zip (e : elim) (t : term) : term :=
+    match e with
+    | eApp u => tApp t u
+    | eProj b => tProj b t
+    | eAbort => tAbort t
+    | eIf bl br => tIf t bl br
+    end.
 
-Lemma zip_ren e t (ρ : ren) : (zip e t)⟨ρ⟩ = zip (e⟨ρ⟩) (t⟨ρ⟩).
-Proof.
-  substify ; apply zip_subst.
-Qed.
+  Lemma zip_subst e t (σ : subst) : (zip e t)[σ] = zip (e[σ]) (t[σ]).
+  Proof.
+    destruct e ; reflexivity.
+  Qed.
+
+  Lemma zip_ren e t (ρ : ren) : (zip e t)⟨ρ⟩ = zip (e⟨ρ⟩) (t⟨ρ⟩).
+  Proof.
+    substify ; apply zip_subst.
+  Qed.
+
+End Elims.

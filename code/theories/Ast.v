@@ -5,8 +5,12 @@ From Stdlib Require Import Setoid Morphisms Relation_Definitions.
 
 Module Core.
 
+Section Lang.
+Context `{Lang}.
+
 Inductive term : Type :=
   | tVar : nat -> term
+  | tConst : const -> term
   | tStar : term
   | tPair : term -> term -> term
   | tProj : bool -> term -> term
@@ -15,6 +19,12 @@ Inductive term : Type :=
   | tAbort : term -> term
   | tIn : bool -> term -> term
   | tIf : term -> term -> term -> term.
+
+Lemma congr_tConst {s0 : const} {t0 : const} (H0 : s0 = t0) :
+  tConst s0 = tConst t0.
+Proof.
+exact (eq_trans eq_refl (ap (fun x => tConst x) H0)).
+Qed.
 
 Lemma congr_tStar : tStar = tStar.
 Proof.
@@ -78,6 +88,7 @@ Defined.
 Fixpoint ren_term (xi_term : nat -> nat) (s : term) {struct s} : term :=
   match s with
   | tVar s0 => tVar (xi_term s0)
+  | tConst s0 => tConst s0
   | tStar => tStar
   | tPair s0 s1 => tPair (ren_term xi_term s0) (ren_term xi_term s1)
   | tProj s0 s1 => tProj s0 (ren_term xi_term s1)
@@ -99,6 +110,7 @@ Fixpoint subst_term (sigma_term : nat -> term) (s : term) {struct s} :
 term :=
   match s with
   | tVar s0 => sigma_term s0
+  | tConst s0 => tConst s0
   | tStar => tStar
   | tPair s0 s1 =>
       tPair (subst_term sigma_term s0) (subst_term sigma_term s1)
@@ -128,6 +140,7 @@ Fixpoint idSubst_term (sigma_term : nat -> term)
 subst_term sigma_term s = s :=
   match s with
   | tVar s0 => Eq_term s0
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair (idSubst_term sigma_term Eq_term s0)
@@ -163,6 +176,7 @@ Fixpoint extRen_term (xi_term : nat -> nat) (zeta_term : nat -> nat)
 ren_term xi_term s = ren_term zeta_term s :=
   match s with
   | tVar s0 => ap (tVar) (Eq_term s0)
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair (extRen_term xi_term zeta_term Eq_term s0)
@@ -203,6 +217,7 @@ Fixpoint ext_term (sigma_term : nat -> term) (tau_term : nat -> term)
 subst_term sigma_term s = subst_term tau_term s :=
   match s with
   | tVar s0 => Eq_term s0
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair (ext_term sigma_term tau_term Eq_term s0)
@@ -242,6 +257,7 @@ Fixpoint compRenRen_term (xi_term : nat -> nat) (zeta_term : nat -> nat)
 {struct s} : ren_term zeta_term (ren_term xi_term s) = ren_term rho_term s :=
   match s with
   | tVar s0 => ap (tVar) (Eq_term s0)
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair (compRenRen_term xi_term zeta_term rho_term Eq_term s0)
@@ -291,6 +307,7 @@ Fixpoint compRenSubst_term (xi_term : nat -> nat) (tau_term : nat -> term)
 subst_term tau_term (ren_term xi_term s) = subst_term theta_term s :=
   match s with
   | tVar s0 => Eq_term s0
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair (compRenSubst_term xi_term tau_term theta_term Eq_term s0)
@@ -350,6 +367,7 @@ Fixpoint compSubstRen_term (sigma_term : nat -> term)
 ren_term zeta_term (subst_term sigma_term s) = subst_term theta_term s :=
   match s with
   | tVar s0 => Eq_term s0
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair
@@ -416,6 +434,7 @@ Fixpoint compSubstSubst_term (sigma_term : nat -> term)
 subst_term tau_term (subst_term sigma_term s) = subst_term theta_term s :=
   match s with
   | tVar s0 => Eq_term s0
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair
@@ -533,6 +552,7 @@ Fixpoint rinst_inst_term (xi_term : nat -> nat) (sigma_term : nat -> term)
 {struct s} : ren_term xi_term s = subst_term sigma_term s :=
   match s with
   | tVar s0 => Eq_term s0
+  | tConst s0 => congr_tConst (eq_refl s0)
   | tStar => congr_tStar
   | tPair s0 s1 =>
       congr_tPair (rinst_inst_term xi_term sigma_term Eq_term s0)
@@ -734,50 +754,7 @@ Proof.
 exact (fun s => idSubst_elim (tVar) (fun n => eq_refl) s).
 Qed.
 
-Inductive type : Type :=
-  | TBase : base -> type
-  | TUnit : type
-  | TProd : type -> type -> type
-  | TFun : type -> type -> type
-  | TEmp : type
-  | TSum : type -> type -> type.
-
-Lemma congr_TBase {s0 : base} {t0 : base} (H0 : s0 = t0) :
-  TBase s0 = TBase t0.
-Proof.
-exact (eq_trans eq_refl (ap (fun x => TBase x) H0)).
-Qed.
-
-Lemma congr_TUnit : TUnit = TUnit.
-Proof.
-exact (eq_refl).
-Qed.
-
-Lemma congr_TProd {s0 : type} {s1 : type} {t0 : type} {t1 : type}
-  (H0 : s0 = t0) (H1 : s1 = t1) : TProd s0 s1 = TProd t0 t1.
-Proof.
-exact (eq_trans (eq_trans eq_refl (ap (fun x => TProd x s1) H0))
-         (ap (fun x => TProd t0 x) H1)).
-Qed.
-
-Lemma congr_TFun {s0 : type} {s1 : type} {t0 : type} {t1 : type}
-  (H0 : s0 = t0) (H1 : s1 = t1) : TFun s0 s1 = TFun t0 t1.
-Proof.
-exact (eq_trans (eq_trans eq_refl (ap (fun x => TFun x s1) H0))
-         (ap (fun x => TFun t0 x) H1)).
-Qed.
-
-Lemma congr_TEmp : TEmp = TEmp.
-Proof.
-exact (eq_refl).
-Qed.
-
-Lemma congr_TSum {s0 : type} {s1 : type} {t0 : type} {t1 : type}
-  (H0 : s0 = t0) (H1 : s1 = t1) : TSum s0 s1 = TSum t0 t1.
-Proof.
-exact (eq_trans (eq_trans eq_refl (ap (fun x => TSum x s1) H0))
-         (ap (fun x => TSum t0 x) H1)).
-Qed.
+End Lang.
 
 Class Up_elim X Y :=
     up_elim : X -> Y.
@@ -785,16 +762,16 @@ Class Up_elim X Y :=
 Class Up_term X Y :=
     up_term : X -> Y.
 
-#[global] Instance Subst_elim : (Subst1 _ _ _) := @subst_elim.
+#[global] Instance Subst_elim `{Lang} : (Subst1 _ _ _) := @subst_elim _ _.
 
-#[global] Instance Subst_term : (Subst1 _ _ _) := @subst_term.
+#[global] Instance Subst_term `{Lang} : (Subst1 _ _ _) := @subst_term _ _.
 
-#[global] Instance Up_term_term : (Up_term _ _) := @up_term_term.
+#[global] Instance Up_term_term `{Lang} : (Up_term _ _) := @up_term_term _ _.
 
-#[global] Instance Ren_term : (Ren1 _ _ _) := @ren_term.
+#[global] Instance Ren_term `{Lang} : (Ren1 _ _ _) := @ren_term _ _.
 
 #[global]
-Instance VarInstance_term : (Var _ _) := @tVar.
+Instance VarInstance_term `{Lang} : (Var _ _) := @tVar _ _.
 
 Notation "s [ sigma_term ]" := (subst_elim sigma_term s)
 ( at level 7, left associativity, only printing)  : subst_scope.
@@ -820,9 +797,9 @@ Notation "x '__term'" := (tVar x) ( at level 5, format "x __term")  :
 subst_scope.
 
 #[global]
-Instance subst_elim_morphism :
+Instance subst_elim_morphism `{Lang} :
  (Proper (respectful (pointwise_relation _ eq) (respectful eq eq))
-    (@subst_elim)).
+    (@subst_elim _ _)).
 Proof.
 exact (fun f_term g_term Eq_term s t Eq_st =>
        eq_ind s (fun t' => subst_elim f_term s = subst_elim g_term t')
@@ -830,17 +807,17 @@ exact (fun f_term g_term Eq_term s t Eq_st =>
 Qed.
 
 #[global]
-Instance subst_elim_morphism2 :
+Instance subst_elim_morphism2 `{Lang} :
  (Proper (respectful (pointwise_relation _ eq) (pointwise_relation _ eq))
-    (@subst_elim)).
+    (@subst_elim _ _)).
 Proof.
 exact (fun f_term g_term Eq_term s => ext_elim f_term g_term Eq_term s).
 Qed.
 
 #[global]
-Instance subst_term_morphism :
+Instance subst_term_morphism `{Lang} :
  (Proper (respectful (pointwise_relation _ eq) (respectful eq eq))
-    (@subst_term)).
+    (@subst_term _ _)).
 Proof.
 exact (fun f_term g_term Eq_term s t Eq_st =>
        eq_ind s (fun t' => subst_term f_term s = subst_term g_term t')
@@ -848,17 +825,17 @@ exact (fun f_term g_term Eq_term s t Eq_st =>
 Qed.
 
 #[global]
-Instance subst_term_morphism2 :
+Instance subst_term_morphism2 `{Lang} :
  (Proper (respectful (pointwise_relation _ eq) (pointwise_relation _ eq))
-    (@subst_term)).
+    (@subst_term _ _)).
 Proof.
 exact (fun f_term g_term Eq_term s => ext_term f_term g_term Eq_term s).
 Qed.
 
 #[global]
-Instance ren_term_morphism :
+Instance ren_term_morphism `{Lang} :
  (Proper (respectful (pointwise_relation _ eq) (respectful eq eq))
-    (@ren_term)).
+    (@ren_term _ _)).
 Proof.
 exact (fun f_term g_term Eq_term s t Eq_st =>
        eq_ind s (fun t' => ren_term f_term s = ren_term g_term t')
@@ -866,9 +843,9 @@ exact (fun f_term g_term Eq_term s t Eq_st =>
 Qed.
 
 #[global]
-Instance ren_term_morphism2 :
+Instance ren_term_morphism2 `{Lang} :
  (Proper (respectful (pointwise_relation _ eq) (pointwise_relation _ eq))
-    (@ren_term)).
+    (@ren_term _ _)).
 Proof.
 exact (fun f_term g_term Eq_term s => extRen_term f_term g_term Eq_term s).
 Qed.

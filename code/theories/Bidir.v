@@ -8,7 +8,7 @@ Reserved Notation "Γ '⊢' t ◃ T"
 
 Unset Elimination Schemes.
 
-Inductive normal : context -> type -> term -> Prop :=
+Inductive normal `{Lang} : context -> type -> term -> Prop :=
 | C_Star Γ : (Γ ⊢ tStar ◃ TUnit)
 
 | C_Abs Γ (A B : type) t :
@@ -43,10 +43,13 @@ Inductive normal : context -> type -> term -> Prop :=
   A' = A ->
   (Γ ⊢ t ◃ A)
 
-with neutral : context -> type -> term -> Prop :=
+with neutral `{Lang} : context -> type -> term -> Prop :=
 | I_Var Γ n T :
   in_context n Γ T ->
   Γ ⊢ tVar n ▹ T
+
+| I_Const Γ c :
+  Γ ⊢ tConst c ▹ (const_type c)
 
 | I_App Γ A B f u :
   (Γ ⊢ f ▹ TFun A B) ->
@@ -68,33 +71,32 @@ Minimality for neutral Sort Prop.
 
 Combined Scheme bidir_ind from normal_ind, neutral_ind.
 
-Definition bidir_concl :=
+Definition bidir_concl `{Lang} :=
 ltac:(
 let t := type of bidir_ind in
 let t' := remove_steps t in
-exact t').
+exact (t' _ _)).
 
-Arguments bidir_concl Pnf Pne : rename.
+Arguments bidir_concl {_ _} Pnf Pne : rename.
 
-
-Theorem bidir_typing : bidir_concl (fun Γ T t => (Γ ⊢ t :: T)) (fun Γ T t => (Γ ⊢ t :: T)).
+Theorem bidir_typing `{Lang} : bidir_concl (fun Γ T t => (Γ ⊢ t :: T)) (fun Γ T t => (Γ ⊢ t :: T)).
 Proof.
   apply bidir_ind.
-  all: try solve [now econstructor].
+  all: try solve [eauto with typing].
   - intros ; now subst.
   - intros.
     destruct b.
-    all: now econstructor.
+    all: eauto with typing.
 Qed.
 
-Lemma ren_bidir : bidir_concl
+Lemma ren_bidir `{Lang} : bidir_concl
   (fun Γ T t => forall Δ ρ, (Δ ⊢ ρ :: Γ) -> Δ ⊢ t⟨ρ⟩ ◃ T)
   (fun Γ T t => forall Δ ρ, (Δ ⊢ ρ :: Γ) -> Δ ⊢ t⟨ρ⟩ ▹ T).
 Proof.
   apply bidir_ind ; eauto 10 with typing.
 Qed.
 
-Corollary ren_ne (Δ Γ : context) (T : type) (t : term) (r : ren) :
+Corollary ren_ne `{Lang} (Δ Γ : context) (T : type) (t : term) (r : ren) :
   (Γ ⊢ t ▹ T) ->
   (Δ ⊢ r :: Γ) ->
   Δ ⊢ t⟨r⟩ ▹ T.
@@ -102,7 +104,7 @@ Proof.
   intros ; now eapply ren_bidir.
 Qed.
 
-Corollary ren_nf (Δ Γ : context) (T : type) (t : term) (r : ren) :
+Corollary ren_nf `{Lang} (Δ Γ : context) (T : type) (t : term) (r : ren) :
   (Γ ⊢ t ◃ T) ->
   (Δ ⊢ r :: Γ) ->
   Δ ⊢ t⟨r⟩ ◃ T.

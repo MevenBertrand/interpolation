@@ -1,42 +1,15 @@
-From Stdlib Require Import Morphisms List RelationClasses.
+From Stdlib Require Import Morphisms List RelationClasses Relations.
+From stdpp Require Export propset.
 From smpl Require Import Smpl.
 
 #[export] Set Structural Injection.
 #[export] Add Search Blacklist "_ind" "_sind" "_rec" "_rect".
 #[export] Set Default Goal Selector "!".
-
-(** ** Subtypes *)
-
-Definition incl {A : Type} : (A -> Prop) -> (A -> Prop) -> Prop :=
-  fun P Q => forall x, P x -> Q x.
-
-Notation "P ⊆ Q" := (incl P Q) (at level 90).
-
-Definition inter {A : Type} : (A -> Prop) -> (A -> Prop) -> (A -> Prop) :=
-  fun P Q x => P x /\ Q x.
-
-Notation "P ∩ Q" := (inter P Q) (at level 80).
-
-Arguments inter _ _ _ _/.
-
-Definition union {A : Type} : (A -> Prop) -> (A -> Prop) -> (A -> Prop) :=
-  fun P Q x => P x \/ Q x.
-
-Notation "P ∪ Q" := (union P Q) (at level 85).
-
-Arguments union _ _ _ _/.
-
-Definition empty {A : Type} : A -> Prop := fun _ => False.
-
-Notation "∅" := empty.
-
-Arguments empty _/.
-
-Definition sing {A : Type} (a : A) : A -> Prop := fun x => x = a.
-
-Arguments sing _ _ _/.
+#[export] Set Keyed Unification.
 
 (** ** Notations *)
+
+Disable Notation "↑".
 
 Notation "`=1`" := (pointwise_relation _ Logic.eq) (at level 80).
 Infix "=1" := (pointwise_relation _ Logic.eq) (at level 70).
@@ -45,6 +18,17 @@ Infix "=1" := (pointwise_relation _ Logic.eq) (at level 70).
 
 Hint Constructors eq : core.
 Hint Extern 10 => reflexivity : core.
+
+#[global]Hint Unfold notT: core.
+#[global] Hint Resolve eq_refl eq_sym : core.
+#[global] Hint Constructors and : core. 
+#[global]Hint Extern 10 =>
+  match goal with
+    | H : False |- _ => destruct H
+    | H : _ /\ _ |- _ => destruct H
+    | H : exists _, _ |- _ => destruct H
+    | H : ~ _ |- False => apply H
+  end : core.
 
 (* To use in intro patterns, similar to SSReflects' /dup view *)
 Definition dup {A : Type} : A -> A * A := fun x => (x,x).

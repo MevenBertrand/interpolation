@@ -46,6 +46,7 @@ Create HintDb red discriminated.
 (** ** Reduction *)
 
 Section Reduction.
+  Context `{Lang}.
   Close Scope typing_scope.
 
   Inductive term_ored : relation term :=
@@ -125,18 +126,20 @@ Hint Resolve rt_refl rt_step rt_trans : red.
 
 Hint Unfold pointwise_relation : red.
 
-#[export] Instance HasORedTm : HasORed term := term_ored.
-#[export] Instance HasRedTm : HasRed term := term_red.
+#[export] Instance HasORedTm `{Lang} : HasORed term := term_ored.
+#[export] Instance HasRedTm `{Lang} : HasRed term := term_red.
 
-#[export] Instance HasRedSubst : HasRed subst := pointwise_relation nat term_red.
+#[export] Instance HasRedSubst `{Lang} : HasRed subst := pointwise_relation nat term_red.
 
   Ltac fold_red :=
-    change term_ored with ored in * ;
-    change term_red with red in *.
+    change term_red with  (Notations.red (Obj := term)) in * ;
+    change term_ored with  (Notations.ored (Obj := term)) in *.
 
   Smpl Add fold_red : refold.
 
 Section Properties.
+  Context `{Lang}.
+
   #[local] Notation red := (Notations.red (Obj := term)) (only parsing).
   #[local] Notation sred := (Notations.red (Obj := subst)) (only parsing).
 
@@ -207,7 +210,7 @@ Section Properties.
 
   Lemma R_lift : Proper (sred ==> sred) up_term_term.
   Proof.
-    intros ?? Hred [|] ; cbn.
+    intros ?? Hred [|] ; cbn ; refold.
     - reflexivity.
     - rewrite R_ren ; try reflexivity.
       apply Hred.
@@ -244,7 +247,7 @@ Section Properties.
     intros σ σ' Hsubst t t' Ht.
     rewrite <- Hsubst ; clear σ' Hsubst.
     induction Ht in σ |- * ;
-      cbn ; rewrite ?subst1_subst, ?up_lift_subst, ?up_lift_up_subst ; now constructor.
+      cbn ; refold ; rewrite ?subst1_subst, ?up_lift_subst, ?up_lift_up_subst ; now constructor.
   Qed.
 
   Instance R_subst : Proper (sred ==> red ==> red) subst1.
@@ -260,5 +263,8 @@ Section Properties.
 
 End Properties.
 
-#[global]Existing Instances R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_Abort_cong R_In_cong R_If_cong R_ren
-  R_lift R_cons R_subst.
+#[global]Existing Instances R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_Abort_cong R_In_cong R_If_cong R_ren R_lift R_cons R_subst.
+
+
+Axiom confluence : forall `{Lang} (t u u' : term),
+  (t ⤳* u) -> (t ⤳* u') -> exists v, (u ⤳* v) /\ (u' ⤳* v).
