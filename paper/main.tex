@@ -28,14 +28,16 @@
 \usepackage{macros}
 \setlength\fboxsep{2pt}
 
-\title{A Type-Theorist's View on Interpolation}
+\title{
+	%A Type-Theorist's View on Interpolation}
   % TODO I'm sure we can do better
+Bidirectional Interpolation for the Lambda-Calculus}
+\subtitle{Revisiting and Formalising Craig-\v Cubri\' c Interpolation}
+\titlerunning{Bidirectional Interpolation for the Lambda-Calculus}
 
-%\titlerunning{Dummy short title}
+\author{Meven {Lennon-Bertrand}}{Université Paris Cité, INRIA, CNRS, IRIF, F-75013 Paris, France}{meven.bertrand@inria.fr}{https://orcid.org/0000-0002-7079-8826}{}
 
-\author{Meven {Lennon-Bertrand}}{Université Paris Cité, INRIA, CNRS, IRIF}{meven.bertrand@inria.fr}{https://orcid.org/0000-0002-7079-8826}{}
-
-\author{Alexis Saurin}{Université Paris Cité, INRIA, CNRS, IRIF}{Alexis.Saurin@irif.fr}{https://orcid.org/0009-0002-1304-5518}{}
+\author{Alexis Saurin}{Université Paris Cité, CNRS, INRIA, IRIF, F-75013 Paris, France}{Alexis.Saurin@irif.fr}{https://orcid.org/0009-0002-1304-5518}{}
 
 \authorrunning{M. Lennon-Bertrand and A. Saurin}
 
@@ -80,10 +82,11 @@
 
 %TODO mandatory: add short abstract of the document
 \begin{abstract}
-Interpolation is a cool property in logic. It can be strengthened to a
-proof-relevant version, which takes proof terms into account. We give a new
-proof of this proof-relevant interpolation in the simply-typed lambda-calculus
-with sums, building on ideas from the type theory community, and formalise
+Craig's Interpolation theorem has a wide range of applications, from mathematical logic to computer science. Proof-theoretical techniques for establishing interpolation usually follow a method first introduced by Maehara for the Sequent Calculus and then adapted by Prawitz to Natural Deduction. 
+
+The result can be strengthened to a proof-relevant version, taking proof terms into account: this was first established by \v Cubri\' c in the simply-typed lambda-calculus with sums and more recently extended to linear, classical and intuitionistic sequent calculi.
+
+In the present paper, we give a new proof of \v Cubri\' c proof-relevant interpolation theorem by building on principles of bidirectional typing, and formalise
 it in \Rocq.
 \end{abstract}
 
@@ -695,7 +698,7 @@ thus start with a polarised notion of atoms.
 \begin{definition}[Atoms]
   Let \(A \in \Ty_{\mathcal{B}}\). We define \(A^+ \subseteq \mathcal{B}\)
     (resp.\ \(A^- \subseteq \mathcal{B}\)), the \emph{positive}
-    (resp.\ \emph{negative}) \emph{atoms} of \(A\) by induction:\\[-1.5em]
+    (resp.\ \emph{negative}) \emph{atoms} of \(A\) by induction, with $\overline{p}=+$ (resp. $-$) \emph{iff} $p=-$ (resp. $+$):\\[-1.5em]
   \begin{minipage}[t]{0.15\textwidth}
   \begin{align*}
     b^{+} & \coloneq \{b\} \\
@@ -716,10 +719,10 @@ thus start with a polarised notion of atoms.
   \end{minipage}
   \begin{minipage}[t]{0.2\textwidth}
   \begin{align*}
-    (A \to B)^{p} & \coloneq A^p \cup B^p \\
+    (A \to B)^{p} & \coloneq A^{\overline{p}} \cup B^p \\
   \end{align*}
   \end{minipage}\\
-  This is lifted pointwise to contexts as
+This is lifted pointwise to contexts as
   \((\Gamma.(x : A))^p \coloneq \Gamma^p \cup A^p\).
 \end{definition}
 
