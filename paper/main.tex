@@ -28,6 +28,22 @@
 \usepackage{macros}
 \usepackage{tikz-cd}
 \usetikzlibrary{decorations.pathmorphing}
+
+\tikzcdset{
+  squiggly/.code={%
+      \pgfkeysalso{
+        /tikz/decorate,
+        /tikz/decoration={
+          snake,
+          segment length=15\pgflinewidth,
+          amplitude=1.9\pgflinewidth,
+          post=lineto, post length=6\pgflinewidth,
+          pre=lineto, pre length=6\pgflinewidth,
+          #1}}},
+  arrow style=tikz,
+  diagrams={>={Straight Barb[scale=0.8]}}
+}
+
 \setlength\fboxsep{2pt}
 
 \title{
@@ -88,7 +104,7 @@ Craig's Interpolation theorem has a wide range of applications, from mathematica
 
 The result can be strengthened to a proof-relevant version, taking proof terms into account: this was first established by \v Cubri\' c in the simply-typed lambda-calculus with sums and more recently extended to linear, classical and intuitionistic sequent calculi.
 
-In the present paper, we give a new proof of \v Cubri\' c proof-relevant interpolation theorem by building on principles of bidirectional typing, and formalise
+In the present paper, we give a new proof of \v Cubri\' c's proof-relevant interpolation theorem by building on principles of bidirectional typing, and formalise
 it in \Rocq.
 \end{abstract}
 
@@ -362,8 +378,11 @@ but only provide a pen-and-paper proof.
   They all are akin to the following, which is easily closed:
 
   \begin{tikzcd}[sep=small]
-    & \ite{(\inl{a})}{b_l}{b_r}~u \arrow[squiggly,rd] \arrow[squiggly,ld] & \\
-    \ite{\inl{a}}{b_l~\subs{u}{\wk}}{b_r~\subs{u}{\wk}} \arrow[squiggly,rd]
+    & \ite{(\inl{a})}{b_l}{b_r}~u
+      \arrow[squiggly,rd]
+      \arrow[squiggly,ld] & \\
+    \ite{(\inl{a})}{b_l~\subs{u}{\wk}}{b_r~\subs{u}{\wk}}
+      \arrow[squiggly,rd]
       && \subs{b_l}{a..}~u \arrow[ld,equal] \\
     & \subs{b_l}{a..}~u
   \end{tikzcd}
@@ -747,7 +766,7 @@ thus that the identity substitution is a value substitution. Hence, we conclude
 \label{sec:interpolation}
 
 With our characterisation of normal forms in hand, we can move to the
-main interpolation result. Following Čubrić~\cite{Cubric1994}, we give a
+main interpolation result. Following \Cubric~\cite{Cubric1994}, we give a
 polarised version in the fashion of Craig interpolation \cite{??}, and
 thus start with a polarised notion of atoms.
 
@@ -818,7 +837,7 @@ the remainder of this section we fix a language \(\lang = (\base,\emptyset,\_)\)
   \begin{itemize}
   \item \(M\) uses only the atoms common to \(\Gamma\) and \(T\):
     for any \(p \in \{+,-\}\) \(M^p \subseteq \Gamma^p \cap T^p\);
-  \item \(t\) is the composition of \(r\) and \(s\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\).
+  \item \(t\) is the composition of \(r\) and \(l\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\).
   \end{itemize}
 \end{theorem}
 
@@ -992,16 +1011,37 @@ are exchanged in the typing of the interpolants compared to the statement for no
 \end{proof}
 
 It is interesting to note that the interpolant we construct is not
-the same as Čubrić. \mlb{Find the example again, and explain the currification
+the same as \Cubric. \mlb{Find the example again, and explain the currification
 by the action of \nameref{rule:demote-b}.}
 
 \subsection{Constants and equations}
 
-\mlb{Where we explain how to add constants, and that equations change virtually nothing.}
+We can generalise the above to arbitrary languages \(\lang = (\base,\const,\tyof)\)
+with arbitrary equations.
+As explained in \cref{sec:red-eq}, handling the extra equations is essentially
+trivial. As for constants, we have to be a bit careful that
+the interpolant might also use atoms present in the constants. The
+final theorem is the following:
 
-\subsection{Comments}
+\begin{theorem}[Interpolation, with constants]
+  Assume \(\typing[\lang]{\Gamma}{t}[T]\), and a partition
+  \(\const = \const_{s} \cup \const_{t}\) of constants.
+  Define \(\const_{i}^p \coloneq \cup_{c \in \const_{i}} (\tyof c)^p\)
+    the atoms of the sets of constants, and
+    \(\lang_{i} \coloneq (\base,\const_{i},\tyof_{i})\)
+    where \(\tyof_{i}\) is the obvious restriction.
+  Then there exists a type \(M\) and terms
+  \(\typing[\lang_{l}]{\Gamma}{l}[M]\) and \(\typing[\lang_{r}]{(x:M)}{r}[T]\) such that
+  \begin{itemize}
+  \item \(M\) uses only the atoms common to \(\Gamma\) and \(\const_{s}\)
+    on one side, and \(T\) and \(\const_{t}\) on the other:
+    for any \(p \in \{+,-\}\)
+    \(M^p \subseteq (\Gamma^p \cup \const_{s}^p) \cap (T^p \cup \const_{t}^p)\);
+  \item \(t\) is the composition of \(r\) and \(l\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\)
+  \end{itemize}
+\end{theorem}
 
-\mlb{Can we explain interpolation as a factorisation system??}
+% \subsection{Comments}
 
 \section{Comments on the formalisation}
 
@@ -1013,7 +1053,30 @@ by the action of \nameref{rule:demote-b}.}
   \item Confluence proof?
 \end{enumerate}
 
-\section{Future work and conclusion}
+\section{Related and future work and conclusion}
+
+\subsection{Related work}
+
+\paragraph*{(Relevant) Interpolation} Veltri Wan, Matthes
+
+\paragraph*{Formalised Interpolation} Férée Giessen Schilito Van Gool
+
+\paragraph*{Normalisation for sums} Abel Sattler, Scherer…
+
+\paragraph*{Exploiting bidirectional typing}
+MetaRocq, Dunfield Krishnaswami, Pfenning
+
+\subsection{Future work}
+
+\paragraph*{Interpolation}
+
+\paragraph*{Extensions with cuts}
+
+\paragraph*{Uniform interpolation} (for the \stlc)
+
+\paragraph*{Sequent calculi} sequent calculi \cite{Mihejevs2025}
+
+\paragraph*{Dependent types} looks difficult due to the commuting cuts
 
 %%
 %% Bibliography
