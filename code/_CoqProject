@@ -20,3 +20,5 @@ theories/Typing.v
 theories/Bidir.v
 theories/MetaTheory.v
 theories/Interpolation.v
+
+theories/Theorems.v

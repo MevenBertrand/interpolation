@@ -14,17 +14,28 @@ Corollary interpolation `{Lang} (A C : type) (t : term) (c : const_split) :
 Proof.
   intros Ht.
   pose proof (normalisation _ _ _ Ht) as (u&?&Hnorm).
-  unshelve eapply interpolation_ind in Hnorm as (B&l&r&Hty&Htm&?&?&?&?).
-  3: exact c.
-  3: exact (split_s split_emp).
-  unfold interpolate_tm, interpolate_ty in * ; cbn in *.
-  exists B, u, r, l.
-  prod_splitter ; try assumption.
-  - intros p b.
-    specialize (Hty p b) ; cbn in *.
-    intuition.
-    now set_solver.
-  - etransitivity ; tea.
+  assert (splits ([A]) ([A]) ε (split_s split_emp))
+    by repeat constructor.
+  destruct (interpolate (split_s split_emp) c ([A]) C u) as ((M&l)&r) eqn:e.
+  exists M, u, r, l.
+  prod_splitter.
+  - eapply interpolation_lang_ty in Hnorm ; tea.
+    rewrite e in Hnorm ; cbn in *.
+    set_solver.
+  - eapply interpolation_ty in Hnorm ; tea.
+    now rewrite e in Hnorm.
+  - eapply interpolation_lang_tm in Hnorm ; tea.
+    now rewrite e in Hnorm.
+  - eapply interpolation_ty in Hnorm ; tea.
+    now rewrite e in Hnorm.
+  - eapply interpolation_lang_tm in Hnorm ; tea.
+    now rewrite e in Hnorm.
+  - pose proof (Hnorm' := Hnorm). 
+    eapply interpolation_red in Hnorm ; tea.
+    eapply interpolation_ty in Hnorm' ; tea.
+    rewrite e in Hnorm, Hnorm'.
+    destruct Hnorm'.
+    etransitivity ; tea.
     apply ereflexivity.
     substify ; asimpl ; refold.
     eapply term_ext_closed ; tea.
@@ -36,6 +47,7 @@ Proof.
     symmetry.
     apply subst_id.
     now intros [|].
+  - assumption.
 Qed.
 
 (** A “model-theoretic” version, stated with equality with respect to an arbitrary theory *)
@@ -90,4 +102,3 @@ Section Empty.
   Qed.
 
 End Empty.
-  

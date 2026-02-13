@@ -42,8 +42,8 @@ Notation "'tFst'" := (tProj true).
 Notation "'tSnd'" := (tProj false).
 Notation "'eFst'" := (eProj true).
 Notation "'eSnd'" := (eProj false).
-Notation "'tLeft'" := (tIn false).
-Notation "'tRight'" := (tIn true).
+Notation "'tLeft'" := (tIn true).
+Notation "'tRight'" := (tIn false).
 
 #[global] Instance Ren_elim `{Lang} : (Ren1 (nat -> nat) elim elim) :=
   fun ρ e => @subst_elim _ _ (ρ >> tVar) e.

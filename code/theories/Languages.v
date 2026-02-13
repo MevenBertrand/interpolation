@@ -166,4 +166,29 @@ Section AtomsTm.
       set_solver.
   Qed.
 
+  Lemma atoms_tm_subst_inv (t : term) (σ : subst) :
+    atoms_tm t ⊆ atoms_tm (t[σ]).
+  Proof.
+    induction t in σ |- * ; cbn ; set_solver.
+  Qed.
+
+  Lemma atoms_tm_subst_eq (t : term) (σ : subst) :
+    atoms_subst σ ≡ ∅ ->
+    atoms_tm t[σ] ≡ atoms_tm t.
+  Proof.
+    intros.
+    pose proof (atoms_tm_subst t σ).
+    pose proof (atoms_tm_subst_inv t σ).
+    set_solver.
+  Qed.
+
+  Lemma atoms_subst_tip_eq t f :
+    atoms_tm (f (tVar 0)) ≡ ∅ ->
+    atoms_tm (t[tip f]) ≡ atoms_tm t.
+  Proof.
+    intros.
+    apply atoms_tm_subst_eq.
+    now rewrite atoms_subst_tip.
+  Qed.
+
 End AtomsTm.
