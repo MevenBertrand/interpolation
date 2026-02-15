@@ -110,7 +110,28 @@ it in \Rocq.
 
 \section{Introduction}
 
-\subparagraph*{Interpolation for the \stlcp}
+\subparagraph*{Craig-Lyndon Interpolation}
+
+Craig's interpolation theorem~\cite{Craig57,Craig57a} expresses a desirable, though unsurprising, property of logical entailment: a logical entailment of $B$ from $A$ can be mediated through a logical statement that only uses the \emph{common concepts} of $A$ and $B$. More precisely, a \emph{Craig Interpolant} $I$ of $A \vdash B$ is a logical formula that is built using only the predicate symbols occurs both  in $A$ and $B$ and such that $A \vdash I$ and $I \vdash B$.
+
+This was soon recognized as a central result of first-order logic~\cite{Feferman08,vanBenthem08} with application in both mathematical logic~\cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08} (notably allowing an elegant proof of Beth' definability theorem and of Robinson joint consistency theorem) and computer science~\cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18} (with applications in database query planning or modularisation of model-checking) and numerous generalizations to extensions or restrictions of classical logic~\cite{Vaananen08,Schutte,Prawitz1965-PRANDA}.
+
+The fact that Craig's theorem could be established by  well-structured proof-theoretic methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
+certainly plays an important role in such generalisations as well as in the occurrence of various finer-grained notions of interpolations, most notably Lyndon interpolation~\cite{Lyndon1959interpolation} (a notion of interpolation that is sensitive to the polarity of occurrences of predicate symbols) and Uniform interpolation~\cite{PittsXXX}
+(a version of interpolation in which, given a formula $A$, an single interpolant can be generated, uniformly, for a whole sub-language).
+
+%\begin{itemize}
+%  \item Central result in FOL \cite{Craig57,Craig57a,Lyndon1959interpolation,Maehara,Prawitz1965-PRANDA,Feferman08}
+%  \item Applications in Logic \cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08,vanBenthem08} and in CS \cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18}
+%\item Factorising logical consequence
+%\item Proof-theoretic methods \cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
+%\end{itemize}
+
+\subparagraph*{Proof-relevant Interpolation for the \stlcp}
+Considering the importance of proof-theoretic methods in the field of interpolation it is not so surprising that interpolation theorems can in some cases be given a proof-relevant refinement as recently advocated by Saurin~\cite{Saurin25fscd}. This means that not only can one factor the logical entailment through the interpolant formula, but also that the proof of $A\vdash B$ itself can be factored through two proof from and to the interpolant that, once composed, can be equated to the original proof. Even more interestingly maybe is the fact that the proof of such proof-relevant interpolation result was implicit in the original proof-theoretic results from the 60's by Maehara.
+
+This is exactly what was at stake with \v Cubri\'c interpolation theorem for the simply typed lambda-calculus with sums and empty types (\stlcp) that is a proof-relevant refinement of Prawitz' proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction.\as{(Comment the semantical results by \v Cubri\'c as well!!!)}
+
 \begin{itemize}
   \item Interpolation is cool
   \item It can be made proof-relevant, cf \cite{Cubric1994} for \stlcp
@@ -119,7 +140,7 @@ it in \Rocq.
 \subparagraph*{Interpolation meets normal forms}
 
 \begin{itemize}
-  \item The original proof in \Cubric~\cite{Cubric1994} is… not very clean
+  \item The original proof in \Cubric~\cite{Cubricphd,Cubric1994} is… not very clean
   \item We can, however, discern that it follows the structure of
     normal forms
   \item By making this characterisation explicit and inductive, we obtain a much
@@ -767,7 +788,7 @@ thus that the identity substitution is a value substitution. Hence, we conclude
 
 With our characterisation of normal forms in hand, we can move to the
 main interpolation result. Following \Cubric~\cite{Cubric1994}, we give a
-polarised version in the fashion of Craig interpolation \cite{??}, and
+polarised version in the fashion of Lyndon interpolation \cite{lyndon1959interpolation}, and
 thus start with a polarised notion of atoms.
 
 \begin{definition}[Atoms]
@@ -1058,8 +1079,10 @@ final theorem is the following:
 \subsection{Related work}
 
 \paragraph*{(Relevant) Interpolation} Veltri Wan, Matthes
+\cite{Matthes-interpolation-01,Saurin25fscd,VeltriW25}
 
 \paragraph*{Formalised Interpolation} Férée Giessen Schilito Van Gool
+\cite{Feree2024}
 
 \paragraph*{Normalisation for sums} Abel Sattler, Scherer…
 
@@ -1073,8 +1096,9 @@ MetaRocq, Dunfield Krishnaswami, Pfenning
 \paragraph*{Extensions with cuts}
 
 \paragraph*{Uniform interpolation} (for the \stlc)
+\cite{Feree2024}
 
-\paragraph*{Sequent calculi} sequent calculi \cite{Mihejevs2025}
+\paragraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
 
 \paragraph*{Dependent types} looks difficult due to the commuting cuts
 
