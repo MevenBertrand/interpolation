@@ -1099,16 +1099,39 @@ MetaRocq, Dunfield Krishnaswami, Pfenning
 
 \subsection{Future work}
 
-\paragraph*{Interpolation}
+\paragraph*{Interpolation} \as{?? Qu'est-ce qu'on voulait dire ici?}
+
+In terms of future work, we envision three particularly interesting directions for future work, each corresponding to strengthening the result of the present paper in one orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \v Cubri\' c' results from simple types to dependent types. 
 
 \paragraph*{Extensions with cuts}
+The first, evident, direction for future work consist in solving the first limitation of \v Cubri\' c' interpolation which only applies to normal forms. From the perspective of the computational interpretation of the result, this is indeed a drastic limitation: every computation can be factored through an interface type in the common type language of the input and output data types, but only under the assumption that one first normalise the term to normal form. 
+What if the term is not in normal form? 
+Considering that interpolation in fact requires a much weaker condition than the subformula property, one can hope to easily captures terms with cuts satisfying some assumptions. 
+
+First results in this direction have been done by Fiorillo {\it et al}~\cite{fiorillo26} where they extend Saurin's results to sequent proofs with cut satisfying some vocabulary constraints. 
+We believe that similar results can be transported to \stlcp and see at least two paths to reach such a result:
+\begin{itemize}
+\item In their work, Fiorillo {\it et al}~\cite{fiorillo26} identity quite general condition on cut formulas so that sequent calculus proof-relevant interpolation can be carried out in the presence of cut inferences and they moreover show that proof-relevant interpolation can be achieved for MELL proof-nets with cuts (under similar assumptions as above). Since one can encode the simply typed lambda-calculus in the intuitionistic fragment of MELL using linear embeddings of intuitionistic logic, one can hope to establish a similar result for $\lambda$-terms with redexes via those translations to proof-nets. There are still some difficulties to achieve such a result in this direction amounting to the need to design a faithful embedding of the whole of \stlcp in IMELL that satisfies a good simulation result. 
+\item Another direction is to follow the methodology considered in the present paper and to design a bidirectional type system that does not characterize only normal forms but also those terms having redexes that satisfy the assumptions of the interpolation theorem with cuts. This will require having a more relaxed systems allowing some annotations of terms as long as those annotations guarantee the vocabulary constraints needed for interpolation.   
+\end{itemize}
+
 
 \paragraph*{Uniform interpolation} (for the \stlc)
 \cite{Feree2024}
 
-\paragraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
+\as{Besoin d'adapter ce qui suit aux notations quand le vocabulaire n'est pas polarisé.}
+
+A very natural and exciting question is the following: can the proof-relevant interpolation result presented above be "uniformised"? 
+While the current result ensures that given types $A$ and $B$ and a normal term $x: A \vdash t:B$, there exists a type $I$ satisfying the vocabulary conditions and two terms $u,v$ \emph{depending on} $A,B$ and $t$, such that $ \red{(\lambda y. u)v}{t}$, a uniform proof relevant interpolation could be stated in two ways:
+\begin{description}
+\item[uniform] For every type $A$, for every $L \subseteq \base$ there exists $I$ such that $voc(I)\subseteq L$ such that for any $B$ satisfying $voc(A)\cap voc(B) \subseteq L$, and every $x:A \vdash t: B$, there are terms $u,v$ such that $y: I\vdash u: B$ and $x: A\vdash v: I$ and $ \red{(\lambda y. u)v}{t}$.
+\item[strongly uniform] For every type $A$, for every $L \subseteq \base$ there exists $I$ such that $voc(I)\subseteq L$ and $x: A \vdash v: I$  such that for any $B$ satisfying $voc(A)\cap voc(B) \subseteq L$, and every $x:A \vdash t: B$, there are terms $u$ such that $y: I\vdash u: B$ and $ \red{(\lambda y. u)v}{t}$.
+\end{description}
 
 \paragraph*{Dependent types} looks difficult due to the commuting cuts
+
+\paragraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
+
 
 %%
 %% Bibliography
