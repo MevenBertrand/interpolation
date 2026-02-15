@@ -116,9 +116,8 @@ Craig's interpolation theorem~\cite{Craig57,Craig57a} expresses a desirable, tho
 
 This was soon recognized as a central result of first-order logic~\cite{Feferman08,vanBenthem08} with application in both mathematical logic~\cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08} (notably allowing an elegant proof of Beth' definability theorem and of Robinson joint consistency theorem) and computer science~\cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18} (with applications in database query planning or modularisation of model-checking) and numerous generalizations to extensions or restrictions of classical logic~\cite{Vaananen08,Schutte,Prawitz1965-PRANDA}.
 
-The fact that Craig's theorem could be established by  well-structured proof-theoretic methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
-certainly plays an important role in such generalisations as well as in the occurrence of various finer-grained notions of interpolations, most notably Lyndon interpolation~\cite{Lyndon1959interpolation} (a notion of interpolation that is sensitive to the polarity of occurrences of predicate symbols) and Uniform interpolation~\cite{PittsXXX}
-(a version of interpolation in which, given a formula $A$, an single interpolant can be generated, uniformly, for a whole sub-language).
+Proof-theoretic methods for establishing Craig's theorem essentially relied on the admissibility of cuts in the sequent calculus and on the subformula property~\cite{Maehara,Prawitz1965-PRANDA}. This very fact, providing very well-structured methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
+certainly plays an important role in the ability to generalise the interpolation theorem to various logics as mentioned above, as well as in the in the occurrence of various finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, a notion of interpolation that is sensitive to the polarity of occurrences of predicate symbols, and (ii) Uniform interpolation~\cite{PittsXXX}, a version of the interpolation property in which, given a formula $A$, an single interpolant can be generated, uniformly, for a whole sub-language.
 
 %\begin{itemize}
 %  \item Central result in FOL \cite{Craig57,Craig57a,Lyndon1959interpolation,Maehara,Prawitz1965-PRANDA,Feferman08}
@@ -130,7 +129,7 @@ certainly plays an important role in such generalisations as well as in the occu
 \subparagraph*{Proof-relevant Interpolation for the \stlcp}
 Considering the importance of proof-theoretic methods in the field of interpolation it is not so surprising that interpolation theorems can in some cases be given a proof-relevant refinement as recently advocated by Saurin~\cite{Saurin25fscd}. This means that not only can one factor the logical entailment through the interpolant formula, but also that the proof of $A\vdash B$ itself can be factored through two proof from and to the interpolant that, once composed, can be equated to the original proof. Even more interestingly maybe is the fact that the proof of such proof-relevant interpolation result was implicit in the original proof-theoretic results from the 60's by Maehara.
 
-This is exactly what was at stake with \v Cubri\'c interpolation theorem for the simply typed lambda-calculus with sums and empty types (\stlcp) that is a proof-relevant refinement of Prawitz' proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction.\as{(Comment the semantical results by \v Cubri\'c as well!!!)}
+This is exactly what was at stake with \v Cubri\'c interpolation theorem~\cite{Cubricphd,Cubric1994} for the simply typed lambda-calculus with sums and empty types (\stlcp) that is a proof-relevant refinement of Prawitz' proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction.\as{(Comment the semantical results by \v Cubri\'c as well!!!)}
 
 \begin{itemize}
   \item Interpolation is cool
@@ -1081,8 +1080,17 @@ final theorem is the following:
 \paragraph*{(Relevant) Interpolation} Veltri Wan, Matthes
 \cite{Matthes-interpolation-01,Saurin25fscd,VeltriW25}
 
-\paragraph*{Formalised Interpolation} Férée Giessen Schilito Van Gool
+\begin{itemize}
+\item Matthes (2001) extended \v Cubri\' c results to a $\lambda$-calculus with generalized elimination rules.~\cite{Matthes-interpolation-01} 
+\item Proof-relevant interpolation as cut-introduction by Saurin~\cite{Saurin25fscd}
+\end{itemize}
+
+\paragraph*{Formalised Interpolation} 
+\begin{itemize}
+\item Férée Giessen Schilito Van Gool
 \cite{Feree2024}
+\item Recent related work for substructural logics, e.g. Lambek calculus by Veltri and Wan.~\cite{VeltriW25}
+\end{itemize}
 
 \paragraph*{Normalisation for sums} Abel Sattler, Scherer…
 
