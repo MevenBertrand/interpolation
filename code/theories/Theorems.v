@@ -8,8 +8,8 @@ Corollary interpolation `{Lang} (A C : type) (t : term) (c : const_split) :
     (forall p, atoms_ty p B ⊆
       (atoms_ty p A ∪ atoms_const p c.(pconst_l))
       ∩ (atoms_ty p C ∪ atoms_const (negp p) c.(pconst_r)))
-    /\ (ε,,A ⊢ l :: B) /\ (atoms_tm l ⊆ c.(pconst_l))
-    /\ (ε,,B ⊢ r :: C) /\ (atoms_tm r ⊆ c.(pconst_r))
+    /\ ([A] ⊢ l :: B) /\ (atoms_tm l ⊆ c.(pconst_l))
+    /\ ([B] ⊢ r :: C) /\ (atoms_tm r ⊆ c.(pconst_r))
     /\ (r[l..] ⤳* u) /\ t ⤳* u.
 Proof.
   intros Ht.
@@ -57,8 +57,8 @@ Corollary interpolation_eq `{Theory} (A C : type) (t : term) (c : const_split) :
     (forall p, atoms_ty p B ⊆
       (atoms_ty p A ∪ atoms_const p c.(pconst_l))
       ∩ (atoms_ty p C ∪ atoms_const (negp p) c.(pconst_r)))
-    /\ (ε,,A ⊢ l :: B) /\ (atoms_tm l ⊆ c.(pconst_l))
-    /\ (ε,,B ⊢ r :: C) /\ (atoms_tm r ⊆ c.(pconst_r))
+    /\ ([A] ⊢ l :: B) /\ (atoms_tm l ⊆ c.(pconst_l))
+    /\ ([B] ⊢ r :: C) /\ (atoms_tm r ⊆ c.(pconst_r))
     /\ ([A] ⊢ r[l..] ≡ t :: C).
 Proof.
   intros Ht.
@@ -80,7 +80,7 @@ Section Empty.
     ([A] ⊢ t :: C) ->
     exists (B : type) (r l : term),
       (forall p, (atoms_ty p B) ⊆ (atoms_ty p A) ∩ (atoms_ty p C))
-    /\ (ε,,A ⊢ l :: B) /\ (ε,,B ⊢ r :: C) /\ ([A] ⊢ r[l..] ≡ t :: C).
+    /\ ([A] ⊢ l :: B) /\ ([B] ⊢ r :: C) /\ ([A] ⊢ r[l..] ≡ t :: C).
   Proof.
     unshelve eintros (?&?&?&?&?&?&?&?&?)%interpolation_eq.
     1:{

@@ -512,7 +512,7 @@ Section EquationsSubst.
     eauto with typing.
   Qed.
 
-  Lemma tip_typing (Γ : context) (A B : type) (f f' : term -> term) :
+  Lemma tip_conv (Γ : context) (A B : type) (f f' : term -> term) :
     (Γ,,A ⊢ f (tVar 0) ≡ f' (tVar 0) :: B) ->
     (Γ,,A ⊢ tip f ≡ tip f' :: Γ,,B).
   Proof.
@@ -523,10 +523,6 @@ Section EquationsSubst.
   Qed.
 
 End EquationsSubst.
-
-(* Hint Immediate ren_conv_typing_l ren_conv_typing_r subst_conv_typing_l subst_conv_typing_r : typing.
-
-Hint Resolve ren_refl ren_up_conv subst_refl subst_up_conv subst_conv : typing. *)
 
 (** ** Reduction implies conversion *)
 
