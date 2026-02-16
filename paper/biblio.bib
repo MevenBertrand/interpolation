@@ -1,7 +1,6 @@
 
 
 
-
 @InProceedings{Wadler2009,
   author    = {Wadler, Philip and Findler, Robert Bruce},
   booktitle = {Proceedings of the 18th European Symposium on Programming Languages and Systems (ESOP 2009)},
@@ -7356,14 +7355,14 @@ Natural models},
 
 @InBook{Feree2024,
   author    = {Férée, Hugo and Giessen, Iris van der and Gool, Sam van and Shillito, Ian},
+  booktitle = {Automated Reasoning},
+  title     = {Mechanised Uniform Interpolation for Modal Logics K, GL, and iSL},
+  doi       = {10.1007/978-3-031-63501-4_3},
+  isbn      = {9783031635014},
   pages     = {43--60},
   publisher = {Springer Nature Switzerland},
-  title     = {Mechanised Uniform Interpolation for Modal Logics K, GL, and iSL},
-  isbn      = {9783031635014},
-  booktitle = {Automated Reasoning},
-  date      = {2024},
-  doi       = {10.1007/978-3-031-63501-4_3},
   issn      = {1611-3349},
+  year      = {2024},
 }
 
 @Article{Takahashi1995,
@@ -7396,19 +7395,40 @@ Natural models},
 }
 
 @Article{Mihejevs2025,
-  author      = {Mihejevs, Zanzi and Hedges, Jules},
-  date        = {2025-12-08},
-  title       = {Canonical bidirectional typechecking},
-  doi         = {10.48550/ARXIV.2512.07511},
-  eprint      = {2512.07511},
-  eprintclass = {cs.PL},
-  eprinttype  = {arXiv},
-  abstract    = {We demonstrate that the checkable/synthesisable split in bidirectional typechecking coincides with existing dualities in polarised System L, also known as polarised $μ\tildeμ$-calculus. Specifically, positive terms and negative coterms are checkable, and negative terms and positive coterms are synthesisable. This combines a standard formulation of bidirectional typechecking with Zeilberger's `cocontextual' variant. We extend this to ordinary `cartesian' System L using Mc Bride's co-de Bruijn formulation of scopes, and show that both can be combined in a linear-nonlinear style, where linear types are positive and cartesian types are negative. This yields a remarkable 3-way coincidence between the shifts of polarised System L, LNL calculi, and bidirectional calculi.},
-  copyright   = {arXiv.org perpetual, non-exclusive license},
-  file        = {:Mihejevs2025 - Canonical Bidirectional Typechecking.pdf:PDF:https\://arxiv.org/pdf/2512.07511v1},
-  keywords    = {Programming Languages (cs.PL), Logic in Computer Science (cs.LO), FOS: Computer and information sciences},
-  publisher   = {arXiv},
-  year        = {2025},
+  author        = {Mihejevs, Zanzi and Hedges, Jules},
+  title         = {Canonical bidirectional typechecking},
+  doi           = {10.48550/ARXIV.2512.07511},
+  eprint        = {2512.07511},
+  abstract      = {We demonstrate that the checkable/synthesisable split in bidirectional typechecking coincides with existing dualities in polarised System L, also known as polarised $μ\tildeμ$-calculus. Specifically, positive terms and negative coterms are checkable, and negative terms and positive coterms are synthesisable. This combines a standard formulation of bidirectional typechecking with Zeilberger's `cocontextual' variant. We extend this to ordinary `cartesian' System L using Mc Bride's co-de Bruijn formulation of scopes, and show that both can be combined in a linear-nonlinear style, where linear types are positive and cartesian types are negative. This yields a remarkable 3-way coincidence between the shifts of polarised System L, LNL calculi, and bidirectional calculi.},
+  archiveprefix = {arXiv},
+  copyright     = {arXiv.org perpetual, non-exclusive license},
+  file          = {:Mihejevs2025 - Canonical Bidirectional Typechecking.pdf:PDF:https\://arxiv.org/pdf/2512.07511v1},
+  keywords      = {Programming Languages (cs.PL), Logic in Computer Science (cs.LO), FOS: Computer and information sciences},
+  month         = dec,
+  primaryclass  = {cs.PL},
+  publisher     = {arXiv},
+  year          = {2025},
+}
+
+@InProceedings{Stark2019,
+  author     = {Stark, Kathrin and Schäfer, Steven and Kaiser, Jonas},
+  booktitle  = {Proceedings of the 8th ACM SIGPLAN International Conference on Certified Programs and Proofs},
+  title      = {Autosubst 2: reasoning with multi-sorted de Bruijn terms and vector substitutions},
+  doi        = {10.1145/3293880.3294101},
+  pages      = {166--180},
+  publisher  = {ACM},
+  series     = {CPP ’19},
+  collection = {CPP ’19},
+  month      = jan,
+  year       = {2019},
+}
+
+@Conference{BouverotDupuis2026,
+  author    = {Bouverot-Dupuis, Mathis and Winterhalter, Théo and Maillard, Kenji and Stark, Kathrin},
+  booktitle = {RocqPL},
+  title     = {Sulfur: Substitution Generation using a Logical Framework},
+  file      = {:BouverotDupuis2026 - Sulfur_ Substitution Generation Using a Logical Framework.pdf:PDF:https\://mathisbd.github.io/files/sulfur/abstract.pdf},
+  year      = {2026},
 }
 
 
@@ -7423,30 +7443,27 @@ Natural models},
 }
 
 
-@article{Craig57,
-  author       = {William Craig},
-  title        = {Linear Reasoning. {A} New Form of the {H}erbrand-{G}entzen Theorem},
-  journal      = {J. Symb. Log.},
-  volume       = {22},
-  number       = {3},
-  pages        = {250--268},
-  year         = {1957},
-  url          = {https://doi.org/10.2307/2963593},
-  doi          = {10.2307/2963593}
+@Article{Craig57,
+  author  = {William Craig},
+  title   = {Linear Reasoning. {A} New Form of the {H}erbrand-{G}entzen Theorem},
+  doi     = {10.2307/2963593},
+  number  = {3},
+  pages   = {250--268},
+  volume  = {22},
+  journal = {J. Symb. Log.},
+  year    = {1957},
 }
 
 
-@article{Craig57a,
-        author       = {William Craig},
-        title        = {Three Uses of the Herbrand-Gentzen Theorem in Relating Model Theory
-        and Proof Theory},
-        journal      = {J. Symb. Log.},
-        volume       = {22},
-        number       = {3},
-        pages        = {269--285},
-        year         = {1957},
-        url          = {https://doi.org/10.2307/2963594},
-        doi          = {10.2307/2963594}
+@Article{Craig57a,
+  author  = {William Craig},
+  title   = {Three Uses of the Herbrand-Gentzen Theorem in Relating Model Theory and Proof Theory},
+  doi     = {10.2307/2963594},
+  number  = {3},
+  pages   = {269--285},
+  volume  = {22},
+  journal = {J. Symb. Log.},
+  year    = {1957},
 }
 
 @Article{Maehara,
@@ -7464,84 +7481,74 @@ Natural models},
 }
 
 
-@inproceedings{VeltriW25,
-  author       = {Niccol{\`{o}} Veltri and
-                  Cheng{-}Syuan Wan},
-  editor       = {Gian Luca Pozzato and
-                  Tarmo Uustalu},
-  title        = {An Agda Formalization of Nonassociative Lambek Calculus and its Metatheory},
-  booktitle    = {Automated Reasoning with Analytic Tableaux and Related Methods - 34th
-                  International Conference, {TABLEAUX} 2025, Reykjavik, Iceland, September
-                  27-29, 2025, Proceedings},
-  series       = {Lecture Notes in Computer Science},
-  volume       = {15980},
-  pages        = {433--452},
-  publisher    = {Springer},
-  year         = {2025},
-  url          = {https://doi.org/10.1007/978-3-032-06085-3\_23},
-  doi          = {10.1007/978-3-032-06085-3\_23}
+@InProceedings{VeltriW25,
+  author    = {Niccol{\`{o}} Veltri and Cheng{-}Syuan Wan},
+  booktitle = {Automated Reasoning with Analytic Tableaux and Related Methods - 34th International Conference, {TABLEAUX} 2025, Reykjavik, Iceland, September 27-29, 2025, Proceedings},
+  title     = {An Agda Formalization of Nonassociative Lambek Calculus and its Metatheory},
+  doi       = {10.1007/978-3-032-06085-3_23},
+  editor    = {Gian Luca Pozzato and Tarmo Uustalu},
+  pages     = {433--452},
+  publisher = {Springer},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {15980},
+  year      = {2025},
 }
 
-@article{Feferman08,
-  author       = {Solomon Feferman},
-  title        = {Harmonious logic: Craig's interpolation theorem and its descendants},
-  journal      = {Synthèse},
-  volume       = {164},
-  number       = {3},
-  pages        = {341--357},
-  year         = {2008},
-  url          = {https://doi.org/10.1007/s11229-008-9354-2},
-  doi          = {10.1007/S11229-008-9354-2}
-  }
-
-
-
-@article{Lavalette08,
-  author       = {Gerard R. Renardel de Lavalette},
-  title        = {Interpolation in computing science: the semantics of modularization},
-  journal      = {Synth.},
-  volume       = {164},
-  number       = {3},
-  pages        = {437--450},
-  year         = {2008},
-  url          = {https://doi.org/10.1007/s11229-008-9358-y},
-  doi          = {10.1007/S11229-008-9358-Y}
+@Article{Feferman08,
+  author  = {Solomon Feferman},
+  title   = {Harmonious logic: Craig's interpolation theorem and its descendants},
+  doi     = {10.1007/S11229-008-9354-2},
+  number  = {3},
+  pages   = {341--357},
+  volume  = {164},
+  journal = {Synthèse},
+  year    = {2008},
 }
 
-@article{Vaananen08,
-  author       = {Jouko A. V{\"{a}}{\"{a}}n{\"{a}}nen},
-  title        = {The Craig Interpolation Theorem in abstract model theory},
-  journal      = {Synth.},
-  volume       = {164},
-  number       = {3},
-  pages        = {401--420},
-  year         = {2008},
-  url          = {https://doi.org/10.1007/s11229-008-9357-z},
-  doi          = {10.1007/S11229-008-9357-Z}
-  }
 
-@article{Mints01,
-  author       = {Grigori Mints},
-  title        = {Interpolation theorems for intuitionistic predicate logic},
-  journal      = {Ann. Pure Appl. Log.},
-  volume       = {113},
-  number       = {1-3},
-  pages        = {225--242},
-  year         = {2001},
-  url          = {https://doi.org/10.1016/S0168-0072(01)00060-4},
-  doi          = {10.1016/S0168-0072(01)00060-4}
+
+@Article{Lavalette08,
+  author  = {Gerard R. Renardel de Lavalette},
+  title   = {Interpolation in computing science: the semantics of modularization},
+  doi     = {10.1007/S11229-008-9358-Y},
+  number  = {3},
+  pages   = {437--450},
+  volume  = {164},
+  journal = {Synth.},
+  year    = {2008},
 }
 
-@article{vanBenthem08,
-  author       = {Johan van Benthem},
-  title        = {The many faces of interpolation},
-  journal      = {Synth.},
-  volume       = {164},
-  number       = {3},
-  pages        = {451--460},
-  year         = {2008},
-  url          = {https://doi.org/10.1007/s11229-008-9351-5},
-  doi          = {10.1007/S11229-008-9351-5}
+@Article{Vaananen08,
+  author  = {Jouko A. V{\"{a}}{\"{a}}n{\"{a}}nen},
+  title   = {The Craig Interpolation Theorem in abstract model theory},
+  doi     = {10.1007/S11229-008-9357-Z},
+  number  = {3},
+  pages   = {401--420},
+  volume  = {164},
+  journal = {Synth.},
+  year    = {2008},
+}
+
+@Article{Mints01,
+  author  = {Grigori Mints},
+  title   = {Interpolation theorems for intuitionistic predicate logic},
+  doi     = {10.1016/S0168-0072(01)00060-4},
+  number  = {1-3},
+  pages   = {225--242},
+  volume  = {113},
+  journal = {Ann. Pure Appl. Log.},
+  year    = {2001},
+}
+
+@Article{vanBenthem08,
+  author  = {Johan van Benthem},
+  title   = {The many faces of interpolation},
+  doi     = {10.1007/S11229-008-9351-5},
+  number  = {3},
+  pages   = {451--460},
+  volume  = {164},
+  journal = {Synth.},
+  year    = {2008},
 }
 
 @book{Prawitz1965-PRANDA,
@@ -7585,17 +7592,16 @@ Mathematicae},
   year         = {1956}
 }
 
-@incollection{McMillan18,
+@InCollection{McMillan18,
   author    = {Kenneth L. McMillan},
-  title     = {Interpolation and Model Checking},
   booktitle = {Handbook of Model Checking.},
+  title     = {Interpolation and Model Checking},
+  doi       = {10.1007/978-3-319-10575-8_14},
   pages     = {421--446},
-  year      = {2018},
-  url       = {https://doi.org/10.1007/978-3-319-10575-8\_14},
-  doi       = {10.1007/978-3-319-10575-8\_14},
-  timestamp = {Tue, 29 May 2018 12:30:27 +0200},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
   biburl    = {https://dblp.org/rec/bib/reference/mc/McMillan18},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+  timestamp = {Tue, 29 May 2018 12:30:27 +0200},
+  year      = {2018},
 }
 
 
@@ -7635,24 +7641,21 @@ Mathematicae},
 
 
 @InProceedings{Saurin25fscd,
-  author =      {Saurin, Alexis},
-  title =       {{Interpolation as Cut-Introduction: On the Computational Content of Craig-Lyndon Interpolation}},
-  booktitle =   {10th International Conference on Formal Structures for Computation and Deduction (FSCD 2025)},
-  pages =       {32:1--32:21},
-  series =      {Leibniz International Proceedings in Informatics (LIPIcs)},
-  ISBN =        {978-3-95977-374-4},
-  ISSN =        {1868-8969},
-  year =        {2025},
-  volume =      {337},
-  editor =      {Fern\'{a}ndez, Maribel},
-  publisher =   {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
-  address =     {Dagstuhl, Germany},
-  URL =         {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.FSCD.2025.32},
-  URN =         {urn:nbn:de:0030-drops-236478},
-  doi =         {10.4230/LIPIcs.FSCD.2025.32},
-  annote =      {Keywords: Classical Logic, Interpolation, Cut Elimination, Linear Logic, Sequent calculus, System L}
+  author    = {Saurin, Alexis},
+  booktitle = {10th International Conference on Formal Structures for Computation and Deduction (FSCD 2025)},
+  title     = {{Interpolation as Cut-Introduction: On the Computational Content of Craig-Lyndon Interpolation}},
+  doi       = {10.4230/LIPIcs.FSCD.2025.32},
+  editor    = {Fern\'{a}ndez, Maribel},
+  isbn      = {978-3-95977-374-4},
+  pages     = {32:1--32:21},
+  publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+  series    = {Leibniz International Proceedings in Informatics (LIPIcs)},
+  volume    = {337},
+  address   = {Dagstuhl, Germany},
+  annote    = {Keywords: Classical Logic, Interpolation, Cut Elimination, Linear Logic, Sequent calculus, System L},
+  issn      = {1868-8969},
+  urn       = {urn:nbn:de:0030-drops-236478},
+  year      = {2025},
 }
-
-
 
 @Comment{jabref-meta: databaseType:biblatex;}

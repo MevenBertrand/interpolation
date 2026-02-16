@@ -376,6 +376,7 @@ the elimination gets duplicated in each branch of the if.
 \end{figure}
 
 \begin{theorem}[Confluence]
+\label{thm:confluence}
 Reduction is confluent: if \(\red{t}{u}\) and \(\red{t}{u'}\), then there exists
 \(v\) such that \(\red{u}{v}\) and \(\red{u'}{v}\).
 \end{theorem}
@@ -392,7 +393,7 @@ but only provide a pen-and-paper proof.
   of commuting conversion can be shown by a simple \(\mathbb{N}\)-valued measure
   \mlb{formalisation}, so by Newman's lemma \cite[3.1.42]{Barendregt1985}, it
   suffices to show local confluence. This is painful due to the many critical
-  pairs, so we have checked this with the automated tool \textsf{CSI\textsuperscript{ho}}
+  pairs, so we have checked this with the automated tool \textsc{CSI\textsuperscript{ho}}
   \cite{Nagele2017}. Finally, commutation is again simple because
   critical pairs between \(\beta\) and commuting conversion can be closed in one step.
   They all are akin to the following, which is easily closed:
@@ -866,6 +867,7 @@ to show the following theorem for normal forms,
 and specialize it to the trivial partition \(\Gamma = \part{\Gamma}{\emp}\).
 
 \begin{theorem}[Interpolation, inductive statement]
+    \label{thm:interpolation-ind}
   Assume a partitioned context \(\Gamma = \part{\Gamma_{s}}{\Gamma_{t}}\).
   %
   Given any normal form \(\ccol{t} \in \Nf(\Gamma,\tcol{T})\),
@@ -915,10 +917,11 @@ are exchanged in the typing of the interpolants compared to the statement for no
 \begin{proof}
 As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   %
-The \(\Nf\) cases are rather direct.\\
+  The \(\Nf\) cases are rather direct. We only show 
+  \nameref{rule:lam-b}, cases for \nameref{rule:pair-b}, \nameref{rule:inl-b}, \nameref{rule:inr-b} are similar. \\
   %
-\nameref{rule:star-b}: \(\tcol{T}\) is \(\top\), so we can take
-  \(\mcol{M} = \top\), and \(\scol{l} = \tcol{r} = \star\).\\
+  % \nameref{rule:star-b}: \(\tcol{T}\) is \(\top\), so we can take
+  % \(\mcol{M} = \top\), and \(\scol{l} = \tcol{r} = \star\).\\
   %
   % \nameref{rule:pair-b}: \(\tcol{T}\) is \(\tcol{T_1} \times \tcol{T_2}\), \(\ccol{t}\)
   % is \(\ccol{(t_1,t_2)}\). By induction,
@@ -946,14 +949,14 @@ The \(\Nf\) cases are rather direct.\\
     \ty \tcol{A \to B}
   \end{array}\]
   %
-  \nameref{rule:pair-b}, \nameref{rule:inl-b}, \nameref{rule:inr-b} are similar:
-  we post-compose \(\tcol{r}\) as obtained by recursive interpolation
-  by the relevant constructor, except we do not need to think about context extension.
+  % \nameref{rule:pair-b}, \nameref{rule:inl-b}, \nameref{rule:inr-b} are similar:
+  % we post-compose \(\tcol{r}\) as obtained by recursive interpolation
+  % by the relevant constructor, except we do not need to think about context extension.
 
-  The \(\Ne\) cases are more interesting. For each rule, we have two subcases,
+  Cases involving \(\Ne\) are more interesting. For each rule, we have two subcases,
   depending on whether the induction hypothesis for the main sub-neutral is
-  in case 1 or 2 above, \ie on whether the main variable of the neutral
-  is in the source context or target context.\\
+  in case 1 or 2 above, \ie whether the main variable of the neutral
+  in is the source or target context.\\
   %
   \nameref{rule:var-b}/source: We have \((x \ty \scol{A}) \in \scol{\Gamma_s}\).
   Then we take \(\mcol{M} \coloneq \top\)
@@ -976,11 +979,11 @@ The \(\Nf\) cases are rather direct.\\
     \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M})\) and
     \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{A})\).
     This is where we need to handle the reversal between the source and target
-    context that appears in the source case for neutrals.
-    Luckily, by the second premise of the rule, we have \(\scol{A} = \tcol{B}\),
+    context in case 1.
+    Luckily, we have \(\scol{A} = \tcol{B}\),
     thus these types can only use atom common to \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
     Hence, \(\mcol{M'} \coloneq \mcol{M \to A}\) is a valid interpolating type,
-    and we take for terms
+    and we take
     \[\begin{array}{rlll}
       \scol{\Gamma_{s}} \vdash & \scol{l'} \coloneq & \scol{\l x.r} & \ty \mcol{M \to A} \\
       \tcol{\Gamma_{t}}.\mcol{(z : M)} \vdash & \tcol{r'} \coloneq &
@@ -989,18 +992,20 @@ The \(\Nf\) cases are rather direct.\\
   \\
   %
   \nameref{rule:demote-b}/target: In this case we keep the exact
-    same interpolating type and interpolants.
+    same interpolating type and interpolants.\\
+  \nameref{rule:raise-b}, \nameref{rule:if-b}: similarly to \nameref{rule:demote-b},
+    we need to handle the reversal of source and target context. \mlb{Appendix?}\\
   %
-  \nameref{rule:app-b}/source: We have an application
+  \nameref{rule:app-b}/source: We consider
   \(\icol{t}~\ccol{u}\), and the induction hypothesis on \(\icol{t}\) gives
   some \(\scol{A \to B}\) with atoms in \(\scol{\Gamma_s}\) and
   \(\mcol{M_t}\), \(\scol{r_t}\) and \(\tcol{l_t}\) such that
-  \(\icol{t} = \subs{\scol{r_t}}{\tcol{l_t}..}\). Because \(\scol{A}\) has its
-  atoms in \(\scol{\Gamma_s}\), by induction hypothesis we can
-  interpolate \(\ccol{u}\) with a “reversed” colouring on \(\Gamma\),
+  \(\icol{t} = \subs{\scol{r_t}}{\tcol{l_t}..}\). Since \(\scol{A}\)'s
+  atoms are in \(\scol{\Gamma_s}\), by induction hypothesis we can
+  interpolate \(\ccol{u}\) with a reversed colouring,
   \ie inverting the roles of \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
-  This gives us \(\mcol{M_u}\), \(\scol{r_u}\) and \(\tcol{l_u}\) such that
-  \(\ccol{u} = \subs{\scol{r_u}}{\tcol{l_u}..}\). Then we take
+  This gives \(\mcol{M_u}\), \(\scol{r_u}\) and \(\tcol{l_u}\) such that
+  \(\ccol{u} = \subs{\scol{r_u}}{\tcol{l_u}..}\). We take
   \(\mcol{M} \coloneq \mcol{M_t} \times \mcol{M_u}\), and
   \[\begin{array}{rlll}
       \tcol{\Gamma_{t}} \vdash & \tcol{l} \coloneq & \tcol{(l_t,l_u)} &
@@ -1026,8 +1031,7 @@ The \(\Nf\) cases are rather direct.\\
   %
   \nameref{rule:proji-b}: Here in all cases we keep the same interpolating type
     and left interpolant, and simply post-compose the right interpolant with
-    the relevant projection.\\
-  \nameref{rule:raise-b}, \nameref{rule:if-b}: \mlb{TODO!}
+    the relevant projection.
 \end{proof}
 
 
@@ -1065,23 +1069,115 @@ final theorem is the following:
   \end{itemize}
 \end{theorem}
 
-% \subsection{Comments}
 
-\section{Comments on the formalisation}
+\section{On formalisation choices: highs and lows of automation}
 
-\mlb{Where we explain things on the \Rocq proof}
-\begin{enumerate}
-  \item Autosubst/Sulfur
-  \item How far can we push automation? We do \texttt{auto}-loading + setoid rewriting, can
-    we go further?
-  \item Confluence proof?
-\end{enumerate}
+As is often the case in this sort of work, proofs are relatively straightforward
+once the right organisation and statements ---in particular, for
+induction--- have been found. We tried to reproduce this, using \Rocq's
+automation. We found solvers for well-specified classes of problems particularly
+valuable, typically for goals which are only
+mentioned in passing on paper but are a very real hindrance in formalisation.
+Yet, we can also testify
+that, if these solvers are not well polished, a lot of their value evaporates:
+a slow or, worse, unreliable solver is not much better than no solver at all,
+because it loses its main appeal, which is to stop thinking
+about boring goals altogether.
+
+\subparagraph*{Substitutions}
+ We use \textsc{AutoSubst2-OCaml}
+\cite{Stark2019,Dapprich2021} to handle the substitution calculus, in particular
+the solver \texttt{asimpl} for equations between substitutions.
+This saves us much boring work, particularly when reasoning about
+when proving that \(\red{\subs{r}{l..}}{t}\) in \cref{thm:interpolation-ind}, which
+involves rather nasty terms. Although very useful, the tool still has
+a few caveats. First and foremost,
+\texttt{asimpl} is actually incomplete, because it is missing the equation
+\(((\sigma \pcomp \wk),\sigma(x_0)) = \sigma\), where \(x_0\) is the last
+variable in context. Concretely, \texttt{asimpl} does not recognise identification
+that need a case-split on whether the argument is the first
+variable, which often arises around context extension.
+Other sources of friction include speed, with the tactic
+quickly taking multiple seconds, and a perfectible setup around notations
+and abstraction barriers.
+
+The issues of speed and incompleteness are addressed by the
+\textsc{Sulfur} plugin \cite{BouverotDupuis2026}, a spiritual successor of
+\textsc{Autosubst}. Sadly, we were not able to use it
+due of the way we parameterised all definitions by a type-class
+representing a language. With \textsc{Autosubst},
+that parameterisation was a matter of changing a few lines in the
+generated file. Although not very principled, this was easy. In contrast,
+the plugin approach does not expose the generated code,
+which we thus cannot tweak. Another issue
+is that \textsc{Sulfur} currently only supports a single type of terms, while
+we use \textsc{Autosubst} to also deal with substitutions for eliminations.
+
+As more long-term goals, we also had frictions with lemmas not applying
+to a goal because their conclusion only unified with it up to
+substitution equations. Integrating a form of matching modulo the substitution calculus would
+be a very interesting extension. Additionally, one of the daunting aspect of the
+confluence proof we were afraid to formalise is the need to deal with multiple relations,
+and various forms of congruence, incurring much boilerplate
+reasoning about congruence closures, which is already tedious
+in the current formalisation of reduction and conversion. It seems possible
+to exploit \textsc{Autosubst}/\textsc{Sulfur} to generically
+deal with such issues, which would remove a great amount of tedium.
+
+Finally, we should mention \textsc{Pyrosome} \cite{Jamner2025}, which
+also automates syntax-related reasoning, but directly at the level 
+of typed syntax (specified as a generalised algebraic theory
+\cite{Cartmell1986,Kaposi2019a}). While this has the advantage of
+also being able to reduce boilerplate related to typing, it does not come
+with a decision procedure, which we find extremely valuable in \textsc{Autosubst}.
+
+\subparagraph*{Solvers and setoid rewriting}
+
+Beyond \textsc{Autosubst}, we heavily used \Rocq's proof search mechanisms.
+We store all typing-related lemmas in a hint database, which we systematically use
+to discharge typing goals. Owing to the relative simplicity of \stlc's typing,
+this is very efficient. For instance, the proofs of progress and preservation
+\mlb{ref} for the whole language take less than 30 lines.
+We also use \textsc{Stdpp}'s \cite{??} off-the-shelve set theory library,
+in particular its solver, which once again made an entire class
+of boring goals disappear. Sadly, here too we encountered performance issues.
+
+To handle reduction, we exploit setoid rewriting to apply reduction steps or
+hypotheses deep in terms. This proved quite useful, although less automated
+than what \texttt{asimpl} provides. It seemed possible to also automate this
+sort of goals by implementing a (reflexive) tactic that computes the normal
+form of a term with respect to reduction, but the amount of work did not seem
+to be worth it, so we kept to manual rewriting. An interesting difficulty appeared
+for conversion: \Rocq's current setoid rewriting
+machinery is not designed to work for non-reflexive relations, such as conversion,
+which is only reflexive on well-typed terms. However, by adding the right
+\texttt{Hint Extern} that applies our automation for typing to resolve reflexivity
+goals, we managed to use setoid rewriting for conversion. This suggests it should
+be more generally feasible for setoid rewriting to work well also for non-reflexive
+relations, at the cost of setting up more type-class search to discharge
+reflexive goals.
+
+\subparagraph*{Confluence}
+
+As already mentioned, we did not formalise the proof of \cref{thm:confluence}.
+Although confluence is often considered simpler than normalisation
+in pen-and-paper accounts, here its formal proof seemed daunting. First, the
+proofs of confluence for \(\beta\) and of commutation of \(\beta\) and commutative
+cuts, while conceptually simple, involve the definition of two new relations,
+each with their congruence closures, leading to a proliferation of goals.
+Even more frightening is the proof of local confluence of commutative cuts, where
+\textsc{CSI\textsuperscript{ho}} reports 17 critical pairs. While each individual
+pair is simple enough, the full argument, both the reduction of
+local confluence to the pair's closures and the closure itself, seemed
+extremely tedious. It would be interesting to explore what could be done here,
+in the form of libraries for congruence closures or automation, maybe by
+having \textsc{CSI\textsuperscript{ho}} or similar tools generate proof witnesses.
 
 \section{Related and future work and conclusion}
 
 \subsection{Related work}
 
-\paragraph*{(Proof-Relevant) Interpolation} Veltri Wan, Matthes
+\subparagraph*{(Relevant) Interpolation} Veltri Wan, Matthes
 \cite{Matthes-interpolation-01,Saurin25fscd,VeltriW25}
 
 \begin{itemize}
