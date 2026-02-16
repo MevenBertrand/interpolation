@@ -204,11 +204,47 @@ Section Congruences.
     now constructor.
   Qed.
 
+  Instance ProperProxy_conv (Γ : context) (T : type) (t : term) :
+    (Γ ⊢ t :: T) -> ProperProxy (conv Γ T) t.
+  Proof.
+    intros.
+    now constructor.
+  Qed.
+
+  Instance ProperProxy_conv_subst (Γ Δ : context) (σ : subst) :
+    (Γ ⊢ σ :: Δ) -> ProperProxy (conv Γ Δ) σ.
+  Proof.
+    intros.
+    now constructor.
+  Qed.
+
+    Instance ProperProxy_conv_ren (Γ Δ : context) (ρ : ren) :
+    (Γ ⊢ ρ :: Δ) -> ProperProxy (conv Γ Δ) ρ.
+  Proof.
+    intros.
+    now constructor.
+  Qed.
+
 End Congruences.
 
 Hint Resolve term_refl : typing.
 
 Existing Instances PER_conv Lam_Proper App_Proper Pair_Proper Fst_Proper Snd_Proper Abort_Proper Left_Proper Right_Proper If_Proper.
+
+(** These hints are used to help setoid rewriting with conversion.
+  Since conversion is non-transitive, the usual attempt at solving side-goals generated
+  by [Proper] instances using [Reflexivity] instances fails. Instead, we hook into
+  the corresponding proxy, use the “quasi-reflexivity” of conversion which generates
+  a typing subgoal, and solve that goal with [eauto with typing]. *)
+Hint Extern 0 (ProperProxy (conv (Obj := term) _ _) _) =>
+  apply ProperProxy_conv ; eauto with typing : typeclass_instances.
+
+Hint Extern 0 (ProperProxy (conv (Obj := ren) _ _) _) =>
+  apply ProperProxy_conv_ren ; eauto with typing : typeclass_instances.
+
+Hint Extern 0 (ProperProxy (conv (Obj := subst) _ _) _) =>
+  apply ProperProxy_conv_subst ; eauto with typing : typeclass_instances.
+
 
 Lemma conv_typing `{th : Theory} Γ T (t t' : term) :
   (Γ ⊢ t ≡ t' :: T) -> (Γ ⊢ t :: T) /\ (Γ ⊢ t' :: T).
@@ -218,7 +254,7 @@ Proof.
   pose proof th.(eq_right_ok).
   induction Hty ; cbn ; refold ; split ;
       rewrite ?subst1_ren, ?up_lift_ren, ?up_lift_up_ren, ?tip_up_ren.
-  all: try solve [eauto 20 with typing].
+  all: eauto 20 with typing.
 Qed.
 
 Corollary conv_typing_l `{th : Theory} Γ T (t t' : term) :
@@ -298,7 +334,7 @@ Section EquationsSubst.
     now erewrite Hr.
   Qed.
 
-  Lemma Proper_cons (Δ Γ : context) (T : type) (n : nat) :
+  Instance Proper_cons (Δ Γ : context) (T : type) (n : nat) :
     in_context n Δ T ->
     Proper (conv (Obj := ren) Δ Γ ==> conv (Obj := ren) Δ (Γ,,T)) (scons n).
   Proof.
@@ -315,10 +351,10 @@ Section EquationsSubst.
   Instance _ren_up_conv (Δ Γ : context) (T : type) :
     Proper (conv (Obj := ren) Δ Γ ==> conv (Obj := ren) (Δ,,T) (Γ,,T)) up_term.
   Proof.
-    intros r r' ?.
+    intros r r' e.
     change (Δ,, T ⊢ (0 .: r >> ↑) ≡ (0 .: r' >> ↑) :: Γ,, T).
     apply Proper_cons ; eauto with typing.
-    eapply Proper_comp ; tea.
+    rewrite e.
     now eauto with typing.
   Qed.
 
@@ -326,7 +362,7 @@ Section EquationsSubst.
     (Δ ⊢ r ≡ r' :: Γ) ->
     (Δ,,T) ⊢ (⇑ r) ≡ (⇑ r') :: (Γ,,T).
   Proof.
-    intros.
+    intros e.
     now apply _ren_up_conv.
   Qed.
 
@@ -517,7 +553,7 @@ Section EquationsSubst.
     (Γ,,A ⊢ tip f ≡ tip f' :: Γ,,B).
   Proof.
     unfold tip.
-    intros.
+    intros e.
     apply subst_cons_conv ; tea.
     eapply ren_subst_conv ; eauto with typing.
   Qed.
@@ -631,8 +667,7 @@ Section ReductionConversion.
     }
     eapply zip_typing_inv in Hty as (T&?&Hty).
     inversion Hty ; subst ; clear Hty ; refold.
-    etransitivity.
-    1: eapply E_Eta_Sum ; eauto.
+    rewrite E_Eta_Sum ; tea ; cycle -1.
     - eapply zip_typing.
       2: now eauto 15 with typing.
       eapply elim_ren_typing ; eauto with typing.
@@ -641,27 +676,22 @@ Section ReductionConversion.
       all: subst e'.
       all: rewrite zip_subst, tip_shift_elim ; cbn ; refold.
       all: eapply zip_conv ; [now eapply elim_ren_typing ; eauto with typing|].
-      all: etransitivity.
-      + eapply E_Beta_Left ; eauto with typing.
-        all: eapply subst_typing ; eauto with typing.
-      + replace (_[_]) with bl.
-        2:{
-          asimpl ; refold.
-          symmetry.
-          apply subst_id.
-          now intros [|].
-        }
-        eauto with typing.
-      + eapply E_Beta_Right ; eauto with typing.
-        all: eapply subst_typing ; eauto with typing.
-      + replace (_[_]) with br.
-        2:{
-          asimpl ; refold.
-          symmetry.
-          apply subst_id.
-          now intros [|].
-        }
-        eauto with typing.
+      + rewrite E_Beta_Left ; eauto with typing.
+        2-3: eapply subst_typing ; eauto with typing.
+        replace (_[_]) with bl.
+        1: eauto with typing.
+        asimpl ; refold.
+        symmetry.
+        apply subst_id.
+        now intros [|].
+      + rewrite E_Beta_Right ; eauto with typing.
+        2-3: eapply subst_typing ; eauto with typing.
+        replace (_[_]) with br.
+        1: eauto with typing.
+        asimpl ; refold.
+        symmetry.
+        apply subst_id.
+        now intros [|].
     Unshelve.
     all: easy.
   Qed.
