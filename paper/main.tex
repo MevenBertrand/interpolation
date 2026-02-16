@@ -953,7 +953,7 @@ The \(\Nf\) cases are rather direct.\\
   The \(\Ne\) cases are more interesting. For each rule, we have two subcases,
   depending on whether the induction hypothesis for the main sub-neutral is
   in case 1 or 2 above, \ie on whether the main variable of the neutral
-  in is the source or target context.\\
+  is in the source context or target context.\\
   %
   \nameref{rule:var-b}/source: We have \((x \ty \scol{A}) \in \scol{\Gamma_s}\).
   Then we take \(\mcol{M} \coloneq \top\)
@@ -1030,6 +1030,10 @@ The \(\Nf\) cases are rather direct.\\
   \nameref{rule:raise-b}, \nameref{rule:if-b}: \mlb{TODO!}
 \end{proof}
 
+
+\as{Ici, j'ai limpression qu'on pourrait commenter au sujet de l'inversion qu'on discute sur le cas DEMOTE/source, par rapport à un système où on fait aussi un partitionnement du terme typé, soit partitionné à gauche, soit à droite. En s'inspirant du calcul des séquents, cela suggère un jugement un peu plus général et ce jugement serait peut-être plus adapté à une présentation par introduction de coupure.}
+
+
 It is interesting to note that the interpolant we construct is not
 the same as \Cubric. \mlb{Find the example again, and explain the currification
 by the action of \nameref{rule:demote-b}.}
@@ -1057,7 +1061,7 @@ final theorem is the following:
     on one side, and \(T\) and \(\const_{t}\) on the other:
     for any \(p \in \{+,-\}\)
     \(M^p \subseteq (\Gamma^p \cup \const_{s}^p) \cap (T^p \cup \const_{t}^p)\);
-  \item \(t\) is the composition of \(r\) and \(l\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\)
+  \item \(t\) is the composition of \(r\) and \(l\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\).
   \end{itemize}
 \end{theorem}
 
