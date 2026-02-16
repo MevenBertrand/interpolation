@@ -787,7 +787,7 @@ thus that the identity substitution is a value substitution. Hence, we conclude
 
 With our characterisation of normal forms in hand, we can move to the
 main interpolation result. Following \Cubric~\cite{Cubric1994}, we give a
-polarised version in the fashion of Lyndon interpolation \cite{lyndon1959interpolation}, and
+polarised version in the fashion of Lyndon interpolation \cite{Lyndon1959interpolation} rather than the simpler Craig interpolation, and
 thus start with a polarised notion of atoms.
 
 \begin{definition}[Atoms]
@@ -908,16 +908,16 @@ Its counterpart for neutrals, however, was not at all explicit in the original
 proof, which did not use neutrals altogether. Instead, the proof went by strong
 induction on the size of terms, replacing subterms by variables, which
 we replace by a much more direct reasoning by mutual induction.
-An interesting aspect to note is that in case 1.\ for neutrals
+An interesting aspect to note is that, in case 1.\ for neutrals,
 interpolation is reversed, in that the roles of the source and target context
 are exchanged in the typing of the interpolants compared to the statement for normal forms.
 
 \begin{proof}
-  As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
+As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   %
-  The \(\Nf\) cases are rather direct.\\
+The \(\Nf\) cases are rather direct.\\
   %
-  \nameref{rule:star-b}: \(\tcol{T}\) is \(\top\), so we can take
+\nameref{rule:star-b}: \(\tcol{T}\) is \(\top\), so we can take
   \(\mcol{M} = \top\), and \(\scol{l} = \tcol{r} = \star\).\\
   %
   % \nameref{rule:pair-b}: \(\tcol{T}\) is \(\tcol{T_1} \times \tcol{T_2}\), \(\ccol{t}\)
@@ -1077,12 +1077,17 @@ final theorem is the following:
 
 \subsection{Related work}
 
-\paragraph*{(Relevant) Interpolation} Veltri Wan, Matthes
+\paragraph*{(Proof-Relevant) Interpolation} Veltri Wan, Matthes
 \cite{Matthes-interpolation-01,Saurin25fscd,VeltriW25}
 
 \begin{itemize}
+\item Comment on the proof by Prawitz?
 \item Matthes (2001) extended \v Cubri\' c results to a $\lambda$-calculus with generalized elimination rules.~\cite{Matthes-interpolation-01} 
-\item Proof-relevant interpolation as cut-introduction by Saurin~\cite{Saurin25fscd}
+\item Proof-relevant interpolation as cut-introduction by Saurin~\cite{Saurin25fscd} together with a "computational" treatment in System L.
+\item Fiorillo et al: proof nets?
+\item Fiorillo Master thesis: lambda-mu
+\item Semantics?
+\item Veltri Wan~\cite{VeltriW25}
 \end{itemize}
 
 \paragraph*{Formalised Interpolation} 
@@ -1099,9 +1104,11 @@ MetaRocq, Dunfield Krishnaswami, Pfenning
 
 \subsection{Future work}
 
+In terms of future work, we envision three particularly interesting directions for future work, each corresponding to strengthening the result of the present paper in one orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \v Cubri\' c' results from simple types to dependent types. 
+
+
 \paragraph*{Interpolation} \as{?? Qu'est-ce qu'on voulait dire ici?}
 
-In terms of future work, we envision three particularly interesting directions for future work, each corresponding to strengthening the result of the present paper in one orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \v Cubri\' c' results from simple types to dependent types. 
 
 \paragraph*{Extensions with cuts}
 The first, evident, direction for future work consist in solving the first limitation of \v Cubri\' c' interpolation which only applies to normal forms. From the perspective of the computational interpretation of the result, this is indeed a drastic limitation: every computation can be factored through an interface type in the common type language of the input and output data types, but only under the assumption that one first normalise the term to normal form. 
@@ -1128,10 +1135,14 @@ While the current result ensures that given types $A$ and $B$ and a normal term 
 \item[strongly uniform] For every type $A$, for every $L \subseteq \base$ there exists $I$ such that $voc(I)\subseteq L$ and $x: A \vdash v: I$  such that for any $B$ satisfying $voc(A)\cap voc(B) \subseteq L$, and every $x:A \vdash t: B$, there are terms $u$ such that $y: I\vdash u: B$ and $ \red{(\lambda y. u)v}{t}$.
 \end{description}
 
-\paragraph*{Dependent types} looks difficult due to the commuting cuts
+\paragraph*{Dependent types} 
+While Craig Interpolation is most interesting in the setting of first-order logic, \v Cubri\'c proof-relevant interpolation only deals with a simple and, in particular, propositional type theory. 
+We plan to investigate in the future how and whether \v Cubri\'c theorem can be extended to various forms of type dependency.
+
+\as{Explain why it looks difficult: due to the commuting cuts.}
 
 \paragraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
-
+\as{Est-ce qu'on veut vraiment cela en future work? Si oui, on pourrait relier \cite{Mihejevs2025} et \cite{Saurin25fscd}.}
 
 %%
 %% Bibliography
