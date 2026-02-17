@@ -8,7 +8,7 @@
 \DeclareDocumentCommand{\Rocq}{}{\textsc{Rocq}\xspace}
 \DeclareDocumentCommand{\stlc}{}{STLC\xspace}
 \DeclareDocumentCommand{\stlcp}{}{STLC\textsubscript{+}\xspace}
-\DeclareDocumentCommand{\Cubric}{}{Čubrić}
+\DeclareDocumentCommand{\Cubric}{}{Čubrić\xspace}
 
 % Color for personal notes
 \newcommand{\mynote}[3]{{\color{#1} \fbox{\bfseries\scriptsize#2}
@@ -19,6 +19,17 @@
 
 \DeclareDocumentCommand{\STLC}{o}{STLC\IfValueT{#1}{_{#1}}\xspace}
 \DeclareDocumentCommand{\STLCp}{o}{STLC\textsubscript{+\IfValueT{#1}{#1}}\xspace}
+
+% Rocq links
+
+\DeclareDocumentCommand{\coqlogo}{}{\raisebox{-.2em}{\includegraphics[height=1em]{icon-rocq-blue-eps-converted-to.pdf}}}
+\DeclareDocumentCommand{\formfile}{O{/code/theories/} m}{%
+  \href{https://anonymous.4open.science/r/interpolation-stlc#1#2.v}{\coqlogo}}
+
+% Arguments: optional = root folder, mandatory = file (including subfolder), then line number,
+% finally definition name
+\DeclareDocumentCommand{\formline}{O{/code/theories/} m m m}{%
+  \href{https://anonymous.4open.science/r/interpolation-stlc#1#2\#L#3}{\coqlogo}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Induction rules

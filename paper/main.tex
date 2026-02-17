@@ -161,13 +161,14 @@ normalise with respect to \emph{commuting conversion}.
     for the \stlcp
   \item All our work is formalised in \Rocq
 \end{itemize}
+Links to the (anonymised) formalisation are indicated by this symbol:
+\formfile[]{}.
 
-\subparagraph*{A note on the meta-theory} We work in dependent type theory as
-a meta-theory. To avoid confusion between object-level and meta-level
-judgments, we denote meta-level typing as \(\mty\), and use \(\Set\) and \(\Prop\)
-respectively for the meta-level universes of types and propositions –
-we will not need more than one universe.
-\mlb{Do we need to introduce more notations?}
+\subparagraph*{Meta-theory} We work in dependent type theory, but to
+avoid confusion between object-level and meta-level
+judgments, we denote meta-level typing as \(\mty\), and use \(\Prop\) and \(\Set\)
+for the meta-level universes of propositions and types --- of which we need only one.
+
 
 \section{The simply-typed \(\lambda\)-calculus with sums}
 
@@ -233,7 +234,7 @@ include an unspecified set of base types.
 To make the result more interesting,
 we likewise include a language of constants.
 
-\begin{definition}[Language]
+\begin{definition}[\formline{BasicAst.v}{18}{Lang} Language]
   \label{def:lang}
   A \emph{language} \(\lang\) consists of:
   \begin{itemize}
@@ -249,7 +250,7 @@ we likewise include a language of constants.
   % constants.
 \end{definition}
 
-\begin{definition}[Types and terms]
+\begin{definition}[\formline{Typing.v}{16}{has_type} Types and terms]
 \label{def:types-terms}
 The definition of types and terms is given in \cref{fig:stlc}.
 We decompose types into the \emph{negative} types \(\to\), \(\times\) and
@@ -275,7 +276,7 @@ When it is not particularly relevant, we omit the language subscript.
   \inferdef[One]{\typing{\Gamma}{t}[A]}{\typing{\Gamma}{t..}[\Gamma.(x:A)]}
 %
 \end{mathpar}
-\caption{Substitutions}
+\caption{\formline{Typing.v}{164}{TypingSubst} Substitutions and their typing}
 \label{fig:subst}
 \end{figure}
 
@@ -297,7 +298,8 @@ as it changes the context in which a term is considered.} \(\sigma,t\) extends
 a substitution \(\sigma\) by mapping the last variable in context to \(t\);
 \(\Up \sigma\) maps the last variable to itself, and acts as \(\sigma\) otherwise;
 finally \(t..\) maps the last variable to \(t\) and
-acts as the identity otherwise. The following substitution rule is admissible:
+acts as the identity otherwise. The following substitution rule is admissible
+(\formline{Typing.v}{312}{subst_typing}):
 \begin{mathpar}
   \inferdef[Subst]{\typing{\Delta}{\sigma}[\Gamma] \\ \typing{\Gamma}{\sigma}[A]}
     {\typing{\Delta}{\subs{t}{\sigma}}[A]}
@@ -323,11 +325,11 @@ theory of biCCCs.
 \paragraph*{Reduction}
 
 To factor commuting conversions, we use \emph{eliminations},
-given by the following grammar:
+given by the following grammar (\formline{Ast.sig}{21}{}):
 \[ e \Coloneqq \sapp{t} \mid \sproj{i} \mid \site{t}{t}\]
-The \emph{zip} of a term against an elimination \(\plug{e}{t}\) is defined in the obvious way.
+The \emph{zip} of a term against an elimination \(\plug{e}{t}\) is defined in the obvious way (\formline{Elim.v}{9}{zip}).
 
-Reductions, then, are of two kinds: the usual \(\beta\)-reductions, corresponding
+Reductions are of two kinds: the usual \(\beta\)-reductions, corresponding
 to computation ---applied abstraction, projection of a pair,
 and branching on a constructor--- and commuting conversions, which push
 an elimination across another one of a positive type (\ie \(\bot\) or
@@ -335,7 +337,7 @@ a sum). In the case of \(\bot\), the elimination gets completely removed, as it
 is unnecessary: a proof of \(\bot\) can be used to inhabit
 any type, there is no need to further eliminate it. In the case of the sum,
 the elimination gets duplicated in each branch of the if.
-\begin{definition}[Reductions]
+\begin{definition}[\formline{Reduction.v}{121}{term_red} Reductions]
   \emph{One-step reduction} \(\oredop\)
   is the congruent closure of the rules given in \cref{fig:stlc-red}.
   \emph{Reduction} \(\redop\) is the reflexive, transitive closure of one-step reduction.
@@ -370,11 +372,11 @@ the elimination gets duplicated in each branch of the if.
   \inferdef[CommRais]{ }{\ored{\plug{e}{\rai t}}{\rai t}} \and
   \inferdef[CommIf]{ }{\ored{\plug{e}{\ite{s}{b_l}{b_r}}}{\ite{s}{\plug{e}{b_l}}{\plug{e}{b_r}}}}
 \end{mathpar}
-\caption{Reduction (congruence rules omitted)}
+\caption{\formline{Reduction.v}{50}{term_ored} Reduction (congruence rules omitted)}
 \label{fig:stlc-red}
 \end{figure}
 
-\begin{theorem}[Confluence]
+\begin{theorem}[\formline{ReductionConfluence.v}{173}{confluence} Confluence]
 \label{thm:confluence}
 Reduction is confluent: if \(\red{t}{u}\) and \(\red{t}{u'}\), then there exists
 \(v\) such that \(\red{u}{v}\) and \(\red{u'}{v}\).
@@ -386,17 +388,18 @@ but only provide a pen-and-paper proof.
 \begin{proof}
   We use the Hindley-Rosen lemma \cite[Prop. 3.3.5]{Barendregt1985}, by which
   it suffices to show that 1. \(\beta\)-reduction is confluent 2. commuting
-  conversion is confluent 3. the two commute. The first is easy, since there is
-  no critical pair, so the Takahashi variant of parallel reduction à la Tait--Martin-Löf
+  conversion is confluent 3. the two commute. For the first, since there is
+  no critical pair Takahashi's variant of parallel reduction à la Tait--Martin-Löf
   \cite{Tait1967,Takahashi1995} does the trick. For the second, strong normalisation
   of commuting conversion can be shown by a simple \(\mathbb{N}\)-valued measure
-  \mlb{formalisation}, so by Newman's lemma \cite[3.1.42]{Barendregt1985}, it
-  suffices to show local confluence. This is painful due to the many critical
+  (\formline{ReductionConfluence.v}{114}{strong_nor}),
+  so by Newman's lemma \cite[3.1.42]{Barendregt1985}, it
+  suffices to show local confluence (\formline{ReductionConfluence.v}{148}{confluent}).
+  This is painful due to the many critical
   pairs, so we have checked this with the automated tool \textsc{CSI\textsuperscript{ho}}
-  \cite{Nagele2017}. Finally, commutation is again simple because
-  critical pairs between \(\beta\) and commuting conversion can be closed in one step.
-  They all are akin to the following, which is easily closed:
-
+  \cite{Nagele2017}. Finally, commutation again does not need normalisation because
+  critical pairs between \(\beta\) and commuting conversion
+  are all akin to the following, which can be closed in one step.
   \begin{tikzcd}[sep=small]
     & \ite{(\inl{a})}{b_l}{b_r}~u
       \arrow[squiggly,rd]
@@ -410,7 +413,8 @@ but only provide a pen-and-paper proof.
 
 \paragraph*{Equational theories}
 
-To formally relate reduction to biCCCs, we can define a notion of conversion
+To formally relate reduction to biCCCs, we can define
+(\formline{Equations.v}{29}{conversion}) a notion of conversion
 \(\conv{\Gamma}{t}{t'}[A]\) capturing equality of morphisms in a biCCC
 as the least congruent equivalence relation containing
 \(\beta\) and \(\eta\) laws, encoding the
@@ -429,16 +433,18 @@ alone.
 This is not an issue, as our interpolation proof only uses conversion
 in covariant positions, so we show stronger theorems using reduction,
 and can weaken them to conversion, owing to:
-\begin{lemma}[Subject reduction]
+\begin{lemma}[\formline{Equations.v}{720}{subject_reduction} Subject reduction]
   If \(\typing{\Gamma}{t}[A]\) and \(\red{t}{u}\) then \(\conv{\Gamma}{t}{u}[A]\).
 \end{lemma}
-We actually go further and define a notion of \emph{theory},
+We actually go further and define a notion of \emph{theory}
+(\formline{Equations.v}{7}{Theory}),
 which extends the specification of a language with
-a set of equations that are added to its conversion.
-This barely changes the proofs, but means that
+a set of arbitrary equations that are added to its conversion.
+The proofs are essentially unchanged, but this means that
 our interpolation can be leveraged to prove general properties of
 biCCCs by viewing \stlc as their internal language,
-although we do not explore this here.
+although we do not explore this further here, and refer to
+\Cubric \cite{Cubric1994,Cubricphd} for details.
 
 \section{Bidirectional typing, normal forms and the subformula property}
 
@@ -535,7 +541,7 @@ derives the interpolation result.
       \infer{\Gamma}{t~\ccol{u}}{B}}
   \label{rule:app-b}
 \end{mathpar}
-\caption{Bidirectional typing for the \stlcp,
+\caption{\formline{Bidir.v}{11}{normal} Bidirectional typing for the \stlcp,
   with respect to a language \(\lang = (\base,\const,\tyof)\)}
 \label{fig:bidir}
 
@@ -587,23 +593,16 @@ it makes sense to classify these as normal forms but not neutrals.
 
 We prove this adequately captures well-typed terms that do not reduce,
 \ie that our inductive characterisation indeed captures normal forms in the
-more traditional sense. Here we express the theorems only for normal forms,
-but they of course also hold for neutrals.
+more traditional sense.
+% Here we express the theorems only for normal forms,
+% but they of course also hold for neutrals.
 
-% The next three lemmas together show that normal forms indeed capture
-% the well-typed terms which do not reduce.
-% The progress theorem below gives a strong converse to that fact.
-
-\begin{lemma}[Typability]
-  If \(\check{\Gamma}{t}{A}\), then \(\typing{\Gamma}{t}[A]\).
+\begin{lemma}[\formline{MetaTheory.v}{56}{normal_bidir} Normality]
+  If \(\check{\Gamma}{t}{A}\), then \(\typing{\Gamma}{t}[A]\)
+  and there is no \(t'\) such that \(\ored{t}{t'}\).
 \end{lemma}
 
-\begin{lemma}[Normal forms do not reduce]
-  If \(\check{\Gamma}{t}{A}\), then there is no \(t'\) such that
-  \(\ored{t}{t'}\).
-\end{lemma}
-
-\begin{theorem}[Progress]
+\begin{theorem}[\formline{MetaTheory.v}{29}{progress} Progress]
   If \(\typing{\Gamma}{t}[A]\), then either there is \(t'\) such that
   \(\ored{t}{t'}\), or \(\check{\Gamma}{t}{A}\).
 \end{theorem}
@@ -621,25 +620,25 @@ obtain a result about reduction rather than conversion.
 % notion of typing, which implies normalisation, but is strengthened to be stable
 % under the semantic version of all typing rules.
 
-\paragraph*{Semantic typing}
+% \subparagraph*{Definitions}
 
 In a logical relation argument, the key definition is that of values,
-which goes by induction on types. As is standard, values at negative types are those
-normal forms whose observations are reducible: a value at a pair
+which goes by induction on types. As is standard, values at negative
+types are normal forms whose observations are reducible: a value at a pair
 type has reducible projections, and a value
-at function type takes any value input to a reducible output.
+at function type takes value inputs to reducible outputs.
 % This works fine here.
 % however, things are trickier at positive types. Usually, one
 % would say that a value at a positive type is given either by a constructor
 % or a neutral. This will not do here,
 To describe values at positive types, we must take into account eliminations
-of positive types, which are not neutrals. This brings us to introduce
+of \(+\) and \(\bot\), which are not neutrals. This leads us to introduce
 a notion of covering, capturing terms with the shape of a case tree,
 with nodes containing eliminations of neutrals at positive types, and leaves
 satisfying a given predicate (in a suitably extended context). It
 echoes the use of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019}.
 
-\begin{definition}[Covering]
+\begin{definition}[\formline{MetaTheory.v}{97}{covered} Covering]
   A term \(t \in \Tm(\Delta,A)\) is \emph{covered} by the predicate
     \(F \in (\Gamma \in \Ctx) \to \Tm(\Gamma,A) \to \Prop\)
   if either:
@@ -658,7 +657,7 @@ echoes the use of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019}.
 % The next definition of values and reducible terms goes by induction
 % on types.
 
-\begin{definition}[Values]
+\begin{definition}[\formline{MetaTheory.v}{135}{value} Values]
   A \emph{raw value} at a type \(T\) is a term \(t \in \Tm(\Gamma,T)\)
   such that:
   \begin{itemize}
@@ -682,7 +681,7 @@ echoes the use of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019}.
   \end{itemize}
 \end{definition}
   
-\begin{definition}[Reducibility]
+\begin{definition}[\formline{MetaTheory.v}{128}{reducible} Reducibility]
   A term \(t\) is \emph{reducible} if there is a value \(v\) such
   that \(\lred{t}{v}\).
 \end{definition}
@@ -691,28 +690,29 @@ We extend this to substitutions: a value substitution
 is a substitution \(\sigma \in \Sub(\Delta,\Gamma)\) mapping each variable
 \((x : A) \in \Gamma\) to a value \(\sigma(x)\) at \(A\).
 We use this to define semantic typing.
-\begin{definition}[Semantic typing]
+
+\begin{definition}[\formline{MetaTheory.v}{160}{sem_has_type} Semantic typing]
   A term \(t\) is \emph{semantically well-typed}, written \(\semty{\Gamma}{t}[A]\),
   if for any value substitution \(\sigma \in \Sub(\Delta,\Gamma)\), \(\subs{t}{\sigma}\)
   is reducible at \(A\) in \(\Delta\).
 \end{definition}
 
-\paragraph*{Properties}
+% \subparagraph*{Properties}
 
 Before we can get on to proving the semantic counterparts to the typing rules in
 \cref{fig:stlc}, we first need a handful of properties of covers, values and
 reducible terms.
 
-\begin{lemma}[Reification]
+\begin{lemma}[\formline{MetaTheory.v}{193}{reify} Reification]
   Any value is a normal form.
 \end{lemma}
 
-\begin{lemma}[Reflection]
+\begin{lemma}[\formline{MetaTheory.v}{202}{reflect} Reflection]
   \label{lem:reflect}
   Any neutral is a value. 
 \end{lemma}
 These lemmas are named by analogy with the reify/reflect functions of normalisation by
-evaluation. The lemmas are proven together, by induction on
+evaluation. The lemmas are both proven by induction on
 types. For the first, the key ingredient is that a term covered by normal
 forms is again a normal form. We need reification in reflection, to handle
 reducibility at function types where to conclude that applying the neutral
@@ -721,7 +721,7 @@ to a value yields a neutral we need to turn that value into a normal form.
 Next, we show that a term covered by reducible terms is reducible.
 At positive types, it follows from the next lemma, which can be read as
 the multiplication of a covering monad.
-\begin{lemma}
+\begin{lemma}[\formline{MetaTheory.v}{112}{join_covered} Multiplication]
   A term covered by terms covered by \(F\) is covered by \(F\).
 \end{lemma}
 
@@ -734,7 +734,7 @@ to the leaves of a cover by virtue of commuting conversions.
 We omit similar lemmas for the other eliminations.
 % : projections, \(\rai\) and \(\iteop\).
 
-\begin{lemma}
+\begin{lemma}[\formline{MetaTheory.v}{318}{app_cover} Covered application]
   \label{lem:push-app}
   If \(f \in \Tm(\Gamma,A\to B)\) is covered by \(F\) and \(u \in \Tm(\Gamma,A)\),
   then \(\red{f~u}{t}\) for some \(t\) which is covered by the predicate
@@ -751,14 +751,14 @@ unsurprising: for values to form a presheaf over
 renamings, the definition of the semantic function type mirrors
 the presheaf exponential.
 
-\begin{lemma}
+\begin{lemma}[\formline{MetaTheory.v}{235}{ren_value}]
   If \(v\) is a value of type \(A\) in \(\Gamma\) and \(\rho \in \Ren(\Delta,\Gamma)\),
   then \(\subs{v}{\rho}\) is a value.
 \end{lemma}
 
 Putting these together, we finally obtain:
 
-\begin{lemma}[Reducible cover]
+\begin{lemma}[\formline{MetaTheory.v}{466}{covered_reducible} Reducible cover]
   \label{lem:red-cover}
   A term covered by reducible terms is reducible.
 \end{lemma}
@@ -772,14 +772,14 @@ the eliminators: owing to the polarity of the types, the work for
 negative types is for constructors ---where we need \cref{lem:red-cover}---,
 while eliminations are the hard part for positive types.
 
-\begin{theorem}[Fundamental lemma]
+\begin{theorem}[\formline{MetaTheory.v}{682}{fundamental} Fundamental lemma]
   If \(\typing{\Gamma}{t}[A]\) then \(\semty{\Gamma}{t}[A]\).
 \end{theorem}
 
 From \cref{lem:reflect} we get that variables are values at all types, and
 thus that the identity substitution is a value substitution. Hence, we conclude
 
-\begin{corollary}[Normalisation]
+\begin{corollary}[\formline{MetaTheory.v}{718}{normalisation} Normalisation]
   Any well-typed term reduces to a normal form.
 \end{corollary}
 
@@ -792,7 +792,7 @@ polarised version in the fashion of Lyndon interpolation \cite{Lyndon1959interpo
 % rather than the simpler Craig interpolation,
 and thus start with a polarised notion of atoms.
 
-\begin{definition}[Atoms]
+\begin{definition}[\formline{Languages.v}{9}{atoms_ty} Atoms]
   Let \(A \in \Ty_{\mathcal{B}}\). We define \(A^+ \subseteq \mathcal{B}\)
     (resp.\ \(A^- \subseteq \mathcal{B}\)), the \emph{positive}
     (resp.\ \emph{negative}) \emph{atoms} of \(A\) by induction, with $\overline{p}=+$ (resp. $-$) \emph{iff} $p=-$ (resp. $+$):\\[-1.5em]
@@ -827,9 +827,9 @@ Although stating the final theorem does not need it, in the proof by induction
 it is necessary to keep track of which variables in the context are “coming from”
 the conclusion, and thus we need to maintain a context partition in the following sense.
 
-\begin{definition}[Context partition]
+\begin{definition}[\formline{Interpolation.v}{22}{splits} Context partition]
   \emph{Context partition} \(\Gamma = \part{\Gamma_{1}}{\Gamma_{2}}\)
-  is the relation defined by
+  is defined by
   \begin{mathpar}
     \inferdef{ }{\emp = \part{\emp}{\emp}} \and
     \inferdef{\Gamma = \part{\Gamma_{1}}{\Gamma_{2}}}{
@@ -853,7 +853,8 @@ then there is a renaming \(\typing{\Gamma}{\rho}[\scol{\Gamma_1}]\).
 Our first version of interpolation works for a constant-free language: for
 the remainder of this section we fix a language \(\lang = (\base,\emptyset,\_)\).
 
-\begin{theorem}[Interpolation, constant-free]
+\begin{theorem}[\formline{Theorems.v}{79}{interpolation_empty}
+    Interpolation, constant-free]
   Assume \(\typing[\lang]{\Gamma}{t}[T]\), then there exists a type \(M\) and terms
   \(\typing{\Gamma}{l}[M]\) and \(\typing{(x:M)}{r}[T]\) such that
   \begin{itemize}
@@ -867,7 +868,8 @@ Since by normalisation every term is equal to a normal form, it is enough
 to show the following theorem for normal forms,
 and specialize it to the trivial partition \(\Gamma = \part{\Gamma}{\emp}\).
 
-\begin{theorem}[Interpolation, inductive statement]
+\begin{theorem}[\formline{Interpolation.v}{352}{Interpolation}
+    Interpolation, inductive statement]
     \label{thm:interpolation-ind}
   Assume a partitioned context \(\Gamma = \part{\Gamma_{s}}{\Gamma_{t}}\).
   %
@@ -995,7 +997,7 @@ As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   \nameref{rule:demote-b}/target: In this case we keep the exact
     same interpolating type and interpolants.\\
   \nameref{rule:raise-b}, \nameref{rule:if-b}: similarly to \nameref{rule:demote-b},
-    we need to handle the reversal of source and target context. \mlb{Appendix?}\\
+    we need to handle the reversal of source and target context.\\
   %
   \nameref{rule:app-b}/source: We consider
   \(\icol{t}~\ccol{u}\), and the induction hypothesis on \(\icol{t}\) gives
@@ -1052,7 +1054,8 @@ trivial. As for constants, we have to be a bit careful that
 the interpolant might also use atoms present in the constants. The
 final theorem is the following:
 
-\begin{theorem}[Interpolation, with constants]
+\begin{theorem}[\formline{Theorems.v}{54}{interpolation_eq}
+    Interpolation, with constants]
   Assume \(\typing[\lang]{\Gamma}{t}[T]\), and a partition
   \(\const = \const_{s} \cup \const_{t}\) of constants.
   Define \(\const_{i}^p \coloneq \cup_{c \in \const_{i}} (\tyof c)^p\)
@@ -1134,13 +1137,12 @@ with a decision procedure, which we find extremely valuable in \textsc{Autosubst
 
 \subparagraph*{Solvers and setoid rewriting}
 
-Beyond \textsc{Autosubst}, we heavily used \Rocq's proof search mechanisms.
-We store all typing-related lemmas in a hint database, which we systematically use
-to discharge typing goals. Owing to the relative simplicity of \stlc's typing,
+Beyond \textsc{Autosubst}, we heavily use \Rocq's proof search mechanisms.
+We store all typing-related lemmas in a hint database, with which we systematically discharge typing goals. Owing to the relative simplicity of \stlc's typing,
 this is very efficient. For instance, the proofs of progress and preservation
-\mlb{ref} for the whole language take less than 30 lines.
-We also use \textsc{Stdpp}'s \cite{??} off-the-shelve set theory library,
-in particular its solver, which once again made an entire class
+(\formline{MetaTheory.v}{6}{TypingRed}) for the whole language take 30 lines.
+We also use \textsc{Std\(++\)}'s set theory library,
+and its solver, which once again makes an entire class
 of boring goals disappear. Sadly, here too we encountered performance issues.
 
 To handle reduction, we exploit setoid rewriting to apply reduction steps or
@@ -1152,7 +1154,8 @@ to be worth it, so we kept to manual rewriting. An interesting difficulty appear
 for conversion: \Rocq's current setoid rewriting
 machinery is not designed to work for non-reflexive relations, such as conversion,
 which is only reflexive on well-typed terms. However, by adding the right
-\texttt{Hint Extern} that applies our automation for typing to resolve reflexivity
+\texttt{Hint Extern} (\formline{Equations.v}{238}{Hint})
+that applies our automation for typing to resolve reflexivity
 goals, we managed to use setoid rewriting for conversion. This suggests it should
 be more generally feasible for setoid rewriting to work well also for non-reflexive
 relations, at the cost of setting up more type-class search to discharge
@@ -1160,19 +1163,19 @@ reflexive goals.
 
 \subparagraph*{Confluence}
 
-As already mentioned, we did not formalise the proof of \cref{thm:confluence}.
-Although confluence is often considered simpler than normalisation
-in pen-and-paper accounts, here its formal proof seemed daunting. First, the
-proofs of confluence for \(\beta\) and of commutation of \(\beta\) and commutative
-cuts, while conceptually simple, involve the definition of two new relations,
-each with their congruence closures, leading to a proliferation of goals.
-Even more frightening is the proof of local confluence of commutative cuts, where
-\textsc{CSI\textsuperscript{ho}} reports 17 critical pairs. While each individual
-pair is simple enough, the full argument, both the reduction of
+As already mentioned, we did not formalise \cref{thm:confluence}.
+Although confluence is often considered simpler than normalisation,
+its formal proof seemed daunting. First,
+confluence of \(\beta\) and commutation of \(\beta\) and commuting
+conversion, while conceptually simple, involve the definition of two new relations,
+each with a congruence closure, leading to goal proliferation.
+Even more frightening is local confluence of commuting conversion, where
+\textsc{CSI\textsuperscript{ho}} reports 12 critical pairs. While each
+is simple enough, the full argument, both the reduction of
 local confluence to the pair's closures and the closure itself, seemed
 extremely tedious. It would be interesting to explore what could be done here,
 in the form of libraries for congruence closures or automation, maybe by
-having \textsc{CSI\textsuperscript{ho}} or similar tools generate proof witnesses.
+having \textsc{CSI\textsuperscript{ho}} generate proof witnesses.
 
 \section{Related and future work and conclusion}
 
