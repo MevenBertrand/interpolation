@@ -61,10 +61,4 @@ code/Makefile.rocq.conf
 
 *.vtc
 
-paper/main.pdf
-
-code/docs/*
-
-notes/notes.pdf
-
 code/theories/mwe.v
