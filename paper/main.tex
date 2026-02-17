@@ -224,15 +224,14 @@ we will not need more than one universe.
 \label{fig:stlc}
 \end{figure}
 
-We start with our version of the simply-typed \(\lambda\)-calculus with sums,
+We start with the simply-typed \(\lambda\)-calculus,
 hereafter abbreviated as \stlcp,
-which we take to contain function types \(\to\), product types \(\times\),
+with function types \(\to\), product types \(\times\),
 sum types \(+\), and unit and empty types \(\top\) and \(\bot\).
 To be able to state an interesting version of interpolation, we must also
 include an unspecified set of base types.
 To make the result more interesting,
-we likewise include a number of constants and equations.
-\mlb{Should this go here, or in a separate section?}
+we likewise include a language of constants.
 
 \begin{definition}[Language]
   \label{def:lang}
@@ -427,9 +426,9 @@ the commuting conversions of \cref{fig:stlc-red}; indeed we have
 by \(\eta\) for sums, but the two terms are not related by commuting conversions
 alone.
 
-But this is not an issue for us, as our interpolation proof only uses conversion
+This is not an issue, as our interpolation proof only uses conversion
 in covariant positions, so we show stronger theorems using reduction,
-and can then weaken them to conversion, owing to the following.
+and can weaken them to conversion, owing to:
 \begin{lemma}[Subject reduction]
   If \(\typing{\Gamma}{t}[A]\) and \(\red{t}{u}\) then \(\conv{\Gamma}{t}{u}[A]\).
 \end{lemma}
@@ -444,15 +443,15 @@ although we do not explore this here.
 \section{Bidirectional typing, normal forms and the subformula property}
 
 In logic, a key characteristic of derivations is the \emph{subformula property}, satisfied
-when where every formula appearing in the derivation is a subformula of some formula
-in the conclusion judgment ---either as a hypothesis or conclusion. This
-does not hold of arbitrary derivations, but is satisfied by derivations which
+when every formula appearing in the derivation is a subformula of some formula
+in the conclusion judgment --- hypothesis or conclusion. This
+does not hold of arbitrary derivations, but is satisfied by those which
 are sufficiently normalised, \ie cut-free proofs \cite{Girard1989}.
 In a derivation satisfying the subformula property, no formula is ever “invented”,
-a powerful structural property with many nice consequences. In
-particular, interpolation is usually much easier to prove for cut-free derivation
-\cite{??}. One typically obtains interesting properties for all provable
-statements by a combination of a cut elimination theorem, which says that every
+a powerful structural property with many consequences. Interpolation is
+for instance typically proven for cut-free derivation
+\cite{??}. One then obtains properties for all provable
+statements by a combination of cut elimination, by which every
 proof is equal to a cut-free one, and an analysis of cut-free proofs, which can
 exploit its more constrained structure, including the subformula property.
 
@@ -462,30 +461,29 @@ terms viewed as proof witnesses. However, what does the subformula property
 amount to? This is much less known, but it can be very helpfully linked to
 \emph{bidirectional typing}.%
 \footnote{We are not the first to make this connection: it appears
-in Dunfield and Krishnaswami's survey on the topic~\cite[Sec. 8]{Dunfield2021},
-which attribute it to Pfenning, although we were not able to find a reference
-to that effect. The relation between normal forms and the subformula property is also
+in Dunfield and Krishnaswami's survey~\cite[Sec. 8]{Dunfield2021},
+which credit it to Pfenning.
+The relation between normal forms and the subformula property is also
 mentioned by Abel and Sattler~\cite{Abel2019}, although without drawing the
 connection to bidirectional typing.}
 
 In bidirectional typing,
-which originates from type-checking algorithms \cite{Coquand1996,Pierce2000},
-the typing judgment is decomposed into the two, mutually defined
+which originates from the analysis of type-checking algorithms \cite{Coquand1996,Pierce2000},
+typing is decomposed into the mutually defined
 \emph{inference} and \emph{checking} judgments. The operational intuition is
 that in the former the type is an output,%
 \footnote{\textit{I.e.} the question is ``What is the type of this term?''.}
 while in the latter it is an input.%
 \footnote{And the question is ``Does this term have this type?''.}
 This attention to the flow of information is, in a sense, also what
-the subformula property intends to capture: in both cases, the core property
+the subformula property captures: in both cases, the intuition
 is that type information always comes from somewhere and is never invented.
 And in fact bidirectional typing can helpfully be leveraged to exploit
-this subformula property, see \eg the strengthening proof in
-Lennon-Bertrand~\cite{LennonBertrand2021}.
+this subformula property, \eg in strengthening proofs~\cite{LennonBertrand2021}.
 
-With this view it is perhaps unsurprising that bidirectional
-type systems can be used to structurally characterise normal forms, since,
-as we just explained, these correspond to cut-free proofs which have a good
+With this view it is perhaps less surprising that bidirectional
+typing can be used to capture normal forms, since
+these correspond to cut-free proofs which have a good
 subformula property. This is, however, a remark with powerful consequences:
 because bidirectional type systems have a nice, inductive structure, they
 give a good basis on which to build clean proof of theorems that rely on
@@ -516,13 +514,13 @@ derives the interpolation result.
   \label{rule:inr-b} \and
   \inferdef[Demote]{\infer{\Gamma}{t}{A} \\ A = B}{\check{\Gamma}{\dem{\icol{t}}}{B}}
   \label{rule:demote-b} \\
-  \inferdef[Raise]{\infer{\Gamma}{t}{\bot}}{\check{\Gamma}{\rai t}{A}}
+  \inferdef[Raise]{\infer{\Gamma}{\icol{t}}{\bot}}{\check{\Gamma}{\rai t}{A}}
   \label{rule:raise-b}\and
   \inferdef[If]{
     \infer{\Gamma}{s}{A + B} \\
     \check{\Gamma.(x:A)}{b_l}{T} \\
     \check{\Gamma.(x:B)}{b_r}{T} \\
-  }{\check{\Gamma}{\ite{s}{b_l}{b_r}}{T}}
+  }{\check{\Gamma}{\ite{\icol{s}}{b_l}{b_r}}{T}}
   \label{rule:if-b} \\
   %
   \jform{\infer{\Gamma}{t}{A}}[Infering/neutral forms \(t,u,\dots \in \Ne_{\lang}(\Gamma,A)\)]
@@ -543,7 +541,7 @@ derives the interpolation result.
 
 \end{figure}
 
-Our bidirectional type system is given in \cref{fig:bidir}, and was heavily
+Our bidirectional type system is in \cref{fig:bidir}, and was
 inspired by the normal forms of Abel and Sattler~\cite{Abel2019}
 ---suitably modified to not enforce \(\eta\)-long forms. It can be interpreted in two ways.
 
@@ -551,48 +549,50 @@ In the bidirectional mindset, the rules can be read as
 a typing algorithm for a fragment of \stlcp. Rules for the inference judgment
 \(\infer{\Gamma}{t}{A}\) correspond to settings where it is feasible to infer
 the type \(A\) from \(t\), by inferring that of a carefully chosen subterm
-(in the case of a negative elimination \nameref{rule:app-b},\nameref{rule:proji-b})
+(in the case of a negative elimination \nameref{rule:app-b}, \nameref{rule:proji-b})
 or directly reading it from the
 local (\nameref{rule:var-b}) or global (\nameref{rule:cst-b}) context.
-Conversely, rules for the checking judgments are those where it is better to check
-that a term has a given type. This encompasses constructor forms
+Conversely, rules for checking \(\check{\Gamma}{t}{A}\) are those where it is better to check
+that a term has a given type. This encompasses constructors
 (\nameref{rule:star-b}, \nameref{rule:pair-b}, \nameref{rule:lam-b}, \nameref{rule:inl-b},
-\nameref{rule:inr-b}), where the checked type is decomposed into its parts
-which are used to adequately check the subterms of the constructor;%
-\footnote{An acute reader could wonder why we do not make \nameref{rule:star-b}
-infer, as \(\star\) can only be of type \(\top\).
-Although this could indeed be done, since \(\star\) can
-only appear in a checking position because of typing constraints this would
-make little difference, and it is more uniform to treat \(\star\)
-as a nullary version of pairing.}
-any inferring term, which we can also check provided the inferred type coincides
-with the checked one (\nameref{rule:demote-b}); and more, interestingly, the
+\nameref{rule:inr-b}), where the type is decomposed into parts
+which are used to check the subterms;%
+\footnote{One could wonder why \nameref{rule:star-b}
+is not inferring. While possible, it is more uniform to treat \(\star\)
+as a nullary version of pairing. Anyway, since it can
+only appear in a checking position this makes little difference.}
+any inferring term, which we can check provided the inferred and checked types
+coincides (\nameref{rule:demote-b}); and more interestingly, the
 elimination for positive types (\nameref{rule:raise-b}, \nameref{rule:if-b}).
 It is rather clear that \(\rai\) cannot be reasonably inferring: how are
-we supposed to guess the type \(A\)? For \(\iteop\), we could imagine inferring
-the type of both branches, comparing the two, and if they agree infer that type
+we supposed to guess its type? For \(\iteop\), we could infer
+the type of the branches, comparing them, and if they agree infer that type
 for the whole pattern-matching. However, our version ends up being better behaved.
 
-In this view, the bidirectional type system arises purely from the will to
-type terms without any annotations. To do so, we can only rely on type information
-which is already available, either in the context \(\Gamma\), or in the type \(A\)
-in the case of checking. This means that all the type information we use
-should appear in these in one way or another, which, to reiterate,
-is exactly what the subformula property says!
+In this view, the bidirectional type system arises from the will to
+type annotation-free terms. To do so, we can only rely on type information
+which is already available, either in the context, or in the type
+in the case of checking. This means that all the type information
+should appear in these, which, to reiterate,
+is exactly what the subformula property captures!
 
-The other approach, coming from normalisation proofs, views the \(\check{\Gamma}{t}{A}\)
-judgment as characterising \emph{normal forms}, those which do not reduce further.
+The other approach views the \(\check{\Gamma}{t}{A}\)
+judgment as characterising \emph{normal forms}, those which do not reduce.
 When inductively characterising normal forms, it is necessary to mutually define
-\emph{neutral forms}, those which can be safely used as the main argument of
-an elimination form without creating redexes. Usually, any elimination of a neutral
-is again a neutral. But in presence of commuting conversions, this will not do,
+\emph{neutral forms}, those which can be used as the main argument of
+an elimination without creating redexes. Usually, any elimination of a neutral
+is again a neutral. But with commuting conversions this will not do,
 as an eliminator on top of \(\rai\) or \(\iteop\) reduces. So in that view too,
-it makes sense that these are classified as normal forms but not neutrals.
+it makes sense to classify these as normal forms but not neutrals.
 
-We can prove that this adequately captures well-typed terms that do not reduce,
+We prove this adequately captures well-typed terms that do not reduce,
 \ie that our inductive characterisation indeed captures normal forms in the
 more traditional sense. Here we express the theorems only for normal forms,
 but they of course also hold for neutrals.
+
+% The next three lemmas together show that normal forms indeed capture
+% the well-typed terms which do not reduce.
+% The progress theorem below gives a strong converse to that fact.
 
 \begin{lemma}[Typability]
   If \(\check{\Gamma}{t}{A}\), then \(\typing{\Gamma}{t}[A]\).
@@ -603,9 +603,6 @@ but they of course also hold for neutrals.
   \(\ored{t}{t'}\).
 \end{lemma}
 
-The above two lemmas together show that normal forms are well-typed terms
-which do not reduce. The progress theorem below gives a strong
-converse to that fact.
 \begin{theorem}[Progress]
   If \(\typing{\Gamma}{t}[A]\), then either there is \(t'\) such that
   \(\ored{t}{t'}\), or \(\check{\Gamma}{t}{A}\).
@@ -614,9 +611,9 @@ converse to that fact.
 \subsection[Normalisation for STLCp]{Normalisation for \stlcp}
 
 In \cref{sec:interpolation}, we prove interpolation for normal forms only.
-To know that it applies more generally, we need to know that every well-typed term
-reduces to a normal form. That is, we
-need a normalisation theorem. As usual for such theorems, we give a proof by
+To apply it more generally, we show that every well-typed term
+reduces to a normal form. % \ie a normalisation theorem.
+We give a proof by
 logical relations, heavily inspired by Abel and Sattler~\cite{Abel2019},
 although compared to their normalisation-by-evaluation approach we are able to
 obtain a result about reduction rather than conversion.
@@ -626,16 +623,21 @@ obtain a result about reduction rather than conversion.
 
 \paragraph*{Semantic typing}
 
-In a logical relation argument, the key definition is that of values and reducibility,
-which go by induction on types. Values at negative types are defined as those
+In a logical relation argument, the key definition is that of values,
+which goes by induction on types. As is standard, values at negative types are those
 normal forms whose observations are reducible: a value at a pair
-type is a normal form whose first and second projections are values, and a value
-at function type takes any value input to a reducible output. This
-works fine here. However, things are trickier at positive types. Usually, one
-would say that a value at a positive type is given either by a constructor
-or a neutral. This will not do here, because we must take into account elimination
+type has reducible projections, and a value
+at function type takes any value input to a reducible output.
+% This works fine here.
+% however, things are trickier at positive types. Usually, one
+% would say that a value at a positive type is given either by a constructor
+% or a neutral. This will not do here,
+To describe values at positive types, we must take into account eliminations
 of positive types, which are not neutrals. This brings us to introduce
-the following inductive notion of covering.
+a notion of covering, capturing terms with the shape of a case tree,
+with nodes containing eliminations of neutrals at positive types, and leaves
+satisfying a given predicate (in a suitably extended context). It
+echoes the use of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019}.
 
 \begin{definition}[Covering]
   A term \(t \in \Tm(\Delta,A)\) is \emph{covered} by the predicate
@@ -645,20 +647,17 @@ the following inductive notion of covering.
     \item \(F(t)\) holds;
     \item \(t = \rai n\) with \(\infer{\Gamma}{n}{\bot}\);
     \item \(t = \ite{n}{b_l}{b_r}\), with \(\infer{\Gamma}{n}{A + B}\),
-      and \(b_l\), \(b_r\) are both covered (respectively in \(\Gamma.(x:A)\) and
-      \(\Gamma.(x:B)\)).
+      and \(b_l\), \(b_r\) are covered, resp.\ in \(\Gamma.(x:A)\) and
+      \(\Gamma.(x:B)\).
   \end{itemize}
   We say that a term \(t \in \Tm(\Gamma,A)\) is “covered by neutrals” if it is covered
   by the predicate \(F(\Delta,u) \Coloneqq \infer{\Delta}{u}{A}\), and similarly
   for other predicates on terms.
 \end{definition}
-This captures terms which have the shape of a case tree,
-with nodes decorated by eliminations of neutrals at positive types, and leafs
-by terms satisfying the given predicate (in a suitably extended context). It
-echoes that of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019}.
 
-The next definition of values and reducible terms goes by induction
-on types.
+% The next definition of values and reducible terms goes by induction
+% on types.
+
 \begin{definition}[Values]
   A \emph{raw value} at a type \(T\) is a term \(t \in \Tm(\Gamma,T)\)
   such that:
@@ -666,8 +665,8 @@ on types.
     \item if \(T\) is a base type or \(\bot\) and \(t\) is neutral;
     \item \(T\) is \(\top\) and \(t\) is either neutral or \(\star\);
     \item \(T\) is \(A + B\) and \(t\) is either neutral, \(\inl(a)\) with
-      \(a\) value of type \(A\) in \(\Gamma\), or \(\inr(b)\) with \(b\)
-      value of type \(B\) in \(\Gamma\).
+      \(a\) a value of type \(A\) in \(\Gamma\), or \(\inr(b)\) with \(b\)
+      a value of type \(B\) in \(\Gamma\).
   \end{itemize}
 
   A \emph{value} at type \(T\) is a term \(v \in \Tm(\Gamma,T)\) such that:
@@ -681,13 +680,16 @@ on types.
       context \(\Delta\), renaming \(\typing{\Delta}{\rho}[\Gamma]\),
       and value \(u \in \Tm(\Delta,A)\), \(\subs{v}{\rho}~u\) is reducible.
   \end{itemize}
+\end{definition}
   
-  Finally, a term \(t\) is \emph{reducible} if there exists a value \(v\) such
+\begin{definition}[Reducibility]
+  A term \(t\) is \emph{reducible} if there is a value \(v\) such
   that \(\lred{t}{v}\).
 \end{definition}
-We extend this definition to substitution pointwise, \ie a value substitution
+
+We extend this to substitutions: a value substitution
 is a substitution \(\sigma \in \Sub(\Delta,\Gamma)\) mapping each variable
-\((x : A) \Gamma\) to a value \(\sigma(x)\) at \(A\).
+\((x : A) \in \Gamma\) to a value \(\sigma(x)\) at \(A\).
 We use this to define semantic typing.
 \begin{definition}[Semantic typing]
   A term \(t\) is \emph{semantically well-typed}, written \(\semty{\Gamma}{t}[A]\),
@@ -710,26 +712,27 @@ reducible terms.
   Any neutral is a value. 
 \end{lemma}
 These lemmas are named by analogy with the reify/reflect functions of normalisation by
-evaluation, which respectively map neutrals into the semantic domain and
-map semantic values back to normal forms. Proofs go by induction on the
+evaluation. The lemmas are proven together, by induction on
 types. For the first, the key ingredient is that a term covered by normal
 forms is again a normal form. We need reification in reflection, to handle
 reducibility at function types where to conclude that applying the neutral
 to a value yields a neutral we need to turn that value into a normal form.
 
-Our next goal is to show that a term covered by reducible terms is itself reducible.
-At positive types, this is easy, thanks to the following, which can be read as
-the multiplication/join of a covering monad.
+Next, we show that a term covered by reducible terms is reducible.
+At positive types, it follows from the next lemma, which can be read as
+the multiplication of a covering monad.
 \begin{lemma}
   A term covered by terms covered by \(F\) is covered by \(F\).
 \end{lemma}
 
 At negative types, however, things are not that simple. Consider the function type:
 we assume that at each leaf of the cover we have terms which, when applied to
-a value, yield a reducible result; and need to deduce that the whole covered term
+a value, yield a reducible result, and need to deduce that the whole covered term
 is itself reducible, that is, yields reducible result when applied to a value.
 The first ingredient is the following lemma, which pushes application
 to the leaves of a cover by virtue of commuting conversions.
+We omit similar lemmas for the other eliminations.
+% : projections, \(\rai\) and \(\iteop\).
 
 \begin{lemma}
   \label{lem:push-app}
@@ -739,38 +742,35 @@ to the leaves of a cover by virtue of commuting conversions.
   (t' = f'~\subs{u}{\rho}) \wedge (F~f')\]
 \end{lemma}
 
-We omit similar lemmas for the other destructors: projections, \(\rai\)
-and \(\iteop\).
-Because pushing the argument to the leaves introduces extra variables
+Because pushing argument to the leaves introduces extra variables
 in the context, we must also know that values are preserved by context extension.
-The need for this preservation by renaming is what motivates the Kripke-style
+This is what necessitates the Kripke-style
 quantification over renamings in the definition of values at function
-types, without which it would not hold.
-For the category theorist, this should be
-unsurprising: we wish our normal forms to form a presheaf over
-renamings, and the definition of the semantic function type thus mirrors that
-of presheaf exponentials.
+types. For the category theorist, this should be
+unsurprising: for values to form a presheaf over
+renamings, the definition of the semantic function type mirrors
+the presheaf exponential.
 
 \begin{lemma}
   If \(v\) is a value of type \(A\) in \(\Gamma\) and \(\rho \in \Ren(\Delta,\Gamma)\),
   then \(\subs{v}{\rho}\) is a value.
 \end{lemma}
 
-Putting these together, we obtain:
+Putting these together, we finally obtain:
 
 \begin{lemma}[Reducible cover]
   \label{lem:red-cover}
   A term covered by reducible terms is reducible.
 \end{lemma}
 
-With this key lemma in hand, the rest of the semantic typing proofs is
-history, and we let the reader consult the \Rocq development for details.
+With this in hand, the rest of the proof is
+history, we let interested reader consult the formalisation.
 An interesting point to note, though, is that the analogue of \cref{lem:push-app}
 for \(\rai\) and \(\iteop\) is not used to prove \cref{lem:red-cover}, but 
-instead appear when showing the semantic typing rule for
+to show the semantic typing rule for
 the eliminators: owing to the polarity of the types, the work for
-negative types is in handling the constructors ---where we need \cref{lem:red-cover}---,
-while destructors are the hard part for positive types.
+negative types is for constructors ---where we need \cref{lem:red-cover}---,
+while eliminations are the hard part for positive types.
 
 \begin{theorem}[Fundamental lemma]
   If \(\typing{\Gamma}{t}[A]\) then \(\semty{\Gamma}{t}[A]\).
@@ -787,9 +787,10 @@ thus that the identity substitution is a value substitution. Hence, we conclude
 \label{sec:interpolation}
 
 With our characterisation of normal forms in hand, we can move to the
-main interpolation result. Following \Cubric~\cite{Cubric1994}, we give a
-polarised version in the fashion of Lyndon interpolation \cite{Lyndon1959interpolation} rather than the simpler Craig interpolation, and
-thus start with a polarised notion of atoms.
+interpolation result. Following \Cubric~\cite{Cubric1994}, we give a
+polarised version in the fashion of Lyndon interpolation \cite{Lyndon1959interpolation},
+% rather than the simpler Craig interpolation,
+and thus start with a polarised notion of atoms.
 
 \begin{definition}[Atoms]
   Let \(A \in \Ty_{\mathcal{B}}\). We define \(A^+ \subseteq \mathcal{B}\)
@@ -1190,16 +1191,17 @@ having \textsc{CSI\textsuperscript{ho}} or similar tools generate proof witnesse
 \item Veltri Wan~\cite{VeltriW25}
 \end{itemize}
 
-\paragraph*{Formalised Interpolation} 
+\subparagraph*{Formalised Interpolation} 
 \begin{itemize}
 \item Férée Giessen Schilito Van Gool
 \cite{Feree2024}
 \item Recent related work for substructural logics, e.g. Lambek calculus by Veltri and Wan.~\cite{VeltriW25}
 \end{itemize}
 
-\paragraph*{Normalisation for sums} Abel Sattler, Scherer…
+\subparagraph*{Normalisation for sums} Normalisation for the \(\lambda\)-calculus
+with sums  Abel Sattler, Scherer…
 
-\paragraph*{Exploiting bidirectional typing}
+\subparagraph*{Exploiting bidirectional typing}
 MetaRocq, Dunfield Krishnaswami, Pfenning
 
 \subsection{Future work}
@@ -1207,10 +1209,10 @@ MetaRocq, Dunfield Krishnaswami, Pfenning
 In terms of future work, we envision three particularly interesting directions for future work, each corresponding to strengthening the result of the present paper in one orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \v Cubri\' c' results from simple types to dependent types. 
 
 
-\paragraph*{Interpolation} \as{?? Qu'est-ce qu'on voulait dire ici?}
+\subparagraph*{Interpolation} \as{?? Qu'est-ce qu'on voulait dire ici?}
 
 
-\paragraph*{Extensions with cuts}
+\subparagraph*{Extensions with cuts}
 The first, evident, direction for future work consist in solving the first limitation of \v Cubri\' c' interpolation which only applies to normal forms. From the perspective of the computational interpretation of the result, this is indeed a drastic limitation: every computation can be factored through an interface type in the common type language of the input and output data types, but only under the assumption that one first normalise the term to normal form. 
 What if the term is not in normal form? 
 Considering that interpolation in fact requires a much weaker condition than the subformula property, one can hope to easily captures terms with cuts satisfying some assumptions. 
@@ -1223,7 +1225,7 @@ We believe that similar results can be transported to \stlcp and see at least tw
 \end{itemize}
 
 
-\paragraph*{Uniform interpolation} (for the \stlc)
+\subparagraph*{Uniform interpolation} (for the \stlc)
 \cite{Feree2024}
 
 \as{Besoin d'adapter ce qui suit aux notations quand le vocabulaire n'est pas polarisé.}
@@ -1235,13 +1237,13 @@ While the current result ensures that given types $A$ and $B$ and a normal term 
 \item[strongly uniform] For every type $A$, for every $L \subseteq \base$ there exists $I$ such that $voc(I)\subseteq L$ and $x: A \vdash v: I$  such that for any $B$ satisfying $voc(A)\cap voc(B) \subseteq L$, and every $x:A \vdash t: B$, there are terms $u$ such that $y: I\vdash u: B$ and $ \red{(\lambda y. u)v}{t}$.
 \end{description}
 
-\paragraph*{Dependent types} 
+\subparagraph*{Dependent types} 
 While Craig Interpolation is most interesting in the setting of first-order logic, \v Cubri\'c proof-relevant interpolation only deals with a simple and, in particular, propositional type theory. 
 We plan to investigate in the future how and whether \v Cubri\'c theorem can be extended to various forms of type dependency.
 
 \as{Explain why it looks difficult: due to the commuting cuts.}
 
-\paragraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
+\subparagraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
 \as{Est-ce qu'on veut vraiment cela en future work? Si oui, on pourrait relier \cite{Mihejevs2025} et \cite{Saurin25fscd}.}
 
 %%
