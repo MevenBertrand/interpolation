@@ -1,6 +1,5 @@
-From Interpolation Require Import Utils Syntax Notations.
-From Stdlib Require Import Setoid Morphisms Relation_Definitions RelationClasses.
-From Stdlib Require Import Relations Arith Lia Bool List.
+(** * Interpolation.Elim: operations on eliminators *)
+From Interpolation Require Import Utils Syntax.
 
 Import ListNotations.
 

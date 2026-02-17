@@ -1,5 +1,5 @@
+(** * Interpolation.Notations: Reserves most notations used in the project *)
 From Interpolation Require Import Utils Syntax Context.
-From Stdlib Require Import Relation_Definitions.
 
 Declare Scope typing_scope.
 Delimit Scope typing_scope with ty.

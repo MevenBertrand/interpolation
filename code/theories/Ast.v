@@ -1,6 +1,6 @@
 From Interpolation Require Import core unscoped.
 From Interpolation Require Import BasicAst.
-From Stdlib Require Import Setoid Morphisms Relation_Definitions.
+From Stdlib Require Import Relation_Definitions Morphisms.
 
 
 Module Core.

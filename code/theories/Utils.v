@@ -1,5 +1,6 @@
-From Stdlib Require Import Morphisms List RelationClasses Relations.
+(** * Interpolation.Utils: Generic utilities *)
 From stdpp Require Export propset.
+From Stdlib Require Export Bool List Lia Morphisms Relations RelationClasses.
 From smpl Require Import Smpl.
 
 #[export] Set Structural Injection.

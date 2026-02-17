@@ -1,5 +1,4 @@
-From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
-From stdpp Require Import propset.
+(** * Interpolation.Languages: definition and properties of the atoms/constants of a type, context, term *)
 From Interpolation Require Import Utils Syntax.
 
 (** ** Atoms of a type/context *)
@@ -35,15 +34,21 @@ Section AtomsTy.
       intros ?.
       set_solver.
   Qed.
-
+  
 End AtomsTy.
 
-Section AtomsTm.
+  (** Atoms of a set of constants *)
+Definition atoms_const `{Lang} (p : polarity) (P : propset const) : propset base :=
+  {[ b | exists c, (c ∈ P) /\ b ∈ atoms_ty p (const_type c) ]}.
+
+(** ** Constants of a term *)
+
+Section ConstantTm.
   Context `{Lang}.
 
-  Definition atoms_const (p : polarity) (P : propset const) : propset base :=
-    {[ b | exists c, (c ∈ P) /\ b ∈ atoms_ty p (const_type c) ]}.
-
+  (** *** Splitting of a constant set *)
+  (** It is not necessary for the splitting to be non-overlapping, however it
+    needs to be relevant to compute the interpolant *)
   Record const_split :=
   {
     pconst_l : propset const ;
@@ -57,47 +62,50 @@ Section AtomsTm.
     const_cover := (fun c => match (s.(const_cover) c) with | inl p => inr p | inr p => inl p end)
   |}.
 
-  Fixpoint atoms_tm (t : term) {struct t} : propset const :=
+  (** *** Constants in a term *)
+  Fixpoint const_tm (t : term) {struct t} : propset const :=
     match t with
     | tConst c => {[c]}
     | tVar _ | tStar => ∅
-    | tProj _ t | tLam t | tAbort t | tIn _ t => atoms_tm t
-    | tPair t t' | tApp t t' => atoms_tm t ∪ atoms_tm t'
-    | tIf s bl br => atoms_tm s ∪ atoms_tm bl ∪ atoms_tm br
+    | tProj _ t | tLam t | tAbort t | tIn _ t => const_tm t
+    | tPair t t' | tApp t t' => const_tm t ∪ const_tm t'
+    | tIf s bl br => const_tm s ∪ const_tm bl ∪ const_tm br
     end.
 
-  Lemma atoms_ren t ρ : atoms_tm (t⟨ρ⟩) ≡ atoms_tm t.
+  (** *** Interaction of this with renamings and substitutions *)
+
+  Lemma const_ren t ρ : const_tm (t⟨ρ⟩) ≡ const_tm t.
   Proof.
     set_unfold.
     intros c.
     induction t in ρ |- * ; cbn ; set_solver.
   Qed.
 
-  Definition atoms_subst (σ : subst) : propset const :=
-    {[ c | exists i, c ∈ atoms_tm (σ i) ]}.
+  Definition const_subst (σ : subst) : propset const :=
+    {[ c | exists i, c ∈ const_tm (σ i) ]}.
 
-  Instance atoms_subst_ext : Proper (pointwise_relation _ (=) ==> (≡)) atoms_subst.
+  Instance const_subst_ext : Proper (pointwise_relation _ (=) ==> (≡)) const_subst.
   Proof.
     intros ?? e.
-    unfold atoms_subst.
+    unfold const_subst.
     set_unfold.
     intros c.
     now setoid_rewrite e.
   Qed.
 
-  Lemma atoms_subst_ren ρ : atoms_subst (ρ >> ids) ≡ ∅.
+  Lemma const_subst_ren ρ : const_subst (ρ >> ids) ≡ ∅.
   Proof.
     set_unfold.
     intros ? [] ; now cbn in *.
   Qed.
     
-  Corollary atoms_subst_id : atoms_subst ids ≡ ∅.
+  Corollary const_subst_id : const_subst ids ≡ ∅.
   Proof.
     set_unfold.
     intros ? [] ; now cbn in *.
   Qed.
 
-  Lemma atoms_subst_cons t σ : atoms_subst (t .: σ) ≡ (atoms_tm t) ∪ (atoms_subst σ).
+  Lemma const_subst_cons t σ : const_subst (t .: σ) ≡ (const_tm t) ∪ (const_subst σ).
   Proof.
     set_unfold.
     intros c.
@@ -110,14 +118,14 @@ Section AtomsTm.
       all: cbn; set_solver.
   Qed.
 
-  Corollary atoms_subst_tip f : atoms_subst (tip f) ≡ atoms_tm (f (tVar 0)).
+  Corollary const_subst_tip f : const_subst (tip f) ≡ const_tm (f (tVar 0)).
   Proof.
     unfold tip.
-    rewrite atoms_subst_cons, atoms_subst_ren.
+    rewrite const_subst_cons, const_subst_ren.
     set_solver.
   Qed.
 
-  Corollary atoms_subst_up (σ : subst) : atoms_subst (⇑ σ) ≡ atoms_subst σ.
+  Corollary const_subst_up (σ : subst) : const_subst (⇑ σ) ≡ const_subst σ.
   Proof.
     set_unfold.
     intros c.
@@ -125,17 +133,17 @@ Section AtomsTm.
     - intros [[|] Hin] ; cbn in * ; refold.
       1: exfalso ; now set_solver.
       eexists.
-      now rewrite atoms_ren in Hin.
+      now rewrite const_ren in Hin.
     - intros [].
       eexists (S _) ; cbn ; refold.
-      now rewrite atoms_ren.
+      now rewrite const_ren.
   Qed.
 
-  Lemma atoms_tm_subst (t : term) (σ : subst) :
-    atoms_tm (t[σ]) ⊆ atoms_tm t ∪ atoms_subst σ.
+  Lemma const_tm_subst (t : term) (σ : subst) :
+    const_tm (t[σ]) ⊆ const_tm t ∪ const_subst σ.
   Proof.
     induction t in σ |- * ; cbn.
-    - unfold atoms_subst.
+    - unfold const_subst.
       set_unfold.
       intros.
       right.
@@ -149,7 +157,7 @@ Section AtomsTm.
       set_solver.
     - refold.
       specialize (IHt (⇑ σ)).
-      rewrite atoms_subst_up in IHt.
+      rewrite const_subst_up in IHt.
       set_solver.
     - specialize (IHt1 σ).
       specialize (IHt2 σ).
@@ -162,33 +170,33 @@ Section AtomsTm.
       specialize (IHt1 σ).
       specialize (IHt2 (⇑ σ)).
       specialize (IHt3 (⇑ σ)).
-      rewrite atoms_subst_up in IHt2, IHt3.
+      rewrite const_subst_up in IHt2, IHt3.
       set_solver.
   Qed.
 
-  Lemma atoms_tm_subst_inv (t : term) (σ : subst) :
-    atoms_tm t ⊆ atoms_tm (t[σ]).
+  Lemma const_tm_subst_inv (t : term) (σ : subst) :
+    const_tm t ⊆ const_tm (t[σ]).
   Proof.
     induction t in σ |- * ; cbn ; set_solver.
   Qed.
 
-  Lemma atoms_tm_subst_eq (t : term) (σ : subst) :
-    atoms_subst σ ≡ ∅ ->
-    atoms_tm t[σ] ≡ atoms_tm t.
+  Lemma const_tm_subst_eq (t : term) (σ : subst) :
+    const_subst σ ≡ ∅ ->
+    const_tm t[σ] ≡ const_tm t.
   Proof.
     intros.
-    pose proof (atoms_tm_subst t σ).
-    pose proof (atoms_tm_subst_inv t σ).
+    pose proof (const_tm_subst t σ).
+    pose proof (const_tm_subst_inv t σ).
     set_solver.
   Qed.
 
-  Lemma atoms_subst_tip_eq t f :
-    atoms_tm (f (tVar 0)) ≡ ∅ ->
-    atoms_tm (t[tip f]) ≡ atoms_tm t.
+  Lemma const_subst_tip_eq t f :
+    const_tm (f (tVar 0)) ≡ ∅ ->
+    const_tm (t[tip f]) ≡ const_tm t.
   Proof.
     intros.
-    apply atoms_tm_subst_eq.
-    now rewrite atoms_subst_tip.
+    apply const_tm_subst_eq.
+    now rewrite const_subst_tip.
   Qed.
 
-End AtomsTm.
+End ConstantTm.

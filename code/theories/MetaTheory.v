@@ -1,11 +1,13 @@
-From Interpolation Require Import Utils Syntax Notations Reduction Typing Bidir.
-From Stdlib Require Import Relations Arith Lia Bool List.
+(** * Interpolation.MetaTheory: meta-theoretic properties of typing, including normalisation*)
+From Interpolation Require Import Utils Syntax Notations Reduction ReductionConfluence Typing Bidir.
 
-(** ** Preservation of typing under reduction *)
+(** ** Typing and reduction *)
 
-Section Safety.
+Section TypingRed.
   Context `{Lang}.
 
+  (** *** Preservation of typing under reduction *)
+  (** Note that a stronger variant is proven in [Equations] *)
   Lemma preservation_one (Γ : context) (T : type) (t u : term) : (Γ ⊢ t :: T) -> t ⤳ u -> (Γ ⊢ u :: T).
   Proof.
     intros Hty Hred.
@@ -21,7 +23,7 @@ Section Safety.
     induction 2 ; eauto using preservation_one.
   Qed.
 
-  (** ** Progress *)
+  (** *** Progress *)
   (** A well-typed term is either a normal form, or can do a reduction step*)
 
   Lemma progress (Γ : context) (T : type) (t : term) :
@@ -40,7 +42,7 @@ Section Safety.
     all: left ; eauto with typing.
   Qed.
 
-  (** ** Bidirectional typing characterises well-typed normal forms *)
+  (** *** Bidirectional typing characterises well-typed normal forms *)
 
   Lemma bidir_normal_ind : bidir_concl
     (fun Γ T t => forall u, t ⤳ u -> False)
@@ -81,7 +83,7 @@ Section Safety.
     now eexists.
   Qed.
 
-End Safety.
+End TypingRed.
 
 
 (** ** Normalisation *)

@@ -1,6 +1,5 @@
-From Stdlib Require Import Relations Arith Lia Bool List
-  Relation_Definitions Morphisms RelationClasses.
-From Interpolation Require Import Utils Syntax Notations Reduction.
+(** * Interpolation.Typing: definition and properties of (undirected) typing *)
+From Interpolation Require Import Utils Syntax Notations.
 
 Set Structural Injection.
 Add Search Blacklist "_ind" "_sind" "_rec" "_rect".

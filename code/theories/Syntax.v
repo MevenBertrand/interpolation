@@ -1,6 +1,5 @@
+(** * Interpolation.Syntax: notations and helpers to deal with the generated syntax*)
 From smpl Require Import Smpl.
-From Stdlib Require Import List.
-From Stdlib Require Import Setoid Morphisms Relation_Definitions RelationClasses.
 From Interpolation Require Import Utils.
 From Interpolation Require Export BasicAst core unscoped Ast Context.
 

@@ -1,7 +1,5 @@
 -R theories Interpolation
 
-theories/InternalInterpolation.v
-
 theories/Utils.v
 
 theories/core.v
@@ -15,6 +13,7 @@ theories/Languages.v
 theories/Notations.v
 theories/Elim.v
 theories/Reduction.v
+theories/ReductionConfluence.v
 theories/Equations.v
 theories/Typing.v
 theories/Bidir.v

@@ -1,4 +1,4 @@
-(** * Interpolation.BasicAst: parameters for the AST of terms *)
+(** * Interpolation.BasicAst: definitions on which that of syntax depends *)
 
 Set Primitive Projections.
 

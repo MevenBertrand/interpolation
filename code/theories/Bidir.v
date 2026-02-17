@@ -1,5 +1,5 @@
+(** * Interpolation.Bidir: definition of bidirectional typing (characterising normal forms) *)
 From Interpolation Require Import Utils Syntax Notations Typing.
-From Stdlib Require Import Relations Arith Lia Bool List.
 
 Reserved Notation "Γ '⊢' t ▹ T"
   (at level 101, t at level 59).

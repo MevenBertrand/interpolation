@@ -1,5 +1,5 @@
-From Stdlib Require Import List.
-From Interpolation Require Import BasicAst.
+(** * Interpolation.Context: Definition of context and context access *)
+From Interpolation Require Import Utils BasicAst.
 
 Import ListNotations.
 

@@ -1,4 +1,4 @@
-From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
+(** * Interpolation.Theorems: top-level theorems *)
 From Interpolation Require Import Utils Syntax Languages Notations Reduction Equations Typing Bidir MetaTheory Interpolation.
 
 (** The most precise result, stated using reduction *)
@@ -8,8 +8,8 @@ Corollary interpolation `{Lang} (A C : type) (t : term) (c : const_split) :
     (forall p, atoms_ty p B ⊆
       (atoms_ty p A ∪ atoms_const p c.(pconst_l))
       ∩ (atoms_ty p C ∪ atoms_const (negp p) c.(pconst_r)))
-    /\ ([A] ⊢ l :: B) /\ (atoms_tm l ⊆ c.(pconst_l))
-    /\ ([B] ⊢ r :: C) /\ (atoms_tm r ⊆ c.(pconst_r))
+    /\ ([A] ⊢ l :: B) /\ (const_tm l ⊆ c.(pconst_l))
+    /\ ([B] ⊢ r :: C) /\ (const_tm r ⊆ c.(pconst_r))
     /\ (r[l..] ⤳* u) /\ t ⤳* u.
 Proof.
   intros Ht.
@@ -57,8 +57,8 @@ Corollary interpolation_eq `{Theory} (A C : type) (t : term) (c : const_split) :
     (forall p, atoms_ty p B ⊆
       (atoms_ty p A ∪ atoms_const p c.(pconst_l))
       ∩ (atoms_ty p C ∪ atoms_const (negp p) c.(pconst_r)))
-    /\ ([A] ⊢ l :: B) /\ (atoms_tm l ⊆ c.(pconst_l))
-    /\ ([B] ⊢ r :: C) /\ (atoms_tm r ⊆ c.(pconst_r))
+    /\ ([A] ⊢ l :: B) /\ (const_tm l ⊆ c.(pconst_l))
+    /\ ([B] ⊢ r :: C) /\ (const_tm r ⊆ c.(pconst_r))
     /\ ([A] ⊢ r[l..] ≡ t :: C).
 Proof.
   intros Ht.

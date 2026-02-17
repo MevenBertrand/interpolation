@@ -1,3 +1,4 @@
+(** * Interpolation.Ast: syntax and substitution, auto-generated with Autosubst)
 From Interpolation Require Import core unscoped.
 From Interpolation Require Import BasicAst.
 From Stdlib Require Import Setoid Morphisms Relation_Definitions.

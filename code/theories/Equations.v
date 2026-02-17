@@ -1,6 +1,5 @@
+(** * Interpolation.Equations: definition and properties of conversion *)
 From Interpolation Require Import Utils Syntax Notations Elim Context Typing Reduction.
-From Stdlib Require Import Setoid Morphisms RelationClasses.
-From Stdlib Require Import Arith Lia Bool List.
 
 Import ListNotations.
 Set Primitive Projections.

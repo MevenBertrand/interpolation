@@ -1,4 +1,4 @@
-From Stdlib Require Import Relations Arith Lia Bool List RelationClasses.
+(** * Interpolation.Interpolation: the main inductive proof *)
 From Equations Require Import Equations.
 From Interpolation Require Import Utils Syntax Languages Notations Reduction Typing Bidir.
 
@@ -11,11 +11,14 @@ Section Splitting.
 
   Definition flip_side s := match s with | source => target | target => source end.
 
+  (** A datatype to describe the splitting of a context between “source”
+    and “target” variables. *)
   Inductive split : Set := 
   | split_emp : split
   | split_s : split -> split
   | split_t : split -> split.
 
+  (** The corresponding correctness property *)
   Inductive splits : context -> context -> context -> split -> Prop :=
     | splits_emp : splits ε ε ε split_emp
     | splits_s {Γ Γs Γt A} {s} : splits Γ Γs Γt s -> splits (Γ,,A) (Γs,,A) Γt (split_s s)
@@ -33,6 +36,8 @@ Section Splitting.
     induction 1 ; cbn ; now constructor.
   Qed.
 
+  (** *** Renamings: a splitting gives rise to two renamings, which lift terms
+    from the source/target context to the entire context *)
   Fixpoint sren_s (s : split) : ren :=
     match s with
     | split_emp => id
@@ -90,6 +95,8 @@ Section Splitting.
 
   Hint Resolve sren_s_ty sren_t_ty : typing.
 
+  (*** Finding a side: given a variable and a context split, compute which
+    side the variable is on (and its index in the corresponding context). *)
   Fixpoint find_side (s : split) (n : nat) : (option side*nat) :=
     match s, n with
     | split_emp, _ => (None,0)
@@ -170,8 +177,14 @@ Section Splitting.
 
 End Splitting.
 
+(** ** Computation of the interpolant *)
+(** This is a function defined using Equations, so it computes! *)
+
 Section Interpolant.
   Context `{Lang}.
+
+  (** Type re-inference: infers the type of its argument assuming it is
+    a (well-typed) neutral *)
 
   #[derive(eliminator=no)]Equations infer (Γ : context) (t : term) : type :=
   infer Γ (tVar n)
@@ -211,6 +224,8 @@ Section Interpolant.
 
   Let defaulti : side*type*term*term := (source,TUnit,tStar,tStar).
 
+  (** Interpolate a neutral/inferring form *)
+
   #[derive(eliminator=no)]Equations
   _interpolate_infer (interp : forall (s : split) (c : const_split)
       (Γ : context) (A : type) (t : term), type*term*term)
@@ -246,6 +261,7 @@ Section Interpolant.
 
   Let default := (TUnit,tStar,tStar).
 
+  (** Interpolate a normal/checking form *)
   #[derive(eliminator=no)]Equations
   interpolate (s : split) (c : const_split) (Γ : context) (A : type) (t : term)
     : type*term*term :=
@@ -312,6 +328,7 @@ End Interpolant.
 
 Notation interpolate_infer := (_interpolate_infer interpolate).
 
+(** To handle the default case corresponding to demote *)
 Lemma interpolate_infer_eq `{Lang} Γ A i s c :
   (Γ ⊢ i ▹ A) ->
   interpolate s c Γ A i =
@@ -329,10 +346,15 @@ Proof.
   - destruct interpolate_infer as ((([]&?)&?)&?) ; cbn ; reflexivity.
 Qed.
   
+
+(** ** The interpolation proof per se *)
+
 Section Interpolation.
   Context `{Lang}.
 
-    Let Pcheck_lang_ty Γ T t := forall Γs Γt (s : split) (c : const_split),
+  (** *** The atoms of the interpolants are where they should be *)
+
+  Let Pcheck_lang_ty Γ T t := forall Γs Γt (s : split) (c : const_split),
     splits Γ Γs Γt s ->
     let '(M,l,r) := interpolate s c Γ T t in
     forall p,
@@ -506,7 +528,10 @@ Section Interpolation.
       all: set_solver.
   Qed.
 
-    Let Pcheck_ty Γ T t := forall Γs Γt (s : split) (c : const_split),
+
+
+  (** *** The interpolating terms have the right type *)
+  Let Pcheck_ty Γ T t := forall Γs Γt (s : split) (c : const_split),
     splits Γ Γs Γt s ->
     let '(M,l,r) := interpolate s c Γ T t in
     (Γs ⊢ l :: M) /\ (Γt ,, M ⊢ r :: T).
@@ -622,17 +647,19 @@ Section Interpolation.
       all: destruct b ; eauto 20 with typing.
   Qed.
 
+  (** *** The interpolating terms use only the constants they are allowed to use *)
+
   Let Pcheck_lang_tm Γ T t := forall Γs Γt (s : split) (c : const_split),
     splits Γ Γs Γt s ->
     let '(M,l,r) := interpolate s c Γ T t in
-    (atoms_tm l ⊆ c.(pconst_l)) /\ (atoms_tm r ⊆ c.(pconst_r)).
+    (const_tm l ⊆ c.(pconst_l)) /\ (const_tm r ⊆ c.(pconst_r)).
 
   Let Pinf_lang_tm Γ (T : type) t := forall Γs Γt (s : split) (c : const_split),
     splits Γ Γs Γt s ->
     let '(si,M,l,r) := interpolate_infer s c Γ t in
     match si with
-    | source => (atoms_tm l ⊆ (flip_csplit c).(pconst_l)) /\ (atoms_tm r ⊆ (flip_csplit c).(pconst_r)) 
-    | target => (atoms_tm l ⊆ c.(pconst_l)) /\ (atoms_tm r ⊆ c.(pconst_r))
+    | source => (const_tm l ⊆ (flip_csplit c).(pconst_l)) /\ (const_tm r ⊆ (flip_csplit c).(pconst_r)) 
+    | target => (const_tm l ⊆ c.(pconst_l)) /\ (const_tm r ⊆ c.(pconst_r))
     end.
 
   Theorem interpolation_lang_tm : bidir_concl Pcheck_lang_tm Pinf_lang_tm.
@@ -648,7 +675,7 @@ Section Interpolation.
       intros * _ IH * Hs ; cbn.
       specialize (IH _ _ _ c (splits_t Hs)).
       destruct interpolate as ((?&?)&?) ; cbn.
-      rewrite atoms_ren.
+      rewrite const_ren.
       set_solver.
     
     - (* case tPair *)
@@ -657,7 +684,7 @@ Section Interpolation.
       specialize (IHB _ _ _ c Hs).
       destruct interpolate as ((?&?)&?) ; cbn.
       destruct interpolate as ((?&?)&?) ; cbn.
-      rewrite !atoms_subst_tip_eq ; cbn.
+      rewrite !const_subst_tip_eq ; cbn.
       all: set_solver.
     
     - (* case tLeft *)
@@ -676,7 +703,7 @@ Section Interpolation.
       intros * _ IH * Hs.
       specialize (IH _ _ _ c Hs).
       destruct interpolate_infer as ((([]&?)&?)&?) ; cbn in *.
-      1: rewrite atoms_ren.
+      1: rewrite const_ren.
       all: set_solver.
 
     - (* case tIf *)
@@ -689,7 +716,7 @@ Section Interpolation.
       2: specialize (IHr _ _ _ c (splits_t Hs)) ; cbn in *.
       all: red ; erewrite infer_infer ; tea ; cbn.
       all: do 2 (destruct interpolate as ((?&?)&?) ; cbn in *).
-      all: rewrite ?atoms_ren, ?atoms_subst_tip_eq ; cbn.
+      all: rewrite ?const_ren, ?const_subst_tip_eq ; cbn.
       all: set_solver.
 
     - (* case demote *)
@@ -697,7 +724,7 @@ Section Interpolation.
       specialize (IH _ _ _ c Hs).
       rewrite interpolate_infer_eq ; tea.
       destruct interpolate_infer as ((([]&?)&?)&?) ; cbn in *.
-      all: rewrite ?atoms_ren.
+      all: rewrite ?const_ren.
       all: set_solver.
 
     - (* case tVar *)
@@ -721,12 +748,12 @@ Section Interpolation.
       all: red ; erewrite infer_infer ; tea ; cbn.
       + specialize (IHu _ _ _ (flip_csplit c) (flip_splits _ Hs)) ; cbn in *.
         destruct interpolate as ((?&?)&?) ; cbn.
-        rewrite !atoms_subst_tip_eq ; cbn in *.
+        rewrite !const_subst_tip_eq ; cbn in *.
         all: set_solver.
 
       + specialize (IHu _ _ _ c Hs) ; cbn in *.
         destruct interpolate as ((?&?)&?) ; cbn.
-        rewrite !atoms_subst_tip_eq ; cbn in *.
+        rewrite !const_subst_tip_eq ; cbn in *.
         all: set_solver.
 
     - (* case tProj *)
@@ -736,7 +763,7 @@ Section Interpolation.
       all: set_solver.
   Qed.
 
-
+  (** *** The composition of the interpolating terms yield the original term *)
   Let Pcheck_red Γ T t := forall Γs Γt (s : split) (c : const_split),
     splits Γ Γs Γt s ->
     let '(M,l,r) := interpolate s c Γ T t in

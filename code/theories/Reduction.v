@@ -1,7 +1,5 @@
-From Interpolation Require Import Utils Syntax Notations Elim.
-From Corelib Require Import Program.Basics.
-From Stdlib Require Import Setoid Morphisms Relation_Definitions RelationClasses.
-From Stdlib Require Import Relations Arith Lia Bool List.
+(** * Interpolation.Reduction: definition and properties of reduction *)
+From Interpolation Require Import Utils Syntax Notations.
 
 Import ListNotations.
 
@@ -264,7 +262,3 @@ Section Properties.
 End Properties.
 
 #[global]Existing Instances R_App_cong R_Lam_cong R_Proj_cong R_Pair_cong R_Abort_cong R_In_cong R_If_cong R_ren R_lift R_cons R_subst.
-
-
-Axiom confluence : forall `{Lang} (t u u' : term),
-  (t ⤳* u) -> (t ⤳* u') -> exists v, (u ⤳* v) /\ (u' ⤳* v).
