@@ -35,12 +35,14 @@ The main theorems are in [Theorems](./code/theories/Theorems.v). To avoid having
 
 ## Confluence
 
-We include in the `confluence` subfolder the [CSIho](http://cl-informatik.uibk.ac.at/software/csi/ho/) tool and [file](./confluence/comm_cuts.trs) we used to check confluence. The command to invoke is in the [Makefile](./confluence/Makefile), and in the output the relevant line is 
-the one saying
+We include in the `confluence` subfolder the [CSIho](http://cl-informatik.uibk.ac.at/software/csi/ho/) tool and [file](./confluence/comm_cuts.trs) we used to check confluence. The command to invoke is in the [Makefile](./confluence/Makefile) (depending on the way the folder has been downloaded, it might be necessary to make the relevant files executable, eg by using `chmod`).
+
+In the output the relevant line is  the one saying
 ```
   critical peaks: 12, all joinable
 ```
 The tool does not conclude about confluence per se because it is unable to prove termination, which we have proven separately, in [ReductionConfluence](./code/theories/ReductionConfluence.v).
+This also means, that sadly, the [online version](http://colo6-c703.uibk.ac.at/csi/index.php?version=csiho) of CSIho does not report interesting information, hence the local setup.
 
 ## File structure
 
