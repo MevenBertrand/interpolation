@@ -4,8 +4,23 @@ This is the formalisation accompanying the paper _Bidirectional Interpolation fo
 
 ## Installation
 
+### Dependencies
+
 The project builds with Rocq version `9.0`, and depends on the [`smpl`](https://github.com/uds-psl/smpl/), [Equations](https://github.com/mattam82/Coq-Equations/) and [`stdpp`](https://gitlab.mpi-sws.org/iris/stdpp/) libraries.
-If you already have an opam set-up, dependencies can be installed by simply using `opam install ./code/ --deps-only`.
+
+If you do not have Rocq installed already, instructions are available [on its website](https://rocq-prover.org/install).
+
+If you already have an opam setup, the dependencies can be installed from the rood folder with
+```
+opam install ./code/ --deps-only
+```
+In a new switch, you need to have invoked
+`
+opam repo add rocq-released https://rocq-prover.org/opam/released
+`
+beforehand.
+
+### Building
 
 Once the dependencies have been installed, you can issue `make` in the `code` folder to
 build the whole development.

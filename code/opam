@@ -7,7 +7,7 @@ authors: ["Meven Lennon-Bertrand <Meven.Bertrand@inria.fr>"
           "Alexis Saurin <alexis.saurin@irif.fr>"
 ]
 homepage: "https://github.com/MevenBertrand/interpolation"
-synopsis:"A formalisation accompanying the paper "Bidirectional Interpolation for the Lambda-Calculus"."
+synopsis: "A formalisation accompanying the paper 'Bidirectional Interpolation for the Lambda-Calculus'"
 license: "MIT"
 depends: [
   "rocq-prover" { >= "9.0" & < "9.1~" }
