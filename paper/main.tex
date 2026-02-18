@@ -23,6 +23,15 @@
 \bibliographystyle{plainurl}% the mandatory bibstyle
 
 \usepackage[dvipsnames]{xcolor}
+
+\definecolor{darkblue}{rgb}{0.0, 0.0, 0.55}
+\definecolor{Darkgreen}{rgb}{0., 0.35, 0.}
+\definecolor{darkgreen}{rgb}{0.0, 0.55, 0.13}
+\definecolor{darkred}{rgb}{0.55, 0.0, 0.0}
+\definecolor{darkviolet}{rgb}{0.58, 0.0, 0.83}
+\definecolor{lightblue}{rgb}{0.68, 0.85, 0.9}
+\usepackage{lstcoq}
+
 \usepackage{stmaryrd}
 \usepackage{mathtools}
 \usepackage{macros}
@@ -109,6 +118,7 @@ it in \Rocq.
 \end{abstract}
 
 \section{Introduction}
+\label{sec:intro}
 
 \subparagraph*{Craig-Lyndon Interpolation}
 
@@ -184,15 +194,26 @@ contribute.
 \subparagraph*{Contributions}
 We thus develop and formalise, in the \Rocq proof assistant,
 the meta-theory of the \(\lambda\)-calculus with sums,
-including normalisation for commuting conversion, and
-use this as a basis for a new proof of proof-relevant interpolation.
+including the first formalised proof of normalisation
+for a calculus with commuting conversion; and
+use this in a new proof of proof-relevant interpolation.
 Throughout the text, links to the (anonymised) code are indicated by this symbol:
 \formfile[]{}.
 
-\subparagraph*{Meta-theory} We work in dependent type theory, but to
-avoid confusion between object-level and meta-level
-judgments, we denote meta-level typing as \(\mty\), and use \(\Prop\) and \(\Set\)
-for the meta-level universes of propositions and types --- of which we need only one.
+\subparagraph*{Notations} To avoid confusion between judgments of
+the object and meta-level type theories,
+we denote meta-level typing as \(\mty\), and use \(\Prop\) and \(\Set\)
+for meta-level universes of propositions and types --- of which we need only one.
+%
+We use colours to suggest information:
+a term being \textcolor{ccol}{normal} or \textcolor{icol}{neutral},
+or an object containing \textcolor{scol}{source},
+\textcolor{tcol}{target} or \textcolor{mcol}{shared} vocabulary.
+The same name with different colours denotes
+\emph{the same object} (with updated knowledge).
+% For instance, when we learn that a source type
+% only contains target vocabulary, it is now a valid interpolant
+% and thus changes colour.
 
 \section{The simply-typed \(\lambda\)-calculus with sums}
 
@@ -489,13 +510,7 @@ For a type theorist, this might seem a bit mysterious. Cut elimination, by
 the Curry-Howard correspondence, is well-known to coincide with reduction of
 terms viewed as proof witnesses. However, what does the subformula property
 amount to? This is much less known, but it can be very helpfully linked to
-\emph{bidirectional typing}.%
-\footnote{We are not the first to make this connection: it appears
-in Dunfield and Krishnaswami's survey~\cite[Sec. 8]{Dunfield2021},
-which credit it to Pfenning.
-The relation between normal forms and the subformula property is also
-mentioned by Abel and Sattler~\cite{Abel2019}, although without drawing the
-connection to bidirectional typing.}
+\emph{bidirectional typing}.
 
 In bidirectional typing,
 which originates from the analysis of type-checking algorithms \cite{Coquand1996,Pierce2000},
@@ -505,11 +520,11 @@ that in the former the type is an output,%
 \footnote{\textit{I.e.} the question is ``What is the type of this term?''.}
 while in the latter it is an input.%
 \footnote{And the question is ``Does this term have this type?''.}
-This attention to the flow of information is, in a sense, also what
+This attention to the flow of information is, in a sense, what
 the subformula property captures: in both cases, the intuition
 is that type information always comes from somewhere and is never invented.
-And in fact bidirectional typing can helpfully be leveraged to exploit
-this subformula property, \eg in strengthening proofs~\cite{LennonBertrand2021}.
+% And in fact bidirectional typing can helpfully be leveraged to exploit
+% this subformula property.
 
 With this view it is perhaps less surprising that bidirectional
 typing can be used to capture normal forms, since
@@ -526,7 +541,7 @@ derives the interpolation result.
 
 \begin{figure}
 \begin{mathpar}
-  \jform{\check{\Gamma}{t}{A}}[Checking/normal forms \(t,u,\dots \in \Nf_{\lang}(\Gamma,A)\)]
+  \jform{\check{\Gamma}{t}{A}}[Checking/normal forms \(\ccol{t},\ccol{u},\dots \in \Nf_{\lang}(\Gamma,A)\)]
   
   \inferdef[Star]{ }{\check{\Gamma}{\st}{\top}}
   \label{rule:star-b} \and
@@ -544,7 +559,7 @@ derives the interpolation result.
   \label{rule:inr-b} \and
   \inferdef[Demote]{\infer{\Gamma}{t}{A} \\ A = B}{\check{\Gamma}{\dem{\icol{t}}}{B}}
   \label{rule:demote-b} \\
-  \inferdef[Raise]{\infer{\Gamma}{\icol{t}}{\bot}}{\check{\Gamma}{\rai t}{A}}
+  \inferdef[Raise]{\infer{\Gamma}{\icol{t}}{\bot}}{\check{\Gamma}{\rai \icol{t}}{A}}
   \label{rule:raise-b}\and
   \inferdef[If]{
     \infer{\Gamma}{s}{A + B} \\
@@ -553,7 +568,7 @@ derives the interpolation result.
   }{\check{\Gamma}{\ite{\icol{s}}{b_l}{b_r}}{T}}
   \label{rule:if-b} \\
   %
-  \jform{\infer{\Gamma}{t}{A}}[Infering/neutral forms \(t,u,\dots \in \Ne_{\lang}(\Gamma,A)\)]
+  \jform{\infer{\Gamma}{t}{A}}[Infering/neutral forms \(\icol{t},\icol{u},\dots \in \Ne_{\lang}(\Gamma,A)\)]
   \inferdef[Cst]{c \in \mathcal{C}}{\infer[\lang]{\Gamma}{c}{\tyof(c)}}
   \label{rule:cst-b} \and
   \inferdef[Var]{(x : A) \in \Gamma}{\infer{\Gamma}{x}{A}}
@@ -814,12 +829,13 @@ With our characterisation of normal forms in hand, we can move to the
 interpolation result. Following \Cubric~\cite{Cubric1994}, we give a
 polarised version in the fashion of Lyndon interpolation \cite{Lyndon1959interpolation},
 % rather than the simpler Craig interpolation,
-and thus start with a polarised notion of atoms.
+and thus start with a polarised notion of vocabulary.
 
-\begin{definition}[\formline{Languages.v}{9}{atoms_ty} Atoms]
+\begin{definition}[\formline{Languages.v}{9}{atoms_ty} Vocabulary]
   Let \(A \in \Ty_{\mathcal{B}}\). We define \(A^+ \subseteq \mathcal{B}\)
-    (resp.\ \(A^- \subseteq \mathcal{B}\)), the \emph{positive}
-    (resp.\ \emph{negative}) \emph{atoms} of \(A\) by induction, with $\overline{p}=+$ (resp. $-$) \emph{iff} $p=-$ (resp. $+$):\\[-1.5em]
+    (resp.\ \(A^-\)), the \emph{positive}
+    (resp.\ \emph{negative}) \emph{vocabulary} of \(A\) by induction,
+    with $\overline{+}\coloneq -$ (resp. $\overline{-} \coloneq+$):\\[-1.5em]
   \begin{minipage}[t]{0.15\textwidth}
   \begin{align*}
     b^{+} & \coloneq \{b\} \\
@@ -882,7 +898,7 @@ the remainder of this section we fix a language \(\lang = (\base,\emptyset,\_)\)
   Assume \(\typing[\lang]{\Gamma}{t}[T]\), then there exists a type \(M\) and terms
   \(\typing{\Gamma}{l}[M]\) and \(\typing{(x:M)}{r}[T]\) such that
   \begin{itemize}
-  \item \(M\) uses only the atoms common to \(\Gamma\) and \(T\):
+  \item \(M\) uses only the common vocabulary of \(\Gamma\) and \(T\):
     for any \(p \in \{+,-\}\) \(M^p \subseteq \Gamma^p \cap T^p\);
   \item \(t\) is the composition of \(r\) and \(l\): \(\conv{\Gamma}{t}{\subs{r}{l..}}[T]\).
   \end{itemize}
@@ -944,7 +960,7 @@ are exchanged in the typing of the interpolants compared to the statement for no
 \begin{proof}
 As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   %
-  The \(\Nf\) cases are rather direct. We only show 
+  Most \(\Nf\) cases are rather direct, we only show 
   \nameref{rule:lam-b}, cases for \nameref{rule:pair-b}, \nameref{rule:inl-b}, \nameref{rule:inr-b} are similar. \\
   %
   % \nameref{rule:star-b}: \(\tcol{T}\) is \(\top\), so we can take
@@ -1003,32 +1019,33 @@ As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   %
   \nameref{rule:demote-b}/source: By induction hypothesis, we get that \(\scol{A}\)
     is a source type,
-    \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M})\) and
-    \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{A})\).
-    This is where we need to handle the reversal between the source and target
-    context in case 1.
+    \(\tcol{l} \in \Tm_{\Sigma}(\tcol{\Gamma_{t}},\mcol{M'})\) and
+    \(\scol{r} \in \Tm_{\Sigma}(\scol{\Gamma_{s}}.\mcol{(x : M')}, \scol{A})\).
+    Here we need to handle the reversal between the source and target
+    context appearing in case 1.
     Luckily, we have \(\scol{A} = \tcol{B}\),
-    thus these types can only use atom common to \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
-    Hence, \(\mcol{M'} \coloneq \mcol{M \to A}\) is a valid interpolating type,
+    thus \(\mcol{A}\) can only use a vocabulary common to
+    \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
+    Hence, \(\mcol{M} \coloneq \mcol{M' \to A}\) is a valid interpolating type,
     and we take
     \[\begin{array}{rlll}
-      \scol{\Gamma_{s}} \vdash & \scol{l'} \coloneq & \scol{\l x.r} & \ty \mcol{M \to A} \\
-      \tcol{\Gamma_{t}}.\mcol{(z : M)} \vdash & \tcol{r'} \coloneq &
+      \scol{\Gamma_{s}} \vdash & \scol{l'} \coloneq & \scol{\l x.r} & \ty \mcol{M' \to A} \\
+      \tcol{\Gamma_{t}}.\mcol{(z : M' \to A)} \vdash & \tcol{r'} \coloneq &
         \tcol{z~l} & \ty \tcol{A}
     \end{array}\]
   \\
   %
   \nameref{rule:demote-b}/target: In this case we keep the exact
-    same interpolating type and interpolants.\\
+    same interpolating type and terms.\\
   \nameref{rule:raise-b}, \nameref{rule:if-b}: similarly to \nameref{rule:demote-b},
     we need to handle the reversal of source and target context.\\
   %
   \nameref{rule:app-b}/source: We consider
   \(\icol{t}~\ccol{u}\), and the induction hypothesis on \(\icol{t}\) gives
-  some \(\scol{A \to B}\) with atoms in \(\scol{\Gamma_s}\) and
+  some \(\scol{A \to B}\) with vocabulary in \(\scol{\Gamma_s}\) and
   \(\mcol{M_t}\), \(\scol{r_t}\) and \(\tcol{l_t}\) such that
   \(\icol{t} = \subs{\scol{r_t}}{\tcol{l_t}..}\). Since \(\scol{A}\)'s
-  atoms are in \(\scol{\Gamma_s}\), by induction hypothesis we can
+  vocabulary is in \(\scol{\Gamma_s}\), by induction hypothesis we can
   interpolate \(\ccol{u}\) with a reversed colouring,
   \ie inverting the roles of \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
   This gives \(\mcol{M_u}\), \(\scol{r_u}\) and \(\tcol{l_u}\) such that
@@ -1042,7 +1059,7 @@ As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   \end{array}\]
   %
   \nameref{rule:app-b}/target: This time, the induction hypothesis on \(\icol{t}\) gives
-  us some \(\tcol{A \to B}\) with atoms in \(\tcol{\Gamma_s}\) and
+  us some \(\tcol{A \to B}\) with vocabulary in \(\tcol{\Gamma_s}\) and
   \(\mcol{M_t}\), \(\tcol{r_t}\) and \(\scol{l_t}\) such that
   \(\icol{t} = \subs{\tcol{r_t}}{\scol{l_t}..}\). We can directly use the
   induction hypothesis on \(\ccol{u}\), to get
@@ -1075,7 +1092,7 @@ We can generalise the above to arbitrary languages \(\lang = (\base,\const,\tyof
 with arbitrary equations.
 As explained in \cref{sec:red-eq}, handling the extra equations is essentially
 trivial. As for constants, we have to be a bit careful that
-the interpolant might also use atoms present in the constants. The
+the interpolant might also use vocabulary present in the constants. The
 final theorem is the following:
 
 \begin{theorem}[\formline{Theorems.v}{54}{interpolation_eq}
@@ -1083,13 +1100,13 @@ final theorem is the following:
   Assume \(\typing[\lang]{\Gamma}{t}[T]\), and a partition
   \(\const = \const_{s} \cup \const_{t}\) of constants.
   Define \(\const_{i}^p \coloneq \cup_{c \in \const_{i}} (\tyof c)^p\)
-    the atoms of the sets of constants, and
+    the vocabulary of the sets of constants, and
     \(\lang_{i} \coloneq (\base,\const_{i},\tyof_{i})\)
     where \(\tyof_{i}\) is the obvious restriction.
   Then there exists a type \(M\) and terms
   \(\typing[\lang_{l}]{\Gamma}{l}[M]\) and \(\typing[\lang_{r}]{(x:M)}{r}[T]\) such that
   \begin{itemize}
-  \item \(M\) uses only the atoms common to \(\Gamma\) and \(\const_{s}\)
+  \item \(M\) uses only the vocabulary common to \(\Gamma\) and \(\const_{s}\)
     on one side, and \(T\) and \(\const_{t}\) on the other:
     for any \(p \in \{+,-\}\)
     \(M^p \subseteq (\Gamma^p \cup \const_{s}^p) \cap (T^p \cup \const_{t}^p)\);
@@ -1201,111 +1218,197 @@ extremely tedious. It would be interesting to explore what could be done here,
 in the form of libraries for congruence closures or automation, maybe by
 having \textsc{CSI\textsuperscript{ho}} generate proof witnesses.
 
-\section{Related and future work and conclusion}
+\section{Conclusion}
 
 \subsection{Summary of the contribution}
-In the present paper, we have revisited the seminal work on proof-relevant interpolation by \Cubric, in the $\lambda$-calculus with sums (\stlcp). Our contribution is twofold:
+In the present paper, we have revisited the seminal work by \Cubric
+on proof-relevant interpolation in the $\lambda$-calculus with sums (\stlcp)
+\cite{Cubric1994}. Our contribution is twofold:
 \begin{itemize}
-	\item We revisited \Cubric' proof (which followed closely Prawitz' proof of Craig's interpolation theorem) and simplified its inductive argument by developing a bidirectional type systems characterising the normal forms of \stlcp, that is with  $\beta$ and commuting conversions. 
-	\item We benefited from this restructured proof to allow a Rocq formalisation of \Cubric interpolation theorem for \stlcp. In doing so, we developed the meta-theory of \stlcp including normalisation for the calculus with commuting conversions. 
+	\item We revisited \Cubric' proof (which followed closely Prawitz' proof of Craig's interpolation theorem) and simplified its inductive argument by developing a bidirectional type system characterising the normal forms of \stlcp, with  $\beta$ and commuting conversions. 
+	\item We benefited from this restructured proof to allow for a \Rocq formalisation.
+  In doing so, we developed the meta-theory of \stlcp including normalisation.
 \end{itemize} 
 
 \subsection{Related work}
 
-We discuss some of the most related works, about proof-relevant interpolation, formalised interpolation results, normalisation properties with sums as well as related works on bidirectional typing. 
+% We discuss some of the most related works, about proof-relevant interpolation, formalised interpolation results, normalisation properties with sums as well as related works on bidirectional typing. 
 
 \subparagraph*{(Relevant) Interpolation} 
-First, it is important to stress that \Cubric' work is closely related to the original proof of Craig's interpolation theorem for natural deduction by Prawitz~\cite{Prawitz1965-PRANDA}: the actual construction of the interpolant in Prawitz' work is actually compatible with \Cubric's proof-relevant result, even though this is best seen in the $\lambda$-calculus. 
-\Cubric' work only had few developments. Matthes'\cite{Matthes-interpolation-01} work is a notable such development that extends \v Cubri\' c results to a $\lambda$-calculus with generalized elimination. More recently, Fiorillo's~\cite{Fiorillo2024} extended \Cubric's work to Parigot's $\lambda\mu$-calculus allowing that allows him to get rid of the sum types for expressing the interpolation type. It would indeed be natural to consider extending our formalisation to such settings.
+First, it is important to stress that \Cubric' work is closely related to the original proof of Craig's interpolation theorem for natural deduction by Prawitz~\cite{Prawitz1965-PRANDA}: the construction of the interpolant in Prawitz' work is actually compatible with \Cubric's result, even though this is best seen in the $\lambda$-calculus. 
+\Cubric's work only had few extension.
+Matthes' \cite{Matthes-interpolation-01} work is a notable such development, that extends \Cubric's to a $\lambda$-calculus with generalised elimination. More recently, Fiorillo~\cite{Fiorillo2024} extended \Cubric's work to Parigot's $\lambda\mu$-calculus, allows him to get rid of the sum type to express the interpolating type. It would indeed be natural to consider extending our formalisation to such settings.
 
-When turning to sequent calculus, it is natural to discuss Saurin's analysis of (proof-relevant) interpolation~\cite{Saurin25fscd} in various logics (classical, intuitionistic and linear sequent calculi) as a cut-introduction mechanism. This work also presents together a "computational" version of interpolation in System L that is a proof-term calculus for the sequent calculus.
+In other proof formalism, Saurin analyses (proof-relevant) interpolation~\cite{Saurin25fscd} in sequent calculi for various logics
+% (classical, intuitionistic and linear sequent calculi)
+as a cut-introduction mechanism. This work also presents a ``computational'' version of interpolation in System L \cite{Curien2000,MunchMaccagnoni2013},
+a term language for the sequent calculus.
+Veltri and Wan studied proof-relevant interpolation for a non-associative restriction of the Lambek calculus~\cite{VeltriW25} (also formalised, see below), while
+Fiorillo \textit{et al.}~\cite{Fiorillo2025} considered
+linear logic proof nets or non-cut-free proofs.
 
-Veltri and Wan developed an analysis of proof-relevant interpolation for a non-associative restriction of the Lambek-calculus~\cite{VeltriW25} (also formalised, see below). 
+While Craig interpolation received both syntactic and semantic proofs, it is natural to wonder what would be a semantic counterpart to proof-relevant interpolation: this was the original focus of \Cubric who studied interpolation in bicartesian-closed categories~\cite{Cubricphd,Cubric1994}; Fiorillo's~\cite{Fiorillo2024} investigated such results in models of linear logic.
 
-Proof-relevant interpolation was also extended to other structured proof settings, such as linear logic proof nets or non-cut-free proofs~\cite{Fiorillo2025}.
+\subparagraph*{Formalised Interpolation}
+Craig interpolation was formalised multiple times, both for classical~\cite{Ridge2006,michaelis_et_al2017} and intuitionistic logic~\cite{ChapmanMU08}.%
+\footnote{Chapman {\it et al.}\ as well as Ridge cite Boulmé~\cite{Boulme1996}
+as an even earlier formalisation for classical logic in \Rocq,
+but this development does not appear to be publicly available.}
+%
+More recently, Férée \textit{et. al.}
+have formalised uniform interpolation results {\it à la} Pitts~\cite{Pitts}~\cite{Pitts92}
+in \Rocq,
+first for intuitionistic logic \cite{Feree2023}, then for modal logics
+\cite{Feree2024}. Since uniform interpolation does not interpolate a particular
+proof, their proofs are quite different from ours, in particular
+they do not formalise a cut-elimination/normalisation result, and again there
+is no proof-relevant refinement. Even more recently, Veltri and Wan~\cite{VeltriW25}
+used \textsc{Agda} to formalise cut-elimination and proof-relevant interpolation 
+for a substructural logic, the Lambek calculus, in their effort to understand this system.
+Their propositional logic only
+has negative connectives, but the difficulty relies on the complexity of
+the context's structure due to the lack of structural rules:
+Working with a non-associative, non-commutative sequent calculus, they develop a complex machinery to handle sequents with a tree structure.
+While we formalized a proof-relevant version of Prawitz's approach,
+they looked at a proof-relevant version of Maehara \cite{Maehara}. 
 
-While Craig's interpolation received both syntactical and semantical proofs, it is natural to wonder what would be a semantical counter-part to proof-relevant interpolation: this was the original focus of \Cubric who studied interpolation in bicartesian-closed categories~\cite{Cubricphd,Cubric1994}; Fiorillo's~\cite{Fiorillo2024} investigated such results in models of linear logic.
+Compared to all these, our proof (and formalisation) is by far the most
+``\(\lambda\)-calculesque'', owing to its strong emphasis on proof-relevance.
+It is also rather compact (around 4kLoC, including 800LoC generated by \textsc{Autosubst},
+almost 10 times smaller than Férée \textit{et al.} \cite{Feree2024}),
+and fast (around 30s on a not particularly powerful laptop,
+most of which is paid to slow solvers, to compare to Veltri and Wan's development,
+which takes hours to compile), so we hope some of our formalisation techniques
+can inspire others.
 
+\subparagraph*{Normalisation for sums}
+Since Prawitz's work on the topic \cite{Prawitz1965-PRANDA},
+normalisation/cut-elimination for sums has been the subject of much
+focus. The bad behaviour of sums in natural deduction is in fact
+one of the major reason to move to sequent calculi.
+Staying in the context of the \(\lambda\)-calculus (and thus natural
+deduction), the closest work to our is that of Abel and Sattler~\cite{Abel2019}.
+Their normalisation result is formalised in \textsc{Agda}, although in a very
+different, much more intrinsic style. They merely give a
+normalisation function, but leave as future work the proof that the
+result of this function relates to its input, which is where a logical
+relation argument such as ours is necessary. Thus, to the best of our
+knowledge ours is the first formalised proof of normalisation for \stlcp.
 
-%\begin{itemize}
-%\item Fiorillo et al: proof nets? \cite{Fiorillo2025}
-%\item Fiorillo Master thesis: lambda-mu \cite{Fiorillo2024}
-%\item Semantics?
-%\item Veltri Wan~\cite{VeltriW25}
-%\end{itemize}
-
-\subparagraph*{Formalised Interpolation} 
-There were numerous works aiming at formalising interpolation results. 
-
-Craig's interpolation theorem received several formalisations in the literature, both for classical\footnote{Chapman {\it et al} as well as Ridge cite~\cite{Boulme1996} as an attempt to formalise interpolation for classicl logic in Rocq but this development does not appear to be publicly available.} logic~\cite{Ridge2006,michaelis_et_al2017} and for intuitionistic logic~\cite{ChapmanMU08} (a result originally established by Schütte, for intuitionistic logic)
-
-On the other hand, Férée {\it et al} investigated {\it uniform} interpolation results {\it à la} Pitts~\cite{Pitts}~\cite{Pitts92}: they formalised Uniform interpolation in Rocq, both for Pitts' original result for intuitionistic logic~\cite{FereeG23}  as well as in three modal logics~\cite{Feree2024}: basic modal logic, K, Gödel-Löb logic, GL, as well as intuitionistic strong Löb logic, iSL.
-In all those situations, Ocaml programs were extracted from the formalisations that compute uniform interpolants.
-
-More recently, turning to proof relevant interpolation, Veltri and Wan~\cite{VeltriW25} formalised in Agda a proof-relevant interpolation theorem for the non-associative Lambek sequent calculus, in their effort to formalise this system.
-While we formalized a proof-relevant version of Prawitz' interpolation theorem, they formalized a proof-relevant version of Maehara's proof technique. 
-Working with a non-associative, non-commutative sequent calculus, their formalisation had to develop a complex machinery to handle sequents that have the structure of a tree of formulas. 
-
-
-\as{Develop somehow the comments... commenter sur le fait que la formalisation de Veltri et Wan est vraiment compliquée par la structure des jugements. En les citant (conclusion) : "From a practical perspective, it is worth mentioning that this Agda formal-
-	ization is computationally intensive. The type-checking time for some files is
-	quite substantial: the well-definedness proof mip takes approximately 10 min to type-check,
-	while the associativity of cut and the well-definedness proofs cut1 and cut2
-	require >2 h on a MacBook Pro 2020 with 2 GHz Intel Core i5. In future work,
-	we plan to work on the code in order to reduce the compilation time"}
-%\begin{itemize}
-%\item Férée Giessen Schilito Van Gool
-%\cite{Feree2024}
-%\item Recent related work for substructural logics, e.g. Lambek calculus by Veltri and Wan.~\cite{VeltriW25}
-%\end{itemize}
-
-\subparagraph*{Normalisation for sums} Normalisation for the \(\lambda\)-calculus
-with sums  Abel Sattler, Scherer…
+As explained in \cref{sec:intro}, we are only concerned with a “weak”
+version of normal forms, which have the subformula property but do
+not give canonical representatives of equivalence classes for the
+equational theory of biCCC. For that, one needs much more involved
+constructions which exceed the scope of this paper, but a good
+account of which can be found in Scherer~\cite{Scherer2017}.
 
 \subparagraph*{Exploiting bidirectional typing}
-MetaRocq, Dunfield Krishnaswami, Pfenning
+Although we ended up rediscovering some of it,
+the relationship between bidirectional typing and the subformula property
+is not new: it is mentioned explicitly in Dunfield and
+Krishnaswami's~\cite{Dunfield2021} survey, whose authors credit it to Pfenning,
+although we were not able to find a source supporting this.
+The relation between normal forms and the subformula property is also
+explicitly mentioned by Abel and Sattler~\cite{Abel2019}, although without
+connection to bidirectional typing. We should also mention the work of
+Lennon-Bertrand around \textsc{MetaRocq}
+\cite{LennonBertrand2021,MetaCoq2025}, which implicitly exploits the subformula
+property to prove strengthening for a dependent typing judgments.
+But altogether, although the connection was “in the air”
+we seem to be the first to consciously exploit it to this degree.
+
+Given that sequent calculus is generally a better setting for interpolation,
+including proof-relevant results \cite{Saurin25fscd}, it seems tempting to
+export our methodology. Luckily, Mihejevs and Hedges \cite{Mihejevs2025}
+recently studied bidirectional typing for System L \cite{MunchMaccagnoni2013,Curien2000},
+a syntax for sequent calculi, showing there is a remarkable coincidence between
+the bidirectional discipline and System L's structure.
+It seems enticing to explore the connections between these.
 
 \subsection{Future work}
 
-In terms of future work, we envision three particularly interesting directions for future work, each corresponding to strengthening the result of the present paper in one orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \v Cubri\' c' results from simple types to dependent types. 
-
-
-\subparagraph*{Interpolation} \as{?? Qu'est-ce qu'on voulait dire ici?}
-
+We envision three particularly interesting directions for future work, corresponding to strengthening our results in orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \Cubric's results to dependent types. 
 
 \subparagraph*{Extensions with cuts}
-The first, evident, direction for future work consist in solving the first limitation of \v Cubri\' c' interpolation which only applies to normal forms. From the perspective of the computational interpretation of the result, this is indeed a drastic limitation: every computation can be factored through an interface type in the common type language of the input and output data types, but only under the assumption that one first normalise the term to normal form. 
+The first, evident, direction for future work consist in solving the first limitation of
+\Cubric interpolation which only applies to normal forms. From the perspective of the computational interpretation of the result, this is indeed a drastic limitation: every computation can be factored through an interface type,
+but only under the assumption that one first normalise the term, an extremely
+costly operation!
+
 What if the term is not in normal form? 
-Considering that interpolation in fact requires a much weaker condition than the subformula property, one can hope to easily captures terms with cuts satisfying some assumptions. 
+Considering that interpolation in fact requires a much weaker condition than the subformula property, one can hope to still interpolate terms as long as their
+cuts satisfy some assumptions. 
+First results in this direction are due to Fiorillo {\it et al.}~\cite{Fiorillo2025},
+who extend Saurin's \cite{Saurin25fscd}
+results to sequent proofs with cut satisfying some vocabulary constraints.
+We believe that similar results can be transported to \stlcp and see at least two paths to reach such a result.
 
-First results in this direction have been done by Fiorillo {\it et al}~\cite{fiorillo26} where they extend Saurin's results to sequent proofs with cut satisfying some vocabulary constraints. 
-We believe that similar results can be transported to \stlcp and see at least two paths to reach such a result:
-\begin{itemize}
-\item In their work, Fiorillo {\it et al}~\cite{fiorillo26} identity quite general condition on cut formulas so that sequent calculus proof-relevant interpolation can be carried out in the presence of cut inferences and they moreover show that proof-relevant interpolation can be achieved for MELL proof-nets with cuts (under similar assumptions as above). Since one can encode the simply typed lambda-calculus in the intuitionistic fragment of MELL using linear embeddings of intuitionistic logic, one can hope to establish a similar result for $\lambda$-terms with redexes via those translations to proof-nets. There are still some difficulties to achieve such a result in this direction amounting to the need to design a faithful embedding of the whole of \stlcp in IMELL that satisfies a good simulation result. 
-\item Another direction is to follow the methodology considered in the present paper and to design a bidirectional type system that does not characterize only normal forms but also those terms having redexes that satisfy the assumptions of the interpolation theorem with cuts. This will require having a more relaxed systems allowing some annotations of terms as long as those annotations guarantee the vocabulary constraints needed for interpolation.   
-\end{itemize}
+In their work, Fiorillo {\it et al.} identity quite general condition on cut formulas
+for proof-relevant interpolation to be carried out in a sequent calculus with cuts, and that this can be achieved for MELL (multiplicative-exponential linear logic) proof nets with cuts too (under similar assumptions). Since \stlcp can be encoded in the intuitionistic fragment of MELL using linear embeddings of intuitionistic logic, one can hope to establish a similar result for $\lambda$-terms with redexes via a translation to proof nets. There are still some difficulties to achieve such a result along these lines, amounting to designing a faithful embedding of the whole of \stlcp in intuitionistic MELL that satisfies a good simulation property. 
+
+But another natural direction, in the light of the present paper, is to amend the bidirectional type system to not characterise normal forms, but those terms whose redexes satisfy the assumptions of the interpolation theorem with cuts. It is known that, to make
+bidirectional typing go beyond normal form, the route to go is
+to add annotations in terms \cite{McBride2022,Gratzer2019}, with a rule like the following:
+\begin{mathpar}
+  \inferdef[Annot]{\check{\Gamma}{t}{A}}{\infer{\Gamma}{\annot{t}{A}}{A}}
+\end{mathpar}
+In such a system, any redex is mediated by an annotation, for instance a (function)
+\(\beta\)-redex must be of the form \((\annot{\l x.t}{A \to B})~\ccol{u}\). Thus,
+the annotation exactly makes explicit what the cut formula is! With all cut formulas
+visible this way, it should be possible to impose the same sort of
+constraints on vocabulary as Fiorillo \textit{et al.}
 
 
-\subparagraph*{Uniform interpolation} (for the \stlc)
-\cite{Feree2024}
-
-\as{Besoin d'adapter ce qui suit aux notations quand le vocabulaire n'est pas polarisé.}
-
-A very natural and exciting question is the following: can the proof-relevant interpolation result presented above be "uniformised"? 
-While the current result ensures that given types $A$ and $B$ and a normal term $x: A \vdash t:B$, there exists a type $I$ satisfying the vocabulary conditions and two terms $u,v$ \emph{depending on} $A,B$ and $t$, such that $ \red{(\lambda y. u)v}{t}$, a uniform proof relevant interpolation could be stated in two ways:
+\subparagraph*{Uniform interpolation}
+A very natural and exciting question is the following: can the proof-relevant interpolation result presented above be ``uniformised''? 
+While the current result ensures that given types $A$ and $B$ and a normal term
+$\check{x: A}{t}{B}$, there exists a type $I$ satisfying the vocabulary conditions and two terms $u,v$ \emph{depending on} $A,B$ and $\ccol{t}$, such that $\red{\subs{u}{v..}}{\ccol{t}}$, a uniform proof relevant interpolation could be stated in two ways
+(where we write \(\voc(A)\) for the vocabulary of \(A\), barring polarity
+concerns):
 \begin{description}
-\item[uniform] For every type $A$, for every $L \subseteq \base$ there exists $I$ such that $voc(I)\subseteq L$ such that for any $B$ satisfying $voc(A)\cap voc(B) \subseteq L$, and every $x:A \vdash t: B$, there are terms $u,v$ such that $y: I\vdash u: B$ and $x: A\vdash v: I$ and $ \red{(\lambda y. u)v}{t}$.
-\item[strongly uniform] For every type $A$, for every $L \subseteq \base$ there exists $I$ such that $voc(I)\subseteq L$ and $x: A \vdash v: I$  such that for any $B$ satisfying $voc(A)\cap voc(B) \subseteq L$, and every $x:A \vdash t: B$, there are terms $u$ such that $y: I\vdash u: B$ and $ \red{(\lambda y. u)v}{t}$.
+\item[Uniform] For every type $A$ and $L \subseteq \base$ there exists $I$ such that $\voc(I)\subseteq L$ and for \emph{any} $B$ satisfying $\voc(A) \cap \voc(B) \subseteq L$,
+and \emph{any} $\check{x:A}{t}{B}$, there are terms $u,v$ such that
+  $\typing{x: A}{v}[I]$ and $\typing{y: I}{u}[B]$ and $ \red{\subs{u}{v..}}{t}$.
+\item[Strongly uniform] For every type $A$ and $L \subseteq \base$ there exists $I$ such that
+  $\voc(I)\subseteq L$ and $\typing{x: A}{v}[I]$ such that for any $B$ satisfying $\voc(A)\cap \voc(B) \subseteq L$ and $\typing{x:A}{t}[B]$, there is a $\typing{y: I}{u}[B]$
+    such that $ \red{\subs{u}{v..}}{t}$.
 \end{description}
+Given that such (strong) uniform interpolation results exist in the non-relevant
+case, it seems plausible that they could yield a proof-relevant version. Moreover,
+our formalisation seems like a good place to start, as it clarifies the structure
+of \Cubric's proof and makes it easy to play around with the interpolant, which
+is explicitly computed.
 
 \subparagraph*{Dependent types} 
-While Craig Interpolation is most interesting in the setting of first-order logic, \v Cubri\'c proof-relevant interpolation only deals with a simple and, in particular, propositional type theory. 
-We plan to investigate in the future how and whether \v Cubri\'c theorem can be extended to various forms of type dependency.
+While Craig interpolation is most interesting in the setting of first-order logic,
+\Cubric proof-relevant interpolation only deals with a simple and,
+in particular, propositional type theory. 
+We plan to investigate in the future how and whether \Cubric's theorem
+can be extended to various forms of type dependency. Given the intrication of
+types and terms in that context, a good version of proof-relevant interpolation
+is a nice place to start. Here one evident difficulty is that, contrarily
+to the simply-typed case, commutative cuts are not in general well-typed
+in dependent type theory. A typical example is the so-called ``convoy pattern'',
+in \Rocq syntax:
+\lstset{backgroundcolor=\color{white}}
+% \begin{coq}
+% Definition head {A n} (x : Vector.t A (S n)) : A :=
+%   match x in Vector.t _ m return (m = S n -> A) with
+%     | nil _ => fun (e : 0 = S n) => False_rect _ (O_S _ e)
+%     | cons _ a _ _ => fun _ => a
+%   end eq_refl.
+% \end{coq}
+Here pushing the application inside the branch is not well-typed, because
+the type of the branches, which is given by the \texttt{return} clause,
+is not the same as that of the entire match: the first branch has type
+\texttt{(0 = S n) -> A} and applying this function to \texttt{eq\_refl} is
+ill-typed.
 
-\as{Explain why it looks difficult: due to the commuting cuts.}
-
-\subparagraph*{Sequent calculi and System L} sequent calculi \cite{Mihejevs2025}
-\as{Est-ce qu'on veut vraiment cela en future work? Si oui, on pourrait relier \cite{Mihejevs2025} et \cite{Saurin25fscd}.}
+On the other hand, dependent type theory is very expressive, and just like in
+System F one can trivially obtain uniform interpolation by using the
+\(\forall\)/\(\exists\) quantifiers, so in dependent type theory must we be
+careful that too naive a statement would be trivial to satisfy thanks to
+the \(\P\) and \(\Sigma\) type constructors.
 
 \paragraph*{Large Language Model Use}
 No large language model or generative artificial intelligence tool was used in

@@ -40,7 +40,7 @@ the one saying
 ```
   critical peaks: 12, all joinable
 ```
-The tool does not conclude about confluence per-se because it is unable to prove termination, which we have proven separately, in [ReductionConfluence](./code/theories/ReductionConfluence.v).
+The tool does not conclude about confluence per se because it is unable to prove termination, which we have proven separately, in [ReductionConfluence](./code/theories/ReductionConfluence.v).
 
 ## File structure
 
