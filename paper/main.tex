@@ -1203,27 +1203,61 @@ having \textsc{CSI\textsuperscript{ho}} generate proof witnesses.
 
 \section{Related and future work and conclusion}
 
+\subsection{Summary of the contribution}
+In the present paper, we have revisited the seminal work on proof-relevant interpolation by \Cubric, in the $\lambda$-calculus with sums (\stlcp). Our contribution is twofold:
+\begin{itemize}
+	\item We revisited \Cubric' proof (which followed closely Prawitz' proof of Craig's interpolation theorem) and simplified its inductive argument by developing a bidirectional type systems characterising the normal forms of \stlcp, that is with  $\beta$ and commuting conversions. 
+	\item We benefited from this restructured proof to allow a Rocq formalisation of \Cubric interpolation theorem for \stlcp. In doing so, we developed the meta-theory of \stlcp including normalisation for the calculus with commuting conversions. 
+\end{itemize} 
+
 \subsection{Related work}
 
-\subparagraph*{(Relevant) Interpolation} Veltri Wan, Matthes
-\cite{Matthes-interpolation-01,Saurin25fscd,VeltriW25}
+We discuss some of the most related works, about proof-relevant interpolation, formalised interpolation results, normalisation properties with sums as well as related works on bidirectional typing. 
 
-\begin{itemize}
-\item Comment on the proof by Prawitz?
-\item Matthes (2001) extended \v Cubri\' c results to a $\lambda$-calculus with generalized elimination rules.~\cite{Matthes-interpolation-01} 
-\item Proof-relevant interpolation as cut-introduction by Saurin~\cite{Saurin25fscd} together with a "computational" treatment in System L.
-\item Fiorillo et al: proof nets?
-\item Fiorillo Master thesis: lambda-mu
-\item Semantics?
-\item Veltri Wan~\cite{VeltriW25}
-\end{itemize}
+\subparagraph*{(Relevant) Interpolation} 
+First, it is important to stress that \Cubric' work is closely related to the original proof of Craig's interpolation theorem for natural deduction by Prawitz~\cite{Prawitz1965-PRANDA}: the actual construction of the interpolant in Prawitz' work is actually compatible with \Cubric's proof-relevant result, even though this is best seen in the $\lambda$-calculus. 
+\Cubric' work only had few developments. Matthes'\cite{Matthes-interpolation-01} work is a notable such development that extends \v Cubri\' c results to a $\lambda$-calculus with generalized elimination. More recently, Fiorillo's~\cite{Fiorillo2024} extended \Cubric's work to Parigot's $\lambda\mu$-calculus allowing that allows him to get rid of the sum types for expressing the interpolation type. It would indeed be natural to consider extending our formalisation to such settings.
+
+When turning to sequent calculus, it is natural to discuss Saurin's analysis of (proof-relevant) interpolation~\cite{Saurin25fscd} in various logics (classical, intuitionistic and linear sequent calculi) as a cut-introduction mechanism. This work also presents together a "computational" version of interpolation in System L that is a proof-term calculus for the sequent calculus.
+
+Veltri and Wan developed an analysis of proof-relevant interpolation for a non-associative restriction of the Lambek-calculus~\cite{VeltriW25} (also formalised, see below). 
+
+Proof-relevant interpolation was also extended to other structured proof settings, such as linear logic proof nets or non-cut-free proofs~\cite{Fiorillo2025}.
+
+While Craig's interpolation received both syntactical and semantical proofs, it is natural to wonder what would be a semantical counter-part to proof-relevant interpolation: this was the original focus of \Cubric who studied interpolation in bicartesian-closed categories~\cite{Cubricphd,Cubric1994}; Fiorillo's~\cite{Fiorillo2024} investigated such results in models of linear logic.
+
+
+%\begin{itemize}
+%\item Fiorillo et al: proof nets? \cite{Fiorillo2025}
+%\item Fiorillo Master thesis: lambda-mu \cite{Fiorillo2024}
+%\item Semantics?
+%\item Veltri Wan~\cite{VeltriW25}
+%\end{itemize}
 
 \subparagraph*{Formalised Interpolation} 
-\begin{itemize}
-\item Férée Giessen Schilito Van Gool
-\cite{Feree2024}
-\item Recent related work for substructural logics, e.g. Lambek calculus by Veltri and Wan.~\cite{VeltriW25}
-\end{itemize}
+There were numerous works aiming at formalising interpolation results. 
+
+Craig's interpolation theorem received several formalisations in the literature, both for classical\footnote{Chapman {\it et al} as well as Ridge cite~\cite{Boulme1996} as an attempt to formalise interpolation for classicl logic in Rocq but this development does not appear to be publicly available.} logic~\cite{Ridge2006,michaelis_et_al2017} and for intuitionistic logic~\cite{ChapmanMU08} (a result originally established by Schütte, for intuitionistic logic)
+
+On the other hand, Férée {\it et al} investigated {\it uniform} interpolation results {\it à la} Pitts~\cite{Pitts}~\cite{Pitts92}: they formalised Uniform interpolation in Rocq, both for Pitts' original result for intuitionistic logic~\cite{FereeG23}  as well as in three modal logics~\cite{Feree2024}: basic modal logic, K, Gödel-Löb logic, GL, as well as intuitionistic strong Löb logic, iSL.
+In all those situations, Ocaml programs were extracted from the formalisations that compute uniform interpolants.
+
+More recently, turning to proof relevant interpolation, Veltri and Wan~\cite{VeltriW25} formalised in Agda a proof-relevant interpolation theorem for the non-associative Lambek sequent calculus, in their effort to formalise this system.
+While we formalized a proof-relevant version of Prawitz' interpolation theorem, they formalized a proof-relevant version of Maehara's proof technique. 
+Working with a non-associative, non-commutative sequent calculus, their formalisation had to develop a complex machinery to handle sequents that have the structure of a tree of formulas. 
+
+
+\as{Develop somehow the comments... commenter sur le fait que la formalisation de Veltri et Wan est vraiment compliquée par la structure des jugements. En les citant (conclusion) : "From a practical perspective, it is worth mentioning that this Agda formal-
+	ization is computationally intensive. The type-checking time for some files is
+	quite substantial: the well-definedness proof mip takes approximately 10 min to type-check,
+	while the associativity of cut and the well-definedness proofs cut1 and cut2
+	require >2 h on a MacBook Pro 2020 with 2 GHz Intel Core i5. In future work,
+	we plan to work on the code in order to reduce the compilation time"}
+%\begin{itemize}
+%\item Férée Giessen Schilito Van Gool
+%\cite{Feree2024}
+%\item Recent related work for substructural logics, e.g. Lambek calculus by Veltri and Wan.~\cite{VeltriW25}
+%\end{itemize}
 
 \subparagraph*{Normalisation for sums} Normalisation for the \(\lambda\)-calculus
 with sums  Abel Sattler, Scherer…
