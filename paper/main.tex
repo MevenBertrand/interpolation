@@ -500,8 +500,8 @@ does not hold of arbitrary derivations, but is satisfied by those which
 are sufficiently normalised, \ie cut-free proofs \cite{Girard1989}.
 In a derivation satisfying the subformula property, no formula is ever “invented”,
 a powerful structural property with many consequences. Interpolation is
-for instance typically proven for cut-free derivation
-\cite{??}. One then obtains properties for all provable
+for instance typically proven for cut-free derivation.
+One then obtains properties for all provable
 statements by a combination of cut elimination, by which every
 proof is equal to a cut-free one, and an analysis of cut-free proofs, which can
 exploit its more constrained structure, including the subformula property.
@@ -512,16 +512,16 @@ terms viewed as proof witnesses. However, what does the subformula property
 amount to? This is much less known, but it can be very helpfully linked to
 \emph{bidirectional typing}.
 
-In bidirectional typing,
-which originates from the analysis of type-checking algorithms \cite{Coquand1996,Pierce2000},
+Bidirectional typing,
+which originates from the implementation of type-checking algorithms \cite{Coquand1996,Pierce2000},
 typing is decomposed into the mutually defined
 \emph{inference} and \emph{checking} judgments. The operational intuition is
-that in the former the type is an output,%
+that in inference the type is an output,%
 \footnote{\textit{I.e.} the question is ``What is the type of this term?''.}
-while in the latter it is an input.%
+while in checking it is an input.%
 \footnote{And the question is ``Does this term have this type?''.}
 This attention to the flow of information is, in a sense, what
-the subformula property captures: in both cases, the intuition
+the subformula property also intends to capture: in both cases, the intuition
 is that type information always comes from somewhere and is never invented.
 % And in fact bidirectional typing can helpfully be leveraged to exploit
 % this subformula property.
@@ -1117,14 +1117,14 @@ final theorem is the following:
 
 \section{On formalisation choices: highs and lows of automation}
 
-As is often the case in this sort of work, proofs are relatively straightforward
-once the right organisation and statements ---in particular, for
-induction--- have been found. We tried to reproduce this, using \Rocq's
+As often in this sort of work, proofs are relatively straightforward
+once the right organisation ---in particular, induction statements--- have been found.
+We try to reproduce this using \Rocq's
 automation. We found solvers for well-specified classes of problems particularly
-valuable, typically for goals which are only
-mentioned in passing on paper but are a very real hindrance in formalisation.
+valuable, typically for goals only
+mentioned in passing on paper but which formalisation cannot paper over.
 Yet, we can also testify
-that, if these solvers are not well polished, a lot of their value evaporates:
+that, if solvers are not well polished, a lot of their value evaporates:
 a slow or, worse, unreliable solver is not much better than no solver at all,
 because it loses its main appeal, which is to stop thinking
 about boring goals altogether.
@@ -1134,9 +1134,8 @@ about boring goals altogether.
 \cite{Stark2019,Dapprich2021} to handle the substitution calculus, in particular
 the solver \texttt{asimpl} for equations between substitutions.
 This saves us much boring work, particularly when reasoning about
-when proving that \(\red{\subs{r}{l..}}{t}\) in \cref{thm:interpolation-ind}, which
+proving that \(\red{\subs{r}{l..}}{t}\) in \cref{thm:interpolation-ind}, which
 involves rather nasty terms. 
-\as{J'ai l'impression que le second "when" est de trop: "particularly when reasoning about proving ..."}
 Although very useful, the tool still has a few caveats. First and foremost,
 \texttt{asimpl} is actually incomplete, because it is missing the equation
 \(((\sigma \pcomp \wk),\sigma(x_0)) = \sigma\), where \(x_0\) is the last
@@ -1160,13 +1159,12 @@ is that \textsc{Sulfur} currently only supports a single type of terms, while
 we use \textsc{Autosubst} to also deal with substitutions for eliminations.
 
 As more long-term goals, we also had frictions with lemmas not applying
-to a goal because their conclusion only unified with it \as{the goal} up to
-substitution equations. Integrating a form of matching modulo the substitution calculus would
-be a very interesting extension. Additionally, one of the daunting aspect \as{aspects?} of the
-confluence proof we were afraid to formalise is the need to deal with multiple relations,
-and various forms of congruence, incurring much boilerplate
-reasoning about congruence closures, which is already tedious
-in the current formalisation of reduction and conversion. It seems possible
+because their conclusion only unify with the goal up to
+substitution equations. Integrating matching modulo the substitution calculus would
+thus be a very interesting extension. Additionally, an aspect of the
+confluence proof we were afraid to formalise is the proliferation of relations,
+all congruences: boilerplate reasoning about congruence closures is already tedious
+in the current reasoning about reduction and conversion. It seems possible
 to exploit \textsc{Autosubst}/\textsc{Sulfur} to generically
 deal with such issues, which would remove a great amount of tedium.
 
@@ -1257,7 +1255,7 @@ as an even earlier formalisation for classical logic in \Rocq,
 but this development does not appear to be publicly available.}
 %
 More recently, Férée \textit{et. al.}
-have formalised uniform interpolation results {\it à la} Pitts~\cite{Pitts}~\cite{Pitts92}
+have formalised uniform interpolation results {\it à la} Pitts~\cite{Pitts92}
 in \Rocq,
 first for intuitionistic logic \cite{Feree2023}, then for modal logics
 \cite{Feree2024}. Since uniform interpolation does not interpolate a particular
