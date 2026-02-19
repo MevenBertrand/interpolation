@@ -222,7 +222,7 @@ The same name with different colours denotes
 
 \subsection{Syntax}
 
-\paragraph*{Types and terms}
+\subparagraph*{Types and terms}
 
 \begin{figure}
 \begin{mathpar}
@@ -308,7 +308,7 @@ If \(\lang = (\base,\const,\tyof)\) we write
 When it is not particularly relevant, we omit the language subscript.
 \end{definition}
 
-\paragraph*{Substitutions}
+\subparagraph*{Substitutions}
 
 \begin{figure}
 \begin{mathpar}
@@ -370,11 +370,11 @@ This is because normal forms for this reduction have a good enough subformula
 property, even though they are not unique representatives for the equational
 theory of biCCCs.
 
-\paragraph*{Reduction}
+\subparagraph*{Reduction}
 
-To factor commuting conversions, we use \emph{eliminations},
+To express commuting conversions, we use \emph{eliminations},
 given by the following grammar (\formline{Ast.sig}{21}{}):
-\[ e \Coloneqq \sapp{t} \mid \sproj{i} \mid \site{t}{t}\]
+\( e \Coloneqq \sapp{t} \mid \sproj{i} \mid \site{t}{t}\)
 The \emph{zip} of a term against an elimination \(\plug{e}{t}\) is defined in the obvious way (\formline{Elim.v}{9}{zip}).
 
 Reductions are of two kinds: the usual \(\beta\)-reductions, corresponding
@@ -430,21 +430,21 @@ Reduction is confluent: if \(\red{t}{u}\) and \(\red{t}{u'}\), then there exists
 \(v\) such that \(\red{u}{v}\) and \(\red{u'}{v}\).
 \end{theorem}
 
-Since confluence is rather standard \cite{Girard1989}, yet tedious to prove, and
-very orthogonal to our main focus, we do not formally prove it in \Rocq,
-but only provide a pen-and-paper proof sketch (See details in Appendix).
-\as{Mettre cela en place!}
+Since confluence is rather standard \cite{Girard1989} yet tedious to prove, and
+orthogonal to our focus, we do not formally prove it in \Rocq,
+but only provide a pen-and-paper proof sketch.
+% (See details in Appendix). \as{Mettre cela en place!}
 
-\begin{proof}[Proof sketch]
-By Hindley-Rosen lemma, it suffices to show that 1. \(\beta\)-reduction is confluent 2. commuting conversion is confluent and 3. the two commute. 
-For the second, strong normalisation
-  of commuting conversion can be shown by a simple \(\mathbb{N}\)-valued measure
-  (\formline{ReductionConfluence.v}{114}{strong_nor}),
-  so showing local confluence is enough by Newman's lemma (\formline{ReductionConfluence.v}{148}{confluent}).
-  This is painful due to the many critical
-  pairs, so we have checked this with the automated tool \textsc{CSI\textsuperscript{ho}}
-  \cite{Nagele2017}.
-\end{proof}
+% \begin{proof}[Proof sketch]
+% By Hindley-Rosen lemma, it suffices to show that 1. \(\beta\)-reduction is confluent 2. commuting conversion is confluent and 3. the two commute. 
+% For the second, strong normalisation
+%   of commuting conversion can be shown by a simple \(\mathbb{N}\)-valued measure
+%   (\formline{ReductionConfluence.v}{114}{strong_nor}),
+%   so showing local confluence is enough by Newman's lemma (\formline{ReductionConfluence.v}{148}{confluent}).
+%   This is painful due to the many critical
+%   pairs, so we have checked this with the automated tool \textsc{CSI\textsuperscript{ho}}
+%   \cite{Nagele2017}.
+% \end{proof}
 
 \begin{proof}
   We use the Hindley-Rosen lemma \cite[Prop. 3.3.5]{Barendregt1985}, by which
@@ -472,7 +472,7 @@ For the second, strong normalisation
   \end{tikzcd}
 \end{proof}
 
-\paragraph*{Equational theories}
+\subparagraph*{Equational theories}
 
 To formally relate reduction to biCCCs, we can define
 (\formline{Equations.v}{29}{conversion}) a notion of conversion
@@ -908,10 +908,10 @@ in a named setting, to \((x:A).(y:A) = \part{(x:A)}{(y:A)}\) and
 calculus arising from this, \eg the fact that if \(\Gamma = \part{\Gamma_1}{\Gamma_2}\)
 then there is a renaming \(\typing{\Gamma}{\rho}[\scol{\Gamma_1}]\).
 
-\subsection{Constant-free}
+\subsection{Constant-free theorem}
 
-Our first version of interpolation works for a constant-free language: for
-the remainder of this section we fix a language \(\lang = (\base,\emptyset,\_)\).
+Our first theorem is constant-free: for
+this section we fix a language \(\lang = (\base,\emptyset,\_)\).
 
 \begin{theorem}[\formline{Theorems.v}{79}{interpolation_empty}
     Interpolation, constant-free]
@@ -937,45 +937,46 @@ and specialize it to the trivial partition \(\Gamma = \part{\Gamma}{\emp}\).
   there is a type \(\mcol{M}\) and terms
   \(\scol{l} \in \Tm(\scol{\Gamma_{s}},\mcol{M})\) and
   \(\tcol{r} \in \Tm(\tcol{\Gamma_{t}}.\mcol{(x : M)}, \tcol{T})\)
-  such that
-  \begin{itemize}
-    \item for all \(p\),
-    \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap (\tcol{\Gamma_{t}}^{-p} \cup \tcol{T}^p)\);
-    \item and \(\conv{\Gamma}{\subs{\tcol{r}}{\scol{l}..}}{\ccol{t}}[\tcol{T}]\). 
-  \end{itemize}
+  such that \(\conv{\Gamma}{\subs{\tcol{r}}{\scol{l}..}}{\ccol{t}}[\tcol{T}]\)
+  and for all \(p\),
+    \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap (\tcol{\Gamma_{t}}^{-p} \cup \tcol{T}^p)\).
   %
   Moreover, given any neutral term \(\icol{t} \in \Ne(\Gamma,T)\), either
   \begin{enumerate}
     \item “\(\scol{T}\) is a source type”, \ie \(\scol{T}^p \subseteq \scol{\Gamma_{s}}^p\),
       and we have a type \(\mcol{M}\) and terms \(\tcol{l} \in \Tm(\tcol{\Gamma_{t}},\mcol{M})\) and
   \(\scol{r} \in \Tm(\scol{\Gamma_{s}}.\mcol{(x : M)}, \scol{T})\) such that
-      \begin{itemize}
-        \item \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^{-p} \cap \tcol{\Gamma_{t}}^p\),
-        \item and \(\conv{\Gamma}{\subs{\scol{r}}{\tcol{l}..}}{\icol{t}}[\scol{T}]\);
-      \end{itemize}
-    \item or “\(\tcol{T}\) is a target type”, \ie for all \(p\),
+  \(\conv{\Gamma}{\subs{\scol{r}}{\tcol{l}..}}{\icol{t}}[\scol{T}]\) and
+  \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^{-p} \cap \tcol{\Gamma_{t}}^p\).
+
+    \item or “\(\tcol{T}\) is a target type”, \ie
       \(\tcol{T}^p \subseteq \tcol{\Gamma_{t}}^p\), and we have a type \(\mcol{M}\)
       and terms \(\scol{l} \in \Tm(\scol{\Gamma_{s}},\mcol{M})\) and
       \(\tcol{r} \in \Tm(\tcol{\Gamma_{t}}.\mcol{(x : M)}, \tcol{T})\) such that
-      \begin{itemize}
-        \item \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap \tcol{\Gamma_{t}}^{-p}\),
-        \item \(\conv{\Gamma}{\subs{\tcol{r}}{\scol{l}..}}{\icol{t}}[\scol{T}]\)
-      \end{itemize}
+       \(\conv{\Gamma}{\subs{\tcol{r}}{\scol{l}..}}{\icol{t}}[\scol{T}]\)
+       and \(\mcol{M}^p \subseteq \scol{\Gamma_{s}}^p \cap \tcol{\Gamma_{t}}^{-p}\).
   \end{enumerate}
 \end{theorem}
 
-The first part of the statement, for normal forms, is a generalisation of
-the interpolation judgment using the partition to take into account that some
-type information initially in the target type can be moved in the context,
-\eg in the case of a \(\lambda\)-abstraction. This is more or less the content
-of the main lemma in the original proof \cite[Lemma 3.7]{Cubric1994}.
-Its counterpart for neutrals, however, was not at all explicit in the original
-proof, which did not use neutrals altogether. Instead, the proof went by strong
-induction on the size of terms, replacing subterms by variables, which
-we replace by a much more direct reasoning by mutual induction.
-An interesting aspect to note is that, in case 1.\ for neutrals,
-interpolation is reversed, in that the roles of the source and target context
-are exchanged in the typing of the interpolants compared to the statement for normal forms.
+The statement for normal forms is essentially \Cubric's \cite[Lemma 3.7]{Cubric1994}.
+It is a generalisation of
+the interpolation statement, using the partition to account for some
+type information initially in the target type moving in the context,
+\eg in the case of a \(\lambda\)-abstraction.
+The counterpart for neutrals, however, is new:
+the original proof did not use neutrals at all, and instead, went by strong
+induction on the size of terms, replacing subterms by variables.
+Our reasoning by mutual induction is much more direct,
+and also much easier to formalise!
+
+Note that in case 1 the roles of the source and target context
+are exchanged in the typing of the interpolants compared
+to the statement for normal forms.
+It might make sense to push this distinction to bidirectional typing,
+and have a refined neutral judgment that also infers from which
+side of the context split its main variable comes. This might slightly clarify
+the present proof, but since it does not drastically affect it we will not
+explore it further.
 
 \begin{proof}
 As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
@@ -1065,7 +1066,7 @@ As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
   some \(\scol{A \to B}\) with vocabulary in \(\scol{\Gamma_s}\) and
   \(\mcol{M_t}\), \(\scol{r_t}\) and \(\tcol{l_t}\) such that
   \(\icol{t} = \subs{\scol{r_t}}{\tcol{l_t}..}\). Since \(\scol{A}\)'s
-  vocabulary is in \(\scol{\Gamma_s}\), by induction hypothesis we can
+  vocabulary is in \(\scol{\Gamma_s}\), we can
   interpolate \(\ccol{u}\) with a reversed colouring,
   \ie inverting the roles of \(\scol{\Gamma_s}\) and \(\tcol{\Gamma_t}\).
   This gives \(\mcol{M_u}\), \(\scol{r_u}\) and \(\tcol{l_u}\) such that
@@ -1098,13 +1099,36 @@ As expected, the proof goes by induction on the definition of \(\Ne/\Nf\).\\
     the relevant projection.
 \end{proof}
 
-
-\as{Ici, j'ai limpression qu'on pourrait commenter au sujet de l'inversion qu'on discute sur le cas DEMOTE/source, par rapport à un système où on fait aussi un partitionnement du terme typé, soit partitionné à gauche, soit à droite. En s'inspirant du calcul des séquents, cela suggère un jugement un peu plus général et ce jugement serait peut-être plus adapté à une présentation par introduction de coupure.}
-
-
-It is interesting to note that the interpolant we construct is not
-the same as \Cubric. \mlb{Find the example again, and explain the currification
-by the action of \nameref{rule:demote-b}.}
+\begin{remark}
+The interpolant we construct is in fact not
+the same as \Cubric. Indeed, we only build
+an arrow type as the end of a ``neutral phase'' (in case 
+\nameref{rule:demote-b}/source), but use a product type to
+gather the type of the arguments. Instead, \Cubric will build an iterated
+function type in a similar context. For example, consider
+\(\check{(\part{\Gamma_{s}}{\Gamma_{t}})}{\icol{x}~\ccol{a}~\ccol{b}}{\tcol{C}}\)
+with \((x : A \to B \to C) \in \scol{\Gamma_{s}}\). The interpolants
+we build are as follows (where \(\mcol{M_a}\), \(\scol{r_a}\), \(\tcol{l_a}\),
+come from interpolating \(\ccol{a}\) and \(\mcol{M_b}\), \(\scol{r_b}\), \(\tcol{l_b}\)
+from \(\ccol{b}\))
+\[\begin{array}{rcl}
+  \scol{\Gamma_{s}} \quad \vdash
+    & \scol{\l y.~x~\subs{r_a}{(\proj{2}{\proj{1}{y}})..} ~ \subs{r_b}{\proj{2}{y}}}
+    & \ty \quad \mcol{(\top \times M_a \times M_b) \to C} \\
+  \tcol{\Gamma_{t}}.~\mcol{z :(\top \times M_a \times M_b) \to C} \quad \vdash
+    & \tcol{z~(\st,l_b,l_a)}
+    & \ty \qquad \tcol{T}
+  \end{array}\]
+Instead, \Cubric's interpolants are (with the same notations)
+\[\begin{array}{rcl}
+  \scol{\Gamma_{s}} \quad \vdash
+    & \scol{\l z_a~z_b.~x~\subs{r_a}{z_a..} ~ \subs{r_b}{z_b..}}
+    & \ty \quad \mcol{M_a \to M_b \to C} \\
+  \tcol{\Gamma_{t}}.~\mcol{z : M_a \to M_b \to C} \quad \vdash
+    & \tcol{z~l_a~l_b}
+    & \ty \qquad \tcol{T}
+  \end{array}\]
+\end{remark}
 
 \subsection{Constants and equations}
 
@@ -1349,23 +1373,24 @@ It seems enticing to explore the connections between these.
 We envision three particularly interesting directions for future work, corresponding to strengthening our results in orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \Cubric's results to dependent types. 
 
 \subparagraph*{Extensions with cuts}
-The first, evident, direction for future work consist in solving the first limitation of
-\Cubric interpolation which only applies to normal forms. From the perspective of the computational interpretation of the result, this is indeed a drastic limitation: every computation can be factored through an interface type,
-but only under the assumption that one first normalise the term, an extremely
-costly operation!
+The first evident direction for future work consist in lifting the main issue of
+\Cubric interpolation: it only applies to normal forms. From a computational perspective,
+this is indeed a drastic limitation: every computation can be factored through an interface type,
+but only by first normalising the term, an extremely costly operation!
 
 What if the term is not in normal form? 
-Considering that interpolation in fact requires a much weaker condition than the subformula property, one can hope to still interpolate terms as long as their
+Considering that interpolation in fact requires a much weaker condition than
+cut-freeness, one can hope to still interpolate terms as long as their
 cuts satisfy some assumptions. 
-First results in this direction are due to Fiorillo {\it et al.}~\cite{Fiorillo2025},
-who extend Saurin's \cite{Saurin25fscd}
-results to sequent proofs with cut satisfying some vocabulary constraints.
-We believe that similar results can be transported to \stlcp and see at least two paths to reach such a result.
+Fiorillo {\it et al.}~\cite{Fiorillo2025} have results in this direction,
+extending Saurin's \cite{Saurin25fscd}
+results to proofs with cuts, as long as cut formulae satisfy vocabulary constraints.
+We believe this should adapt to \stlcp, and see at least two paths to prove it.
 
-In their work, Fiorillo {\it et al.} identity quite general condition on cut formulas
-for proof-relevant interpolation to be carried out in a sequent calculus with cuts, and that this can be achieved for MELL (multiplicative-exponential linear logic) proof nets with cuts too (under similar assumptions). Since \stlcp can be encoded in the intuitionistic fragment of MELL using linear embeddings of intuitionistic logic, one can hope to establish a similar result for $\lambda$-terms with redexes via a translation to proof nets. There are still some difficulties to achieve such a result along these lines, amounting to designing a faithful embedding of the whole of \stlcp in intuitionistic MELL that satisfies a good simulation property. 
+In their work, Fiorillo {\it et al.} identity quite general condition on cut formulae
+to carry out proof-relevant interpolation in a sequent calculus with cuts, and show this can be achieved for MELL (multiplicative-exponential linear logic) proof nets with cuts too (under similar assumptions). Since \stlcp can be encoded in the intuitionistic fragment of MELL using linear embeddings of intuitionistic logic, one can hope to establish the result on $\lambda$-terms with redexes via a translation to proof nets. The main difficulty to achieve such a result along these lines amounts to designing a faithful embedding of the whole of \stlcp in intuitionistic MELL that satisfies a good simulation property.
 
-But another natural direction, in the light of the present paper, is to amend the bidirectional type system to not characterise normal forms, but those terms whose redexes satisfy the assumptions of the interpolation theorem with cuts. It is known that, to make
+But another natural strategy, in the light of the present paper, is to amend the bidirectional type system to characterise terms whose redexes satisfy the assumptions of the interpolation theorem with cuts. It is known that, to make
 bidirectional typing go beyond normal form, the route to go is
 to add annotations in terms \cite{McBride2022,Gratzer2019}, with a rule like the following:
 \begin{mathpar}
@@ -1406,17 +1431,17 @@ We plan to investigate in the future how and whether \Cubric's theorem
 can be extended to various forms of type dependency. Given the intrication of
 types and terms in that context, a good version of proof-relevant interpolation
 is a nice place to start. Here one evident difficulty is that, contrarily
-to the simply-typed case, commutative cuts are not in general well-typed
+to the simply-typed case, commuting conversions are not in general well-typed
 in dependent type theory. A typical example is the so-called ``convoy pattern'',
 in \Rocq syntax:
 \lstset{backgroundcolor=\color{white}}
-% \begin{coq}
-% Definition head {A n} (x : Vector.t A (S n)) : A :=
-%   match x in Vector.t _ m return (m = S n -> A) with
-%     | nil _ => fun (e : 0 = S n) => False_rect _ (O_S _ e)
-%     | cons _ a _ _ => fun _ => a
-%   end eq_refl.
-% \end{coq}
+\begin{coq}
+Definition head {A n} (x : Vector.t A (S n)) : A :=
+  match x in Vector.t _ m return (m = S n -> A) with
+    | nil _ => fun (e : 0 = S n) => False_rect _ (O_S _ e)
+    | cons _ a _ _ => fun _ => a
+  end eq_refl.
+\end{coq}
 Here pushing the application inside the branch is not well-typed, because
 the type of the branches, which is given by the \texttt{return} clause,
 is not the same as that of the entire match: the first branch has type
@@ -1424,10 +1449,10 @@ is not the same as that of the entire match: the first branch has type
 ill-typed.
 
 On the other hand, dependent type theory is very expressive, and just like in
-System F one can trivially obtain uniform interpolation by using the
-\(\forall\)/\(\exists\) quantifiers, so in dependent type theory must we be
-careful that too naive a statement would be trivial to satisfy thanks to
-the \(\P\) and \(\Sigma\) type constructors.
+System F one obtains trivial uniform interpolants by using the
+\(\forall\)/\(\exists\) quantifiers, so in dependent type theory
+too naive a statement would be trivial to satisfy thanks to
+\(\P\) and \(\Sigma\) types.
 
 \paragraph*{Large Language Model Use}
 No large language model or generative artificial intelligence tool was used in
