@@ -66,23 +66,22 @@
 
 \NewDocumentCommand{\mty}{}{\in}%\mathrel{:\mkern-3mu:}}
 
-\NewDocumentCommand{\Set}{}{\mathbb{S}\mathrm{et}}
-\NewDocumentCommand{\Prop}{}{\mathbb{P}\mathrm{rop}}
+\NewDocumentCommand{\Set}{}{\mathbb{S}\mathsf{et}}
+\NewDocumentCommand{\Prop}{}{\mathbb{P}\mathsf{rop}}
 \NewDocumentCommand{\pow}{m}{\operatorname{\mathcal{P}}{(#1)}}
 
 \NewDocumentCommand{\base}{}{\mathcal{B}}
 \NewDocumentCommand{\const}{}{\mathcal{C}}
 \NewDocumentCommand{\lang}{}{\mathcal{L}}
-
-\DeclareMathOperator{\Ctx}{Ctx}
-\DeclareMathOperator{\Ty}{Ty}
-\DeclareMathOperator{\Sub}{Sub}
-\DeclareMathOperator{\Ren}{Ren}
 \DeclareMathOperator{\tyof}{ty}
-\DeclareMathOperator{\Tm}{Tm}
-\DeclareMathOperator{\Nf}{\ccol{Nf}}
-\DeclareMathOperator{\Ne}{\icol{Ne}}
-\DeclareMathOperator{\Sta}{\icol{Sta}}
+
+\DeclareMathOperator{\Ctx}{\mathsf{Ctx}}
+\DeclareMathOperator{\Ty}{\mathsf{Ty}}
+\DeclareMathOperator{\Sub}{\mathsf{Sub}}
+\DeclareMathOperator{\Ren}{\mathsf{Ren}}
+\DeclareMathOperator{\Tm}{\mathsf{Tm}}
+\DeclareMathOperator{\Nf}{\ccol{\mathsf{Nf}}}
+\DeclareMathOperator{\Ne}{\icol{\mathsf{Ne}}}
 
 \NewDocumentCommand{\emp}{}{\cdot} % empty context/substitution/etc
 
@@ -163,10 +162,10 @@
 \DeclareMathOperator{\Up}{\Uparrow}
 
 \DeclareDocumentCommand{\st}{}{*}
-\DeclareMathOperator{\rai}{raise}
-\DeclareMathOperator{\inl}{inl}
-\DeclareMathOperator{\inr}{inr}
-\DeclareMathOperator{\iteop}{if}
+\DeclareMathOperator{\rai}{\mathsf{raise}}
+\DeclareMathOperator{\inl}{\mathsf{inl}}
+\DeclareMathOperator{\inr}{\mathsf{inr}}
+\DeclareMathOperator{\iteop}{\mathsf{if}}
 \DeclareDocumentCommand{\ite}{m m m}{\iteop(#1,#2,#3)}
 \DeclareDocumentCommand{\dem}{m}{\underline{#1}}
 \DeclareDocumentCommand{\proj}{m m}{#2._{#1}}

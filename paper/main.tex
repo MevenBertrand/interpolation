@@ -124,11 +124,11 @@ it in \Rocq.
 
 Craig's interpolation theorem~\cite{Craig57,Craig57a} expresses a desirable, though unsurprising, property of logical entailment: a logical entailment of $B$ from $A$ can be mediated through a logical statement that only uses the \emph{common concepts} of $A$ and $B$. More precisely, a \emph{Craig Interpolant} $I$ of $A \vdash B$ is a logical formula that is built using only the predicate symbols occurring both in $A$ and $B$ and such that $A \vdash I$ and $I \vdash B$.
 %
-This was soon recognized as a central result of first-order logic~\cite{Feferman08,vanBenthem08} with application in both mathematical logic~\cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08} (notably an elegant proof of Beth' definability theorem and of Robinson joint consistency theorem) and computer science~\cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18} (with applications in database query planning or modularisation of model-checking) and numerous generalizations to extensions or restrictions of classical logic~\cite{Vaananen08,Schutte,Prawitz1965-PRANDA}.
+This was soon recognized as a central result of first-order logic~\cite{Feferman08,vanBenthem08} with application in both mathematical logic~\cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08} (notably an elegant proof of Beth' definability theorem and of Robinson joint consistency theorem) and computer science~\cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18} (with applications in database query planning or modularisation of model-checking), and numerous generalizations to extensions or restrictions of classical logic~\cite{Vaananen08,Schutte,Prawitz1965-PRANDA}.
 
-Proof-theoretic methods to establish Craig's theorem essentially relied on
+Proof-theoretic methods to establish Craig's theorem essentially rely on
 cut admissibility in the sequent calculus and on the subformula property~\cite{Maehara,Prawitz1965-PRANDA}. This very fact, providing well-structured methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
-plays an important role when generalising interpolation to various logics as mentioned above, as well as in the existence of finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to the polarity of predicate symbol occurrences, and (ii) Uniform interpolation~\cite{Pitts92},
+plays an important role when generalising interpolation to various logics as mentioned above, as well as in the existence of finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to the polarity of predicate symbol occurrences, and (ii) uniform interpolation~\cite{Pitts92},
 in which, given a formula $A$, a single interpolant can be generated, uniformly, for a whole sub-language.
 
 %\begin{itemize}
@@ -141,15 +141,16 @@ in which, given a formula $A$, a single interpolant can be generated, uniformly,
 \subparagraph*{Proof-relevant Interpolation}
 Considering the importance of proof-theoretic methods for interpolation, it is not so surprising that interpolation theorems can be given a proof-relevant refinement, as recently advocated by Saurin~\cite{Saurin25fscd}. This means that not only can one factor the entailment through the interpolant formula, but also that
 the proofs from and to the interpolant, once composed, yield the original proof.
-Even more interesting is that proof-relevant interpolation was implicit in
-Maehara's original results from the 60's.
+Even more interesting is that proof-relevant interpolation was implicit already
+in Maehara's original results in the 60s.
 
-This is exactly what was at stake with \v Cubri\'c's interpolation theorem~\cite{Cubricphd,Cubric1994} for the simply typed lambda-calculus with sums and empty types (\stlcp), a proof-relevant refinement of Prawitz' proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction. 
-This theorem essentially states that for every types $A,B$ and every normal term $t$ with a single variable $x$ such that $x: A \vdash t: B$, there is a type $C$ built from the atomic types occurring both in $A$ and $B$ and terms $x: A \vdash u: C$ and $y: C \vdash v: B$ such that 
-$\red{(\lambda y. v)u} t$.
+This is exactly what is at stake in \v Cubri\'c's interpolation theorem~\cite{Cubricphd,Cubric1994} for the simply typed \(\lambda\)-calculus with sums and empty types (\stlcp), a proof-relevant refinement of Prawitz's proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction. 
+This theorem essentially states that for every types $A,B$ and every normal term $t$
+such that $\typing{x: A}{t}[B]$, there is a type $C$, built from the atomic types occurring both in $A$ and $B$, and terms $\typing{x: A}{u}[C]$ and $\typing{y: C}{v}[B]$ such that 
+$\red{(\lambda y. v)~u}{t}$.
 Owing to the fact that \stlcp is the internal language
 of bi-cartesian closed categories (biCCC), \v Cubri\'c moreover
-leverages his interpolation result to obtain categorical results,
+leverages his interpolation result to obtain categorical corollaries,
 including categorifications of Pitt's results on Heyting algebras, the
 posetal counterpart to biCCCs.
 
@@ -162,31 +163,31 @@ at all similar.
 %
 However, we can discern more structure in the proof, as it essentially follows
 a characterisation of normal forms in \stlcp going back to
-Prawitz. We have made progress since then,
+Prawitz. We have made progress since Prawitz,
 and it is nowadays routine \cite{Abel2013,Fiore2022}
 to re-cast this characterisation as an explicit,
 inductive description of normal forms, mutually with neutrals,
 those normal forms consisting of stuck eliminations.
-Our new proof, thus goes by a direct, mutual induction
+Our new proof thus goes by a direct, mutual induction
 on this inductive characterisation. 
 
-A difficulty is that in the presence of positive type formers
+A difficulty is that, in the presence of positive type formers
 (sums and the empty type), \(\beta\)-normal forms are not enough: interpolation
 works well for terms/proofs satisfying the subformula property, which in
 \stlcp mere \(\beta\)-normal forms do not have. We hence need to go further and
-normalise with respect to \emph{commuting conversion} \cite{Girard1989}, which
+normalise with respect to \emph{commuting conversions} \cite{Girard1989}, which
 exchange certain eliminations to recover a class of normal forms with a
 good subformula property.
 
 Surprisingly, our inductive normal forms are
 naturally interpreted in terms of bidirectional typing \cite{Pierce2000,Dunfield2021}.
-Although such a connection have been drawn before, it is
+Although this connection has been drawn before, it is
 often believed that it breaks for sums. We think this is
 a confusion stemming from the fact that \stlcp has two notions of normal forms.
-The first characterised by the subformula property, which
-underpins our interpolation proof. But, contrarily to what happens without sums,
+The first is characterised as having the subformula property, which
+enables our interpolation proof. But, contrarily to the situation without sums,
 these do not give unique representative of equivalence
-classes up to  biCCC's equational theory, for which one needs
+classes for  biCCC's equational theory, for which one needs
 a second, stronger notion \cite{Scherer2017}. Since bidirectional typing
 has all to do with information flow, it naturally coincides with the
 \emph{first} kind of normal forms, although it does not correspond with the second
@@ -195,17 +196,17 @@ the subformula property deserves more publicity, which we hope this paper can
 contribute.
 
 \subparagraph*{Contributions}
-We thus develop and formalise, in the \Rocq proof assistant,
+We develop and formalise, in the \Rocq proof assistant,
 the meta-theory of the \(\lambda\)-calculus with sums,
 including the first formalised proof of normalisation
-for a calculus with commuting conversion; and
+for a calculus with commuting conversions; we relate normal
+forms to bidirectional typing, and
 use this in a new proof of proof-relevant interpolation.
-Throughout the text, links to the (anonymised) code are indicated by this symbol:
-\formfile[]{}.
 
-\subparagraph*{Notations} To avoid confusion between judgments of
-the object and meta-level type theories,
-we denote meta-level typing as \(\mty\), and use \(\Prop\) and \(\Set\)
+\subparagraph*{Notations} We work in dependent type theory, but
+to avoid confusion between its judgments and those of
+the object language,
+we denote meta-level typing as \(\mty\) and use \(\Prop\) and \(\Set\)
 for meta-level universes of propositions and types --- of which we need only one.
 %
 We use colours to suggest information:
@@ -217,6 +218,7 @@ The same name with different colours denotes
 % For instance, when we learn that a source type
 % only contains target vocabulary, it is now a valid interpolant
 % and thus changes colour.
+Throughout the text, \formfile[]{} indicates links to the (anonymised) code.
 
 \section{The simply-typed \(\lambda\)-calculus with sums}
 
@@ -277,7 +279,7 @@ We start with the simply-typed \(\lambda\)-calculus,
 hereafter abbreviated as \stlcp,
 with function types \(\to\), product types \(\times\),
 sum types \(+\), and unit and empty types \(\top\) and \(\bot\).
-To be able to state an interesting version of interpolation, we must also
+To be able to state an interesting version of interpolation, we also
 include an unspecified set of base types.
 To make the result more interesting,
 we likewise include a language of constants.
@@ -301,8 +303,8 @@ we likewise include a language of constants.
 \begin{definition}[\formline{Typing.v}{16}{has_type} Types and terms]
 \label{def:types-terms}
 The definition of types and terms is given in \cref{fig:stlc}.
-We decompose types into the \emph{negative} types \(\to\), \(\times\) and
-\(\top\), and the \emph{positive} types \(+\), \(\bot\) and base types.
+We decompose types into the \emph{negative} types (\(\to\), \(\times\) and
+\(\top\)) and the \emph{positive} types (base types, \(+\) and \(\bot\)).
 If \(\lang = (\base,\const,\tyof)\) we write
 \(\Ty_{\lang}\) for \(\Ty_{\base}\), and similarly for contexts.
 When it is not particularly relevant, we omit the language subscript.
@@ -314,39 +316,44 @@ When it is not particularly relevant, we omit the language subscript.
 \begin{mathpar}
   \jform{\typing{\Delta}{\sigma}[\Gamma]}[Substitutions
     \(\sigma,\tau,\dots \in \Sub_{\lang}(\Delta,\Gamma)\)]
-  \inferdef[Id]{ }{\typing{\Gamma}{\id}[\Gamma]} \and
-  \inferdef[Id]{\typing{\Gamma}{\sigma}[\Delta] \and \typing{\Delta}{\tau}[\Theta]}{
-      \typing{\Gamma}{\sigma \pcomp \tau}[\Theta]} \and
+  % \inferdef[Id]{ }{\typing{\Gamma}{\id}[\Gamma]} \and
+  % \inferdef[Comp]{\typing{\Gamma}{\sigma}[\Delta] \and \typing{\Delta}{\tau}[\Theta]}{
+  %     \typing{\Gamma}{\sigma \pcomp \tau}[\Theta]} \and
   \inferdef[Wk]{ }{\typing{\Gamma.(x:A)}{\wk}[\Gamma]} \and
   \inferdef[Cons]{\typing{\Delta}{\sigma}[\Gamma] \\ \typing{\Delta}{t}[A]}{
       \typing{\Delta}{\sigma,t}[\Gamma.(x:A)]} \and
-  \inferdef[Up]{\typing{\Delta}{\sigma}[\Gamma]}{\typing{\Delta.(x:A)}{\Up \sigma}[\Gamma.(x:A)]} \and
+  % \inferdef[Up]{\typing{\Delta}{\sigma}[\Gamma]}{\typing{\Delta.(x:A)}{\Up \sigma}[\Gamma.(x:A)]} \and
   \inferdef[One]{\typing{\Gamma}{t}[A]}{\typing{\Gamma}{t..}[\Gamma.(x:A)]}
 %
 \end{mathpar}
-\caption{\formline{Typing.v}{164}{TypingSubst} Substitutions and their typing}
+\caption{\formline{Typing.v}{164}{TypingSubst} Substitutions and their typing
+  (excerpt)}
 \label{fig:subst}
 \end{figure}
 
 We work with parallel substitutions, the action of which we denote
 \(\subs{t}{\sigma}\).
 Although we use variable names for exposition,
-we rather think of them in the de Bruijn style \cite{deBruijn1972}, and
+we formally think of them in the de Bruijn style \cite{deBruijn1972}, and
 formalise them this way in \Rocq. Accordingly, the
-substitution calculus we use is essentially name-free, see \cref{fig:subst} for
-its primitives. The typing judgment \(\typing{\Delta}{\sigma}[\Gamma]\)
+substitution calculus we use is essentially name-free.
+We include the primitives we use in the rest of the text in \cref{fig:subst}.
+The typing judgment \(\typing{\Delta}{\sigma}[\Gamma]\)
 means that \(\sigma\) takes a variable \((x : A) \in \Gamma\) to a
-term \(\sigma(x) \in \Tm(\Delta,A)\). The primitive's types should be already
-informative, but let us describe them succinctly: \(\id\) is the identity,
-mapping each variable to itself; \(\sigma \pcomp \tau\) is composition,
-mapping \(x\) to \(\subs{\sigma(x)}{\tau}\); \(\wk\) drops the last
-variable in context, and maps all other variables to themselves;%
+term \(\sigma(x) \in \Tm(\Delta,A)\). The primitive's types should already be
+informative, but let us describe them succinctly:
+%\(\id\) is the identity, mapping each variable to itself;
+% \(\sigma \pcomp \tau\) is composition,
+% mapping \(x\) to \(\subs{\sigma(x)}{\tau}\);
+\(\wk\) drops the last variable in context, and maps all other variables to themselves;%
 \footnote{In named syntax this is a no-op, but we include it
-as it changes the context in which a term is considered.} \(\sigma,t\) extends
+as it changes the context in which a term is considered.}
+\(\sigma,t\) extends
 a substitution \(\sigma\) by mapping the last variable in context to \(t\);
-\(\Up \sigma\) maps the last variable to itself, and acts as \(\sigma\) otherwise;
+% \(\Up \sigma\) maps the last variable to itself, and acts as \(\sigma\) otherwise;
 finally \(t..\) maps the last variable to \(t\) and
-acts as the identity otherwise. The following substitution rule is admissible
+acts as the identity otherwise.
+The following substitution rule is admissible
 (\formline{Typing.v}{312}{subst_typing}):
 \begin{mathpar}
   \inferdef[Subst]{\typing{\Delta}{\sigma}[\Gamma] \\ \typing{\Gamma}{\sigma}[A]}
@@ -384,7 +391,7 @@ an elimination across another one of a positive type (\ie \(\bot\) or
 a sum). In the case of \(\bot\), the elimination gets completely removed, as it
 is unnecessary: a proof of \(\bot\) can be used to inhabit
 any type, there is no need to further eliminate it. In the case of the sum,
-the elimination gets duplicated in each branch of the if.
+the elimination gets duplicated in each branch of the \(\iteop\).
 \begin{definition}[\formline{Reduction.v}{121}{term_red} Reductions]
   \emph{One-step reduction} \(\oredop\)
   is the congruent closure of the rules given in \cref{fig:stlc-red}.
@@ -430,9 +437,14 @@ Reduction is confluent: if \(\red{t}{u}\) and \(\red{t}{u'}\), then there exists
 \(v\) such that \(\red{u}{v}\) and \(\red{u'}{v}\).
 \end{theorem}
 
-Since confluence is rather standard \cite{Girard1989} yet tedious to prove, and
+Since confluence is rather standard \cite{girard1987proof} yet tedious to prove, and
 orthogonal to our focus, we do not formally prove it in \Rocq,
-but only provide a pen-and-paper proof sketch.
+but only provide a pen-and-paper proof sketch.%
+\footnote{Surprisingly, despite our best efforts we were not able to find a
+detailed proof of that fact.}
+% although Girard repeatedly claims it is trivial
+% \cite{girard1987proof,Girard1989} with the Tait--Martin-Löf method, although
+% it does actually not apply here.}
 % (See details in Appendix). \as{Mettre cela en place!}
 
 % \begin{proof}[Proof sketch]
@@ -1105,7 +1117,8 @@ the same as \Cubric. Indeed, we only build
 an arrow type as the end of a ``neutral phase'' (in case 
 \nameref{rule:demote-b}/source), but use a product type to
 gather the type of the arguments. Instead, \Cubric will build an iterated
-function type in a similar context. For example, consider
+function type in a similar context, meaning his interpolant is a currification of
+ours. For example, consider
 \(\check{(\part{\Gamma_{s}}{\Gamma_{t}})}{\icol{x}~\ccol{a}~\ccol{b}}{\tcol{C}}\)
 with \((x : A \to B \to C) \in \scol{\Gamma_{s}}\). The interpolants
 we build are as follows (where \(\mcol{M_a}\), \(\scol{r_a}\), \(\tcol{l_a}\),
@@ -1182,8 +1195,9 @@ proving that \(\red{\subs{r}{l..}}{t}\) in \cref{thm:interpolation-ind}, which
 involves rather nasty terms. 
 Although very useful, the tool still has a few caveats. First and foremost,
 \texttt{asimpl} is actually incomplete, because it is missing the equation
-\(((\sigma \pcomp \wk),\sigma(x_0)) = \sigma\), where \(x_0\) is the last
-variable in context. Concretely, \texttt{asimpl} does not recognise identification
+\(((\wk \circ \sigma),\sigma(x_0)) = \sigma\), where \(x_0\) is the last
+variable in context and \(\circ\) is composition of substitutions.
+Concretely, \texttt{asimpl} does not recognise identification
 that need a case-split on whether the argument is the first
 variable, which often arises around context extension.
 Other sources of friction include speed, with the tactic
@@ -1261,19 +1275,7 @@ extremely tedious. It would be interesting to explore what could be done here,
 in the form of libraries for congruence closures or automation, maybe by
 having \textsc{CSI\textsuperscript{ho}} generate proof witnesses.
 
-\section{Conclusion}
-
-\subsection{Summary of the contribution}
-In the present paper, we have revisited the seminal work by \Cubric
-on proof-relevant interpolation in the $\lambda$-calculus with sums (\stlcp)
-\cite{Cubric1994}. Our contribution is twofold:
-\begin{itemize}
-	\item We revisited \Cubric' proof (which followed closely Prawitz' proof of Craig's interpolation theorem) and simplified its inductive argument by developing a bidirectional type system characterising the normal forms of \stlcp, with  $\beta$ and commuting conversions. 
-	\item We benefited from this restructured proof to allow for a \Rocq formalisation.
-  In doing so, we developed the meta-theory of \stlcp including normalisation.
-\end{itemize} 
-
-\subsection{Related work}
+\section{Related work}
 
 % We discuss some of the most related works, about proof-relevant interpolation, formalised interpolation results, normalisation properties with sums as well as related works on bidirectional typing. 
 
@@ -1368,7 +1370,20 @@ a syntax for sequent calculi, showing there is a remarkable coincidence between
 the bidirectional discipline and System L's structure.
 It seems enticing to explore the connections between these.
 
-\subsection{Future work}
+\section{Conclusion}
+
+\paragraph*{Summary}
+
+In the present paper, we have revisited the seminal work by \Cubric
+on proof-relevant interpolation in the $\lambda$-calculus with sums (\stlcp)
+\cite{Cubric1994}. Our contribution is twofold:
+\begin{itemize}
+	\item We revisited \Cubric' proof (which followed closely Prawitz' proof of Craig's interpolation theorem) and simplified its inductive argument by developing a bidirectional type system characterising the normal forms of \stlcp, with  $\beta$ and commuting conversions. 
+	\item We benefited from this restructured proof to allow for a \Rocq formalisation.
+  In doing so, we developed the meta-theory of \stlcp including normalisation.
+\end{itemize} 
+
+\paragraph*{Future work}
 
 We envision three particularly interesting directions for future work, corresponding to strengthening our results in orthogonal direction: (i) interpolating non-normal terms, (ii) proof-relevant uniform interpolation and (iii) extending \Cubric's results to dependent types. 
 
@@ -1467,5 +1482,37 @@ developing the formalisation or writing the article.
 \bibliography{biblio}
 
 \appendix
+
+\section{Full substitution calculus}
+
+\begin{figure}
+\begin{mathpar}
+  \jform{\typing{\Delta}{\sigma}[\Gamma]}[Substitutions
+    \(\sigma,\tau,\dots \in \Sub_{\lang}(\Delta,\Gamma)\)]
+  \inferdef[Id]{ }{\typing{\Gamma}{\id}[\Gamma]} \and
+  \inferdef[Comp]{\typing{\Gamma}{\sigma}[\Delta] \and \typing{\Delta}{\tau}[\Theta]}{
+      \typing{\Gamma}{\sigma \pcomp \tau}[\Theta]} \and
+  \inferdef[Wk]{ }{\typing{\Gamma.(x:A)}{\wk}[\Gamma]} \and
+  \inferdef[Cons]{\typing{\Delta}{\sigma}[\Gamma] \\ \typing{\Delta}{t}[A]}{
+      \typing{\Delta}{\sigma,t}[\Gamma.(x:A)]} \and
+  \inferdef[Up]{\typing{\Delta}{\sigma}[\Gamma]}{\typing{\Delta.(x:A)}{\Up \sigma}[\Gamma.(x:A)]} \and
+  \inferdef[One]{\typing{\Gamma}{t}[A]}{\typing{\Gamma}{t..}[\Gamma.(x:A)]} \and
+  \inferdef[Tip]{\typing{\Gamma.(x:A)}{f(x)}[B]}{\typing{\Gamma.(x:A)}{\mathsf{tip}(f)}[\Gamma.(x:B)]}
+%
+\end{mathpar}
+\caption{\formline{Typing.v}{164}{TypingSubst} Substitutions and their typing}
+\label{fig:subst-complete}
+\end{figure}
+
+\Cref{fig:subst-complete} completes \cref{fig:subst} with the other
+substitutions we use in the formalisation:
+\(\id\) is the identity, mapping each variable to itself;
+\(\sigma \pcomp \tau\) is composition,
+mapping \(x\) to \(\subs{\sigma(x)}{\tau}\);
+\(\Up \sigma\) maps the last variable to itself, and acts as \(\sigma\) otherwise;
+finally, \(\mathsf{tip}(f)\) applies the (meta-level) function \(f\) to
+the last variable in context. This is typically useful to ``wrap'' the last
+variable in context in a another term, for instance
+\[\typing{\Gamma.(x:A\times B)}{\mathsf{tip}(t \mapsto \proj{1}{t})}[\Gamma.(x:A)]\]
 
 \end{document}
