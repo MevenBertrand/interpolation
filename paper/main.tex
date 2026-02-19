@@ -335,7 +335,7 @@ we rather think of them in the de Bruijn style \cite{deBruijn1972}, and
 formalise them this way in \Rocq. Accordingly, the
 substitution calculus we use is essentially name-free, see \cref{fig:subst} for
 its primitives. The typing judgment \(\typing{\Delta}{\sigma}[\Gamma]\)
-means that \(\sigma\) take a variable \((x : A) \in \Gamma\) to a
+means that \(\sigma\) takes a variable \((x : A) \in \Gamma\) to a
 term \(\sigma(x) \in \Tm(\Delta,A)\). The primitive's types should be already
 informative, but let us describe them succinctly: \(\id\) is the identity,
 mapping each variable to itself; \(\sigma \pcomp \tau\) is composition,
@@ -432,7 +432,20 @@ Reduction is confluent: if \(\red{t}{u}\) and \(\red{t}{u'}\), then there exists
 
 Since confluence is rather standard \cite{Girard1989}, yet tedious to prove, and
 very orthogonal to our main focus, we do not formally prove it in \Rocq,
-but only provide a pen-and-paper proof.
+but only provide a pen-and-paper proof sketch (See details in Appendix).
+\as{Mettre cela en place!}
+
+\begin{proof}[Proof sketch]
+By Hindley-Rosen lemma, it suffices to show that 1. \(\beta\)-reduction is confluent 2. commuting conversion is confluent and 3. the two commute. 
+For the second, strong normalisation
+  of commuting conversion can be shown by a simple \(\mathbb{N}\)-valued measure
+  (\formline{ReductionConfluence.v}{114}{strong_nor}),
+  so showing local confluence is enough by Newman's lemma (\formline{ReductionConfluence.v}{148}{confluent}).
+  This is painful due to the many critical
+  pairs, so we have checked this with the automated tool \textsc{CSI\textsuperscript{ho}}
+  \cite{Nagele2017}.
+\end{proof}
+
 \begin{proof}
   We use the Hindley-Rosen lemma \cite[Prop. 3.3.5]{Barendregt1985}, by which
   it suffices to show that 1. \(\beta\)-reduction is confluent 2. commuting
