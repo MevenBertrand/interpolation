@@ -128,7 +128,7 @@ This was soon recognized as a central result of first-order logic~\cite{Feferman
 
 Proof-theoretic methods to establish Craig's theorem essentially relied on
 cut admissibility in the sequent calculus and on the subformula property~\cite{Maehara,Prawitz1965-PRANDA}. This very fact, providing well-structured methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
-plays an important role when generalising interpolation to various logics as mentioned above, as well as in the existence of finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to the polarity of predicate symbol occurrences, and (ii) Uniform interpolation~\cite{PittsXXX},
+plays an important role when generalising interpolation to various logics as mentioned above, as well as in the existence of finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to the polarity of predicate symbol occurrences, and (ii) Uniform interpolation~\cite{Pitts92},
 in which, given a formula $A$, a single interpolant can be generated, uniformly, for a whole sub-language.
 
 %\begin{itemize}
@@ -140,11 +140,14 @@ in which, given a formula $A$, a single interpolant can be generated, uniformly,
 
 \subparagraph*{Proof-relevant Interpolation}
 Considering the importance of proof-theoretic methods for interpolation, it is not so surprising that interpolation theorems can be given a proof-relevant refinement, as recently advocated by Saurin~\cite{Saurin25fscd}. This means that not only can one factor the entailment through the interpolant formula, but also that
-the proof from and to the interpolant, once composed, yield the original proof.
+the proofs from and to the interpolant, once composed, yield the original proof.
 Even more interesting is that proof-relevant interpolation was implicit in
 Maehara's original results from the 60's.
 
-This is exactly what was at stake with \v Cubri\'c's interpolation theorem~\cite{Cubricphd,Cubric1994} for the simply typed lambda-calculus with sums and empty types (\stlcp), a proof-relevant refinement of Prawitz' proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction. Owing to the fact that \stlcp is the internal language
+This is exactly what was at stake with \v Cubri\'c's interpolation theorem~\cite{Cubricphd,Cubric1994} for the simply typed lambda-calculus with sums and empty types (\stlcp), a proof-relevant refinement of Prawitz' proof of interpolation~\cite{Prawitz1965-PRANDA} for natural deduction. 
+This theorem essentially states that for every types $A,B$ and every normal term $t$ with a single variable $x$ such that $x: A \vdash t: B$, there is a type $C$ built from the atomic types occurring both in $A$ and $B$ and terms $x: A \vdash u: C$ and $y: C \vdash v: B$ such that 
+$\red{(\lambda y. v)u} t$.
+Owing to the fact that \stlcp is the internal language
 of bi-cartesian closed categories (biCCC), \v Cubri\'c moreover
 leverages his interpolation result to obtain categorical results,
 including categorifications of Pitt's results on Heyting algebras, the
