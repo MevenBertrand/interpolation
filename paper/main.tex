@@ -516,7 +516,7 @@ does not hold of arbitrary derivations, but is satisfied by those which
 are sufficiently normalised, \ie cut-free proofs \cite{Girard1989}.
 In a derivation satisfying the subformula property, no formula is ever “invented”,
 a powerful structural property with many consequences. Interpolation is
-for instance typically proven for cut-free derivation.
+for instance typically proven for cut-free derivations.
 One then obtains properties for all provable
 statements by a combination of cut elimination, by which every
 proof is equal to a cut-free one, and an analysis of cut-free proofs, which can
@@ -547,7 +547,7 @@ typing can be used to capture normal forms, since
 these correspond to cut-free proofs which have a good
 subformula property. This is, however, a remark with powerful consequences:
 because bidirectional type systems have a nice, inductive structure, they
-give a good basis on which to build clean proof of theorems that rely on
+give a good basis on which to build clean proofs of theorems that rely on
 the subformula property, such as interpolation. The remainder of this article
 is dedicated to delivering that idea: the rest of this section sets up the
 bidirectional characterisation of normal forms, while \cref{sec:interpolation}
@@ -589,9 +589,13 @@ derives the interpolation result.
   \label{rule:cst-b} \and
   \inferdef[Var]{(x : A) \in \Gamma}{\infer{\Gamma}{x}{A}}
   \label{rule:var-b} \\
-  \inferdef[Proj]{\infer{\Gamma}{p}{A \times B}}{
-      \infer{\Gamma}{\pi_1(p)}{A} \and \infer{\Gamma}{\pi_2(p)}{B}} \and
-  \label{rule:proji-b} \and
+%  \inferdef[Proj]{\infer{\Gamma}{p}{A \times B}}{
+%      \infer{\Gamma}{\pi_1(p)}{A} \and \infer{\Gamma}{\pi_2(p)}{B}} \and
+  \inferdef[Proj$_1$]{\infer{\Gamma}{p}{A \times B}}{
+      \infer{\Gamma}{\pi_1(p)}{A}} \and
+        \inferdef[Proj$_2$]{\infer{\Gamma}{p}{A \times B}}{
+      \infer{\Gamma}{\pi_2(p)}{B}} 
+        \label{rule:proji-b} \and
   \inferdef[App]{\infer{\Gamma}{t}{A \to B} \\ \check{\Gamma}{u}{A}}{
       \infer{\Gamma}{t~\ccol{u}}{B}}
   \label{rule:app-b}
@@ -602,7 +606,7 @@ derives the interpolation result.
 
 \end{figure}
 
-Our bidirectional type system is in \cref{fig:bidir}, and was
+Our bidirectional type system is given in \cref{fig:bidir}, and was
 inspired by the normal forms of Abel and Sattler~\cite{Abel2019}
 ---suitably modified to not enforce \(\eta\)-long forms. It can be interpreted in two ways.
 
@@ -646,7 +650,7 @@ is again a neutral. But with commuting conversions this will not do,
 as an eliminator on top of \(\rai\) or \(\iteop\) reduces. So in that view too,
 it makes sense to classify these as normal forms but not neutrals.
 
-We prove this adequately captures well-typed terms that do not reduce,
+We prove that this adequately captures well-typed terms that do not reduce,
 \ie that our inductive characterisation indeed captures normal forms in the
 more traditional sense.
 % Here we express the theorems only for normal forms,
