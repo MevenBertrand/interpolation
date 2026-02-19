@@ -1,5 +1,5 @@
 %!LW recipe=pdflatex
-\documentclass[a4paper,UKenglish,cleveref, autoref, thm-restate]{lipics-v2021}
+\documentclass[a4paper,UKenglish,cleveref, autoref, thm-restate,anonymous]{lipics-v2021}
 %This is a template for producing LIPIcs articles. 
 %See lipics-v2021-authors-guidelines.pdf for further information.
 %for A4 paper format use option "a4paper", for US-letter use option "letterpaper"
@@ -64,7 +64,7 @@ Bidirectional Interpolation for the Lambda-Calculus}
 
 \author{Meven {Lennon-Bertrand}}{Université Paris Cité, INRIA, CNRS, IRIF, F-75013 Paris, France}{meven.bertrand@inria.fr}{https://orcid.org/0000-0002-7079-8826}{}
 
-\author{Alexis Saurin}{Université Paris Cité, CNRS, INRIA, IRIF, F-75013 Paris, France}{Alexis.Saurin@irif.fr}{https://orcid.org/0009-0002-1304-5518}{}
+%\author{Alexis Saurin}{Université Paris Cité, CNRS, INRIA, IRIF, F-75013 Paris, France}{Alexis.Saurin@irif.fr}{https://orcid.org/0009-0002-1304-5518}{}
 
 \authorrunning{M. Lennon-Bertrand and A. Saurin}
 
@@ -1135,8 +1135,9 @@ about boring goals altogether.
 the solver \texttt{asimpl} for equations between substitutions.
 This saves us much boring work, particularly when reasoning about
 when proving that \(\red{\subs{r}{l..}}{t}\) in \cref{thm:interpolation-ind}, which
-involves rather nasty terms. Although very useful, the tool still has
-a few caveats. First and foremost,
+involves rather nasty terms. 
+\as{J'ai l'impression que le second "when" est de trop: "particularly when reasoning about proving ..."}
+Although very useful, the tool still has a few caveats. First and foremost,
 \texttt{asimpl} is actually incomplete, because it is missing the equation
 \(((\sigma \pcomp \wk),\sigma(x_0)) = \sigma\), where \(x_0\) is the last
 variable in context. Concretely, \texttt{asimpl} does not recognise identification
@@ -1159,9 +1160,9 @@ is that \textsc{Sulfur} currently only supports a single type of terms, while
 we use \textsc{Autosubst} to also deal with substitutions for eliminations.
 
 As more long-term goals, we also had frictions with lemmas not applying
-to a goal because their conclusion only unified with it up to
+to a goal because their conclusion only unified with it \as{the goal} up to
 substitution equations. Integrating a form of matching modulo the substitution calculus would
-be a very interesting extension. Additionally, one of the daunting aspect of the
+be a very interesting extension. Additionally, one of the daunting aspect \as{aspects?} of the
 confluence proof we were afraid to formalise is the need to deal with multiple relations,
 and various forms of congruence, incurring much boilerplate
 reasoning about congruence closures, which is already tedious
