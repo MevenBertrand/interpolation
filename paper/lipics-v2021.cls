@@ -424,18 +424,17 @@
   \vskip3\p@
   \fontsize{9}{12}\selectfont
   \noindent\ignorespaces}
-  {\vskip\topmattervskip\baselineskip\noindent
-   \subjclassHeading
+  {
    \ifx\@ccsdescString\@empty
-     \textcolor{red}{Author: Please fill in 1 or more \string\ccsdesc\space macro}%
    \else
-     \@ccsdescString
+      \vskip\topmattervskip\baselineskip\noindent
+      \subjclassHeading \@ccsdescString
    \fi
    \vskip\topmattervskip\baselineskip
-   \noindent\keywordsHeading
    \ifx\@keywords\@empty
-     \textcolor{red}{Author: Please fill in \string\keywords\space macro}%
+    %  \textcolor{red}{Author: Please fill in \string\keywords\space macro}%
    \else
+     \noindent\keywordsHeading
      \@keywords
    \fi
    \ifx\@hideLIPIcs\@undefined
@@ -521,7 +520,7 @@
 \IfFileExists{fontawesome5.sty}{%
 \RequirePackage{fontawesome5}%
 \IfFileExists{orcid.pdf}{%
-\def\orcidsymbol{\includegraphics[height=9\p@]{orcid}}
+\def\orcidsymbol{\includegraphics[height=9\p@]{orcid.pdf}}
 }{
 \def\orcidsymbol{\textcolor{lipicsGray}{\fontsize{9}{12}\sffamily\bfseries \faOrcid}}%
 }

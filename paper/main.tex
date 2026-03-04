@@ -1,5 +1,4 @@
-%!LW recipe=pdflatex
-\documentclass[a4paper,UKenglish,cleveref, autoref, thm-restate,anonymous]{lipics-v2021}
+\documentclass[a4paper,UKenglish,cleveref, autoref, thm-restate]{lipics-v2021}
 %This is a template for producing LIPIcs articles. 
 %See lipics-v2021-authors-guidelines.pdf for further information.
 %for A4 paper format use option "a4paper", for US-letter use option "letterpaper"
@@ -16,6 +15,9 @@
 %\hideLIPIcs  %uncomment to remove references to LIPIcs series (logo, DOI, ...), e.g. when preparing a pre-final version to be uploaded to arXiv or another public repository
 
 %\graphicspath{{./graphics/}}%helpful if your graphic files are in another directory
+
+\nolinenumbers
+\hideLIPIcs
 
 \Crefname{section}{Sec.}{Secs.}
 \Crefname{figure}{Fig.}{Figs.}
@@ -64,13 +66,13 @@ Bidirectional Interpolation for the Lambda-Calculus}
 
 \author{Meven {Lennon-Bertrand}}{Université Paris Cité, INRIA, CNRS, IRIF, F-75013 Paris, France}{meven.bertrand@inria.fr}{https://orcid.org/0000-0002-7079-8826}{}
 
-%\author{Alexis Saurin}{Université Paris Cité, CNRS, INRIA, IRIF, F-75013 Paris, France}{Alexis.Saurin@irif.fr}{https://orcid.org/0009-0002-1304-5518}{}
+\author{Alexis Saurin}{Université Paris Cité, CNRS, INRIA, IRIF, F-75013 Paris, France}{Alexis.Saurin@irif.fr}{https://orcid.org/0009-0002-1304-5518}{}
 
 \authorrunning{M. Lennon-Bertrand and A. Saurin}
 
 \Copyright{Meven Lennon-Bertrand and Alexis Saurin}
 
-\ccsdesc[100]{\textcolor{red}{Replace ccsdesc macro with valid one}} %TODO mandatory: Please choose ACM 2012 classifications from https://dl.acm.org/ccs/ccs_flat.cfm 
+% \ccsdesc[100]{\textcolor{red}{Replace ccsdesc macro with valid one}} %TODO mandatory: Please choose ACM 2012 classifications from https://dl.acm.org/ccs/ccs_flat.cfm 
 
 \keywords{Craig Interpolation, Bidirectional Typing, Typed Lambda Calculus}
 
@@ -79,8 +81,8 @@ Bidirectional Interpolation for the Lambda-Calculus}
 % \relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
 %\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
 
-%\supplement{}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
-%\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
+\supplement{}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplementdetails[linktext={anonymous.4open.science/r/interpolation-stlc}]{Rocq Formalisation}{https://anonymous.4open.science/r/interpolation-stlc} %linktext, cite, and subcategory are optional
 
 %\funding{(Optional) general funding statement \dots}%optional, to capture a funding statement, which applies to all authors. Please enter author specific funding statements as fifth argument of the \author macro.
 
@@ -218,7 +220,7 @@ The same name with different colours denotes
 % For instance, when we learn that a source type
 % only contains target vocabulary, it is now a valid interpolant
 % and thus changes colour.
-Throughout the text, \formfile[]{} indicates links to the (anonymised) code.
+Throughout the text, \formfile[]{}[] indicates links to the (anonymised) code.
 
 \section{The simply-typed \(\lambda\)-calculus with sums}
 
@@ -1448,7 +1450,8 @@ types and terms in that context, a good version of proof-relevant interpolation
 is a nice place to start. Here one evident difficulty is that, contrarily
 to the simply-typed case, commuting conversions are not in general well-typed
 in dependent type theory. A typical example is the so-called ``convoy pattern'',
-in \Rocq syntax:
+in \Rocq syntax:\\
+\begin{minipage}{\linewidth}
 \lstset{backgroundcolor=\color{white}}
 \begin{coq}
 Definition head {A n} (x : Vector.t A (S n)) : A :=
@@ -1457,6 +1460,7 @@ Definition head {A n} (x : Vector.t A (S n)) : A :=
     | cons _ a _ _ => fun _ => a
   end eq_refl.
 \end{coq}
+\end{minipage}\\
 Here pushing the application inside the branch is not well-typed, because
 the type of the branches, which is given by the \texttt{return} clause,
 is not the same as that of the entire match: the first branch has type
