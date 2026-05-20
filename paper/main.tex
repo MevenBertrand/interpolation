@@ -151,7 +151,8 @@ Craig's interpolation theorem~\cite{Craig57,Craig57a} expresses a desirable, tho
 This was soon recognized as a central result of first-order logic~\cite{Feferman08,vanBenthem08} with application in both mathematical logic~\cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08} (notably an elegant proof of Beth's definability theorem and of Robinson's joint consistency theorem) and computer science~\cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18} (with applications in database query planning or modularisation of model-checking), and numerous generalizations to extensions or restrictions of classical logic~\cite{Vaananen08,Schutte,Prawitz1965-PRANDA}.
 
 Proof-theoretic methods to establish Craig's theorem essentially rely on
-cut admissibility in the sequent calculus and on the subformula property~\cite{Maehara,Prawitz1965-PRANDA}. This very fact, providing well-structured methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
+cut admissibility in the sequent calculus and the resulting the subformula property~\cite{Maehara,Prawitz1965-PRANDA}: indeed, the subformula property -- a property that holds for cut-free derivations, requiring that every formula appearing in the derivation is a subformula of some formula in the conclusion judgement, hypothesis or conclusion -- allows to control the language of the interpolant. 
+This very fact, providing well-structured methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
 plays an important role when generalising interpolation to various logics as mentioned above, as well as in the existence of finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to the polarity of predicate symbol occurrences, and (ii) uniform interpolation~\cite{Pitts92},
 in which, given a formula $A$, a single interpolant can be generated, uniformly, for a whole sub-language.
 
@@ -227,6 +228,13 @@ for a calculus with commuting conversions; we relate normal
 forms to bidirectional typing, and
 use this in a new proof of proof-relevant interpolation.
 
+\subparagraph*{Organisation}
+The paper is organised as follows. 
+In \Cref{sec:stlc-sums} we recall the definition and basic properties of the simply typed  \(\lambda\)-calculus with sums with a focus on commuting conversions.
+\Cref{sec:bidirectional} introduces a bidirectional type system and shows that it characterises the normal forms of \stlcp; on the way, we establish normalisation of \stlcp to strengthen the interpolation result that we establish in \Cref{sec:interpolation}: in this section we prove a proof-relevant Lyndon's interpolation theorem, first for the constant-free calculus and later extend it to handle constants and equations.
+ We discuss formalisation choices in \Cref{sec:formalisation} and related works in 
+\Cref{sec:related} before conclude in \Cref{sec:conclusion} discussing various directions of future work.
+
 \subparagraph*{Notations} We work in dependent type theory, but
 to avoid confusion between judgments of the ambiant logic and those of
 the object language,
@@ -246,6 +254,7 @@ cue. Accordingly, the same name with different colours denotes
 Throughout the text, \formfile[]{}[] indicates links to the code.
 
 \section{The simply-typed \(\lambda\)-calculus with sums}
+\label{sec:stlc-sums}
 
 \subsection{Syntax}
 
@@ -553,6 +562,7 @@ although we do not explore this further here, and refer to
 \Cubric \cite{Cubric1994,Cubricphd} for details.
 
 \section{Bidirectional typing, normal forms and the subformula property}
+\label{sec:bidirectional}
 
 In logic, a key characteristic of derivations is the \emph{subformula property}, satisfied
 when every formula appearing in the derivation is a subformula of some formula
@@ -1217,6 +1227,7 @@ final theorem is the following:
 
 
 \section{On formalisation choices: highs and lows of automation}
+\label{sec:formalisation}
 
 As often in this sort of work, proofs are relatively straightforward
 once the right organisation --~\eg induction statements~-- have been found.
@@ -1332,6 +1343,7 @@ in the form of libraries for congruence closures or automation, maybe by
 having \textsc{CSI\textsuperscript{ho}} generate proof witnesses.
 
 \section{Related work}
+\label{sec:related}
 
 % We discuss some of the most related works, about proof-relevant interpolation, formalised interpolation results, normalisation properties with sums as well as related works on bidirectional typing. 
 
@@ -1428,6 +1440,7 @@ the bidirectional discipline and System L's structure.
 It seems enticing to explore the connections between these.
 
 \section{Conclusion}
+\label{sec:conclusion}
 
 \paragraph*{Summary}
 
