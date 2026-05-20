@@ -63,8 +63,6 @@ code/Makefile.rocq.conf
 
 paper/main.pdf
 
-code/docs/*
-
 notes/notes.pdf
 
 code/theories/mwe.v

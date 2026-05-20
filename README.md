@@ -37,7 +37,7 @@ The main theorems are in [Theorems](./code/theories/Theorems.v). To avoid having
 
 We include in the `confluence` subfolder the [CSIho](http://cl-informatik.uibk.ac.at/software/csi/ho/) tool and [file](./confluence/comm_cuts.trs) we used to check confluence. The command to invoke is in the [Makefile](./confluence/Makefile) (depending on the way the folder has been downloaded, it might be necessary to make the relevant files executable, eg by using `chmod`).
 
-In the output the relevant line is  the one saying
+In the output the relevant line is the one saying
 ```
   critical peaks: 12, all joinable
 ```
