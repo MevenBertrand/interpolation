@@ -1,11 +1,12 @@
-# TODO in the next version
+# For the next version
 
-- add comparison to formalisation of linear languages with masks
+- add comparison to formalisation of linear languages with masks DONE
 - fix related work to Férée et al DONE
 - fix citation to Abel et al DONE
 - reference to Pfenning DONE
-- make repo public + links
-- acks
+- make repo public + links DONE
+- acks TODO
+- funding TODO
 
 # Reviews
 
@@ -54,7 +55,7 @@ DONE
 
 > l224 I am not sure how Definition 9 precisely relates to the formalisation. For example, in the formalisation, there is no difference between raw values and values; in the case of bottom, you require that v is covered by neutrals in the formalisation and by raw values in the paper, and there are other differences. 
 
-TODO
+DONE
 
 > l225 It think 'if' should be omitted and also the close use of both 'or' and 'and' is a bit confusing at first reading
 
@@ -102,7 +103,3 @@ DONE
 > Line edits:
 
 DONE
-
-Meta-Review: Comments for authors
----------------------------------
-The reviewers found this to be an interesting and well-presented paper that is likely to be useful for future work on proof-relevant interpolation. Including a short plan at the outset would make the overall flow easier to follow.

@@ -57,12 +57,9 @@
 
 \setlength\fboxsep{2pt}
 
-\title{
-	%A Type-Theorist's View on Interpolation}
-  % TODO I'm sure we can do better
-Bidirectional Interpolation for the Lambda-Calculus}
+\title{Bidirectional Interpolation for the \(\lambda\)-Calculus}
 \subtitle{Revisiting and Formalising Craig-\v Cubri\' c Interpolation}
-\titlerunning{Bidirectional Interpolation for the Lambda-Calculus}
+\titlerunning{Bidirectional Interpolation for the \(\lambda\)-Calculus}
 
 \author{Meven {Lennon-Bertrand}}{Université Paris Cité, INRIA, CNRS, IRIF, F-75013 Paris, France}{meven.bertrand@inria.fr}{https://orcid.org/0000-0002-7079-8826}{}
 
@@ -72,7 +69,30 @@ Bidirectional Interpolation for the Lambda-Calculus}
 
 \Copyright{Meven Lennon-Bertrand and Alexis Saurin}
 
-% \ccsdesc[100]{\textcolor{red}{Replace ccsdesc macro with valid one}} %TODO mandatory: Please choose ACM 2012 classifications from https://dl.acm.org/ccs/ccs_flat.cfm 
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10003752.10003790.10003792</concept_id>
+       <concept_desc>Theory of computation~Proof theory</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003752.10003790.10011740</concept_id>
+       <concept_desc>Theory of computation~Type theory</concept_desc>
+       <concept_significance>300</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003752.10010124.10010125.10010130</concept_id>
+       <concept_desc>Theory of computation~Type structures</concept_desc>
+       <concept_significance>300</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Theory of computation~Proof theory}
+\ccsdesc[300]{Theory of computation~Type theory}
+\ccsdesc[300]{Theory of computation~Type structures}
+
 
 \keywords{Craig Interpolation, Bidirectional Typing, Typed Lambda Calculus}
 
@@ -81,8 +101,9 @@ Bidirectional Interpolation for the Lambda-Calculus}
 % \relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
 %\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
 
-\supplement{}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
-\supplementdetails[linktext={anonymous.4open.science/r/interpolation-stlc}]{Rocq Formalisation}{https://anonymous.4open.science/r/interpolation-stlc} %linktext, cite, and subcategory are optional
+\supplement{Source code}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplementdetails[linktext={10.5281/zenodo.20308175}]{Zenodo archive}{https://doi.org/10.5281/zenodo.20308175} %linktext, cite, and subcategory are optional
+\supplementdetails{Github repository}{https://github.com/MevenBertrand/interpolation} %linktext, cite, and subcategory are optional
 
 %\funding{(Optional) general funding statement \dots}%optional, to capture a funding statement, which applies to all authors. Please enter author specific funding statements as fifth argument of the \author macro.
 
@@ -92,17 +113,17 @@ Bidirectional Interpolation for the Lambda-Calculus}
 
 
 %Editor-only macros:: begin (do not touch as author)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\EventEditors{John Q. Open and Joan R. Access}
+\EventEditors{Ekaterina Komendantskaya and Tobias Nipkow}
 \EventNoEds{2}
-\EventLongTitle{42nd Conference on Very Important Topics (CVIT 2016)}
-\EventShortTitle{CVIT 2016}
-\EventAcronym{CVIT}
-\EventYear{2016}
-\EventDate{December 24--27, 2016}
-\EventLocation{Little Whinging, United Kingdom}
+\EventLongTitle{17th International Conference on Interactive Theorem Proving (ITP 2026)}
+\EventShortTitle{ITP 2026}
+\EventAcronym{ITP}
+\EventYear{2026}
+\EventDate{July 26--29, 2026}
+\EventLocation{Lisbon, Portugal}
 \EventLogo{}
-\SeriesVolume{42}
-\ArticleNo{23}
+\SeriesVolume{382}
+\ArticleNo{34}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
@@ -208,8 +229,8 @@ use this in a new proof of proof-relevant interpolation.
 \subparagraph*{Notations} We work in dependent type theory, but
 to avoid confusion between judgments of the ambiant logic and those of
 the object language,
-we denote meta-level typing as \(\mty\) and use \(\Prop\) and \(\Set\)
-for meta-level universes of propositions and types --~of which we need only one.
+we denote meta-level typing as \(\mty\) and the meta-level universes
+of propositions as \(\Prop\).
 %
 Colours are used to suggest information:
 a term being \textcolor{ccol}{normal} or \textcolor{icol}{neutral},
@@ -291,8 +312,8 @@ we likewise include a language of constants.
   \label{def:lang}
   A \emph{language} \(\lang\) consists of:
   \begin{itemize}
-    \item a set of base types \(\base \in \Set\);
-    \item a set \(\const \in \Set\) of constants;
+    \item a set \(\base\) of base types;
+    \item a set \(\const\) of constants;
     \item types for each constant, \ie
       a function \(\tyof \in \const \to \Ty_{\base}\).%
     \footnote{\(\Ty_{\base}\) is the set of types generated by
@@ -569,7 +590,7 @@ is that type information always comes from somewhere and is never invented.
 With this view it is perhaps less surprising that bidirectional
 typing can be used to capture normal forms, since
 these correspond to cut-free proofs which have a good
-subformula property. This is, however, a remark with powerful consequences:
+subformula property. This remark, however, has powerful consequences:
 because bidirectional type systems have a nice, inductive structure, they
 give a good basis on which to build clean proofs of theorems that rely on
 the subformula property, such as interpolation. The remainder of this article
@@ -630,11 +651,11 @@ derives the interpolation result.
 
 \end{figure}
 
-Our bidirectional type system is given in \cref{fig:bidir}, and is
-inspired by the normal forms of Abel and Sattler~\cite{Abel2019a}
---~suitably modified to not enforce \(\eta\)-long forms. It can be interpreted in two ways.
+Our bidirectional type system is given in \cref{fig:bidir}. It is
+inspired by the normal forms of Abel and Sattler~\cite{Abel2019a},
+modified to not enforce \(\eta\)-long forms. It can be interpreted in two ways.
 
-In the bidirectional mindset, the rules can be read as
+In the bidirectional mindset, rules can be read as
 a typing algorithm for a fragment of \stlcp. Rules for the inference judgment
 \(\infer{\Gamma}{t}{A}\) correspond to settings where it is feasible to infer
 the type \(A\) from \(t\), by inferring that of a carefully chosen subterm
@@ -710,21 +731,21 @@ which goes by induction on types.
 As is standard, values at negative
 types are normal forms whose observations are reducible:%
 \footnote{Reducible terms are those which reduce to values.}
-a value at a pair type has reducible projections, and a value
+a value at a pair type is one with reducible projections, and a value
 at function type takes value inputs to reducible outputs.
-% This works fine here.
-% however, things are trickier at positive types. Usually, one
-% would say that a value at a positive type is given either by a constructor
-% or a neutral. This will not do here,
-To describe values at positive types, we must take into account eliminations
-of \(+\) and \(\bot\), which are not neutrals. This leads us to introduce
-a notion of covering, capturing terms with the shape of a case tree,
-with nodes containing eliminations of neutrals at positive types, and leaves
-satisfying a given predicate (in a suitably extended context). It
+
+However, things are trickier at positive types. Usually, one
+would say that a value at a positive type is given either by a constructor
+or a neutral. This will not do here, as we must take into account eliminations
+of \(+\) and \(\bot\), which are not neutrals. Instead, normal forms at positive
+types are case trees, with nodes branching on neutrals of positive
+types, and leaves having the usual shape of a neutral or a constructor.
+To capture this, we introduce a notion of \emph{covering}, which
+more generally describes terms with a case tree structure, and
 echoes the use of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019a}.
 
 \begin{definition}[\formline{MetaTheory.v}{97}{covered} Covering]
-  A term \(t \in \Tm(\Delta,A)\) is \emph{covered} by the predicate
+  A term \(t \in \Tm(\Delta,A)\) is \emph{covered} by a predicate
     \(F \in (\Gamma \in \Ctx) \to \Tm(\Gamma,A) \to \Prop\)
   if either:
   \begin{itemize}
@@ -740,7 +761,7 @@ echoes the use of the free cover monad in \textit{op.\ cit.}~\cite{Abel2019a}.
 \end{definition}
 
 We can view this as lifting a base predicate \(F\) to a
-new one which incorporates the special structure of positive eliminations.
+new one which incorporates the case tree structure.
 Indeed, given any predicate \(F \in (\Gamma \in \Ctx) \to \Tm(\Gamma,A) \to \Prop\),
 ``being covered by \(F\)'' is again a predicate of the same type.
 
@@ -748,21 +769,19 @@ Indeed, given any predicate \(F \in (\Gamma \in \Ctx) \to \Tm(\Gamma,A) \to \Pro
 % on types.
 
 \begin{definition}[\formline{MetaTheory.v}{135}{value} Values]
-  A \emph{raw value} at a type \(T\) is a term \(t \in \Tm(\Gamma,T)\)
+  A \emph{raw value} at a positive type \(P\) is a \(t \in \Tm(\Gamma,T)\)
   such that:
   \begin{itemize}
-    \item \(T\) is a base type and \(t\) is neutral;
-    \item \(T\) is \(\bot\) and \(t\) is neutral;
-    \item \(T\) is \(\top\) and \(t\) is either neutral or \(\star\);
-    \item \(T\) is \(A + B\) and \(t\) is either neutral, \(\inl(a)\) where
+    \item \(P\) is a base type and \(t\) is neutral;
+    \item \(P\) is \(\bot\) and \(t\) is neutral;
+    \item \(P\) is \(A + B\) and \(t\) is either neutral, \(\inl(a)\) where
       \(a\) is a value of type \(A\) in \(\Gamma\), or \(\inr(b)\) where \(b\) is
       a value of type \(B\) in \(\Gamma\).
   \end{itemize}
 
   A \emph{value} at type \(T\) is a term \(v \in \Tm(\Gamma,T)\) such that:
   \begin{itemize}
-    \item if \(T\) is a positive type (base type, \(\bot\), \(A + B\)), \(v\) is
-      covered by raw values;
+    \item if \(T\) is a positive type, \(v\) is covered by raw values;
     \item if \(T\) is \(\top\), \(v\) is a normal form;
     \item if \(T\) is \(A_1 \times A_2\), \(v\) is a normal form and \(\proj{i}{v}\)
       is reducible at \(A_i\);
@@ -1253,12 +1272,12 @@ conversion, we were afraid to simply drown in extremely uninteresting lemmas.
 It seems possible to extend \textsc{Autosubst}/\textsc{Sulfur} to
 deal with such issues of congruence closure, which would remove a great amount of tedium.
 
-As an alternative, we should mention \textsc{Pyrosome} \cite{Jamner2025}, which
-also automates syntax-related reasoning, directly at the level 
-of typed syntax (specified as a generalised algebraic theory
-\cite{Cartmell1986,Kaposi2019a}). While this has the advantage of
-also handling some typing-related boilerplate, it does not come
-with a decision procedure, an extremely valuable part of \textsc{Autosubst}.
+% As an alternative, we should mention \textsc{Pyrosome} \cite{Jamner2025}, which
+% also automates syntax-related reasoning, directly at the level 
+% of typed syntax (specified as a generalised algebraic theory
+% \cite{Cartmell1986,Kaposi2019a}). While this has the advantage of
+% also handling some typing-related boilerplate, it does not come
+% with a decision procedure, an extremely valuable part of \textsc{Autosubst}.
 
 Finally, more specific to our setting is the need to reason about context splitting.
 We do this by maintaining weakenings which relate the split contexts

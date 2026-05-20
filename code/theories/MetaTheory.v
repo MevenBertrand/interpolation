@@ -129,7 +129,7 @@ Section Normalisation.
     exists t', t ⤳* t' /\ c Γ T t'.
 
   (**
-    A value at positive type is a cover of "proper values", which are either neutrals or constructors.
+    A value at positive type is a cover of "raw values", which are either neutrals or constructors.
     A value at negative type is a normal form that, when observed, yields reducible terms. *)
 
   Fixpoint value (Γ : context) (T : type) (t : term) : Prop :=
