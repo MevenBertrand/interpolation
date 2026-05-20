@@ -1253,12 +1253,22 @@ conversion, we were afraid to simply drown in extremely uninteresting lemmas.
 It seems possible to extend \textsc{Autosubst}/\textsc{Sulfur} to
 deal with such issues of congruence closure, which would remove a great amount of tedium.
 
-Finally, we should mention \textsc{Pyrosome} \cite{Jamner2025}, which
+As an alternative, we should mention \textsc{Pyrosome} \cite{Jamner2025}, which
 also automates syntax-related reasoning, directly at the level 
 of typed syntax (specified as a generalised algebraic theory
 \cite{Cartmell1986,Kaposi2019a}). While this has the advantage of
-also being able to reduce boilerplate related to typing, it does not come
-with a decision procedure, which we find extremely valuable in \textsc{Autosubst}.
+also handling some typing-related boilerplate, it does not come
+with a decision procedure, an extremely valuable part of \textsc{Autosubst}.
+
+Finally, more specific to our setting is the need to reason about context splitting.
+We do this by maintaining weakenings which relate the split contexts
+to the original one, which add noise to the equational reasoning.
+These issues are typical when working with linear languages, where
+every typing rule has to deal with context splitting. Some general
+infrastructure, based on masks, has been developed to
+deal with this in formalisation \cite{Zackon2026}. It would be interesting to
+explore whether it would simplify our proofs.
+
 
 \subparagraph*{Solvers and setoid rewriting}
 
