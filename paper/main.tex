@@ -151,10 +151,11 @@ Craig's interpolation theorem~\cite{Craig57,Craig57a} expresses a desirable, tho
 This was soon recognized as a central result of first-order logic~\cite{Feferman08,vanBenthem08} with application in both mathematical logic~\cite{Robinson56,Beth1953padoa,Feferman08,Vaananen08} (notably an elegant proof of Beth's definability theorem and of Robinson's joint consistency theorem) and computer science~\cite{Lavalette08,Troelstra_Schwichtenberg_2000,McMillan18} (with applications in database query planning or modularisation of model-checking), and numerous generalizations to extensions or restrictions of classical logic~\cite{Vaananen08,Schutte,Prawitz1965-PRANDA}.
 
 Proof-theoretic methods to establish Craig's theorem essentially rely on
-cut admissibility in the sequent calculus and the resulting the subformula property~\cite{Maehara,Prawitz1965-PRANDA}: indeed, the subformula property -- a property that holds for cut-free derivations, requiring that every formula appearing in the derivation is a subformula of some formula in the conclusion judgement, hypothesis or conclusion -- allows to control the language of the interpolant. 
-This very fact, providing well-structured methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000}
-plays an important role when generalising interpolation to various logics as mentioned above, as well as in the existence of finer-grained notions of interpolations, most notably (i) Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to the polarity of predicate symbol occurrences, and (ii) uniform interpolation~\cite{Pitts92},
-in which, given a formula $A$, a single interpolant can be generated, uniformly, for a whole sub-language.
+cut admissibility in the sequent calculus and the resulting subformula property~\cite{Maehara,Prawitz1965-PRANDA}. Indeed, this subformula property -- a property that holds for cut-free derivations, asserting that every formula appearing in the derivation is a subformula of some formula in the conclusion judgement -- allows to control the language of the interpolant. 
+This provides well-structured proof methods~\cite{Maehara,Prawitz1965-PRANDA,Takeuti2013proof,Schutte,Troelstra_Schwichtenberg_2000},
+and plays an important role when generalising interpolation to various logics,
+as well as in finer-grained notions of interpolations, most notably Lyndon interpolation~\cite{Lyndon1959interpolation}, which is sensitive to polarity, and uniform interpolation~\cite{Pitts92},
+in which a single interpolant is generated for a whole sub-language.
 
 %\begin{itemize}
 %  \item Central result in FOL \cite{Craig57,Craig57a,Lyndon1959interpolation,Maehara,Prawitz1965-PRANDA,Feferman08}
@@ -212,13 +213,13 @@ a confusion stemming from the fact that \stlcp has two notions of normal forms.
 The first is characterised as having the subformula property, which
 enables our interpolation proof. But, contrarily to the situation without sums,
 these do not give unique representative of equivalence
-classes for  biCCC's equational theory, for which one needs
-a second, stronger notion \cite{Scherer2017}. Since bidirectional typing
+classes for the equational theory of biCCCs, for which one needs
+a second, stronger notion of normal forms \cite{Scherer2017}. Since bidirectional typing
 has all to do with information flow, it naturally coincides with the
 \emph{first} kind of normal forms, although it does not correspond with the second
 any more. We believe this relation between bidirectionalism and
 the subformula property deserves more publicity, which we hope this paper can
-contribute.
+contribute towards.
 
 \subparagraph*{Contributions}
 We develop and formalise, in the \Rocq proof assistant,
@@ -229,11 +230,12 @@ forms to bidirectional typing, and
 use this in a new proof of proof-relevant interpolation.
 
 \subparagraph*{Organisation}
-The paper is organised as follows. 
-In \Cref{sec:stlc-sums} we recall the definition and basic properties of the simply typed  \(\lambda\)-calculus with sums with a focus on commuting conversions.
-\Cref{sec:bidirectional} introduces a bidirectional type system and shows that it characterises the normal forms of \stlcp; on the way, we establish normalisation of \stlcp to strengthen the interpolation result that we establish in \Cref{sec:interpolation}: in this section we prove a proof-relevant Lyndon's interpolation theorem, first for the constant-free calculus and later extend it to handle constants and equations.
- We discuss formalisation choices in \Cref{sec:formalisation} and related works in 
-\Cref{sec:related} before conclude in \Cref{sec:conclusion} discussing various directions of future work.
+The paper is organised as follows.
+In \Cref{sec:stlc-sums} we recall the definition and basic properties of the simply typed  \(\lambda\)-calculus with sums, with a focus on commuting conversions.
+\Cref{sec:bidirectional} introduces a bidirectional type system and shows that it characterises the normal forms of \stlcp; on the way, we establish normalisation of \stlcp to strengthen the interpolation result that we establish in \Cref{sec:interpolation}, where we prove a proof-relevant Lyndon-style interpolation theorem, first for the constant-free calculus
+then extended to handle constants and equations.
+We discuss formalisation choices in \Cref{sec:formalisation} and related work in 
+\Cref{sec:related}, and conclude in \Cref{sec:conclusion}.
 
 \subparagraph*{Notations} We work in dependent type theory, but
 to avoid confusion between judgments of the ambiant logic and those of
